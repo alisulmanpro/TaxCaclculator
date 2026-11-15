@@ -128,7 +128,7 @@ const monthLabel = (value: string) =>
 export default function SalaryCalculator() {
   const [tab, setTab] = useState<"single" | "multi">("single");
   const [year, setYear] = useState<FiscalYear>("2026");
-  const [salary, setSalary] = useState("10000");
+  const [salary, setSalary] = useState("");
   const [comparison, setComparison] = useState<FiscalYear>("2025");
   const [insights, setInsights] = useState(false);
   const [periods, setPeriods] = useState<SalaryPeriod[]>([blankPeriod(1, 1)]);
@@ -139,14 +139,32 @@ export default function SalaryCalculator() {
   const resultRef = useRef<HTMLDivElement>(null);
   const insightsRef = useRef<HTMLDivElement>(null);
   const insightsButton = useRef<HTMLButtonElement>(null);
-  const validSalary =
-    salary.trim() !== "" &&
-    Number.isFinite(Number(salary)) &&
-    Number(salary) >= 0 &&
-    Number(salary) <= 1000000000;
-  const gross = validSalary ? Number(salary) * 12 : 0;
+
+  const numSalary = Number(salary);
+  const isNonEmpty = salary.trim() !== "";
+  const isNumeric = Number.isFinite(numSalary);
+  const isZeroOrNegative = isNonEmpty && isNumeric && numSalary <= 0;
+  const isAboveMax = isNonEmpty && isNumeric && numSalary > 1000000000;
+  const isInvalidNumber = isNonEmpty && !isNumeric;
+
+  const hasError = isZeroOrNegative || isAboveMax || isInvalidNumber;
+  const validSalary = isNonEmpty && isNumeric && numSalary > 0 && numSalary <= 1000000000;
+
+  let errorMessage: string | null = null;
+  if (isZeroOrNegative) {
+    errorMessage = "Please enter a monthly salary greater than zero.";
+  } else if (isAboveMax || isInvalidNumber) {
+    errorMessage = "Enter a monthly salary between Rs. 1 and Rs. 1,000,000,000.";
+  }
+
+  const comparisonYears = FISCAL_YEARS.filter((v) => v !== year);
+  const activeComparison: FiscalYear = comparisonYears.includes(comparison)
+    ? comparison
+    : comparisonYears[0] ?? "2025";
+
+  const gross = validSalary ? numSalary * 12 : 0;
   const result = calculateTax({ income: gross, year });
-  const previous = calculateTax({ income: gross, year: comparison });
+  const previous = calculateTax({ income: gross, year: activeComparison });
   const difference = result.tax - previous.tax;
   const periodError = validatePeriods(periods);
   const updatePeriod = (id: number, values: Partial<SalaryPeriod>) => {
@@ -216,7 +234,7 @@ export default function SalaryCalculator() {
         aria-labelledby="salary-tab-single"
         hidden={tab !== "single"}
       >
-        <div className="salary-body">
+        <div className={`salary-body ${!validSalary ? "is-compact" : ""}`}>
           <div className="salary-input-grid">
             <label>
               Fiscal year
@@ -226,8 +244,9 @@ export default function SalaryCalculator() {
                 onChange={(event) => {
                   const next = event.target.value as FiscalYear;
                   setYear(next);
-                  setComparison(
-                    next === "2024" ? "2025" : (String(Number(next) - 1) as FiscalYear),
+                  const available = FISCAL_YEARS.filter((v) => v !== next);
+                  setComparison((prev) =>
+                    prev === next || !available.includes(prev) ? available[0] ?? "2025" : prev,
                   );
                 }}
               >
@@ -243,6 +262,7 @@ export default function SalaryCalculator() {
               <input
                 type="number"
                 aria-label="Monthly salary (Rs.)"
+                placeholder="Enter Your Monthly Salary"
                 min="0"
                 max="1000000000"
                 step="any"
@@ -250,134 +270,164 @@ export default function SalaryCalculator() {
                 onChange={(event) => {
                   const value = event.target.value;
                   setSalary(value);
+                  const num = Number(value);
                   if (
                     !value.trim() ||
-                    !Number.isFinite(Number(value)) ||
-                    Number(value) < 0 ||
-                    Number(value) > 1000000000
-                  )
+                    !Number.isFinite(num) ||
+                    num <= 0 ||
+                    num > 1000000000
+                  ) {
                     setInsights(false);
+                  }
                 }}
-                aria-invalid={!validSalary}
-                aria-describedby={!validSalary ? "salary-error" : undefined}
+                aria-invalid={hasError}
+                aria-describedby={hasError ? "salary-error" : undefined}
               />
             </label>
           </div>
-          {!validSalary && (
-            <p className="salary-error" id="salary-error">
-              Enter a monthly salary between Rs. 0 and Rs. 1,000,000,000.
+          {hasError && errorMessage && (
+            <p className="salary-error" id="salary-error" role="alert">
+              {errorMessage}
             </p>
           )}
-          <div className="salary-breakdowns" aria-live="polite">
-            {[
-              {
-                name: "Monthly breakdown",
-                gross: gross / 12,
-                tax: result.tax / 12,
-                net: result.takeHome / 12,
-              },
-              { name: "Annual breakdown", gross, tax: result.tax, net: result.takeHome },
-            ].map((card) => (
-              <div className="salary-breakdown" key={card.name}>
-                <h3>{card.name}</h3>
-                <dl>
-                  <div>
-                    <dt>Gross income</dt>
-                    <dd>{validSalary ? currency(card.gross) : "—"}</dd>
+
+          {validSalary && (
+            <>
+              <div className="salary-breakdowns" aria-live="polite">
+                {[
+                  {
+                    name: "Monthly breakdown",
+                    gross: gross / 12,
+                    tax: result.tax / 12,
+                    net: result.takeHome / 12,
+                    grossLabel: "Monthly Gross Income",
+                    taxLabel: "Monthly Tax",
+                    netLabel: "Monthly Net Income",
+                  },
+                  {
+                    name: "Annual breakdown",
+                    gross,
+                    tax: result.tax,
+                    net: result.takeHome,
+                    grossLabel: "Annual Gross Income",
+                    taxLabel: "Annual Tax",
+                    netLabel: "Annual Net Income",
+                  },
+                ].map((card) => (
+                  <div className="salary-breakdown" key={card.name}>
+                    <h3>{card.name}</h3>
+                    <dl>
+                      <div>
+                        <dt>{card.grossLabel}</dt>
+                        <dd>{currency(card.gross)}</dd>
+                      </div>
+                      <div>
+                        <dt>{card.taxLabel}</dt>
+                        <dd className="salary-tax">{currency(card.tax)}</dd>
+                      </div>
+                      <div>
+                        <dt>{card.netLabel}</dt>
+                        <dd className="salary-net">{currency(card.net)}</dd>
+                      </div>
+                    </dl>
                   </div>
-                  <div>
-                    <dt>Income tax</dt>
-                    <dd className="salary-tax">{validSalary ? currency(card.tax) : "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Net income</dt>
-                    <dd className="salary-net">{validSalary ? currency(card.net) : "—"}</dd>
-                  </div>
-                </dl>
+                ))}
               </div>
-            ))}
-          </div>
-          <div
-            className={`salary-comparison ${difference < 0 ? "is-saving" : ""}`}
-            aria-live="polite"
-          >
-            <span className="salary-comparison-icon">
-              {difference < 0 ? "↓" : difference > 0 ? "↑" : "="}
-            </span>
-            <div>
-              <span className="salary-change-tag">
-                {difference < 0 ? "Tax saving" : difference > 0 ? "Tax increase" : "No change"}
-              </span>
-              <h3>
-                {!validSalary
-                  ? "Enter your salary to compare"
-                  : Math.abs(difference) < 0.005
-                    ? "Your salary tax is unchanged"
-                    : `${currency(Math.abs(difference) / 12)} ${difference < 0 ? "less" : "more"} tax per month`}
-              </h3>
-              <label>
-                compared with{" "}
-                <select
-                  aria-label="Compare fiscal year"
-                  value={comparison}
-                  onChange={(event) => setComparison(event.target.value as FiscalYear)}
+              <div
+                className={`salary-comparison ${difference < 0 ? "is-saving" : difference > 0 ? "is-increase" : ""}`}
+                aria-live="polite"
+              >
+                <div className="salary-comparison-left">
+                  <span className="salary-comparison-icon">
+                    {difference < 0 ? "↓" : difference > 0 ? "↑" : "="}
+                  </span>
+                  <div>
+                    <span className="salary-change-tag">
+                      {difference < 0 ? "Tax saving" : difference > 0 ? "Tax increase" : "No change"}
+                    </span>
+                    <h3>
+                      {Math.abs(difference) < 0.005
+                        ? "Your salary tax is unchanged"
+                        : `${currency(Math.abs(difference) / 12)} ${difference < 0 ? "less" : "more"} tax per month`}
+                    </h3>
+                    <label>
+                      compared with{" "}
+                      <select
+                        aria-label="Compare fiscal year"
+                        value={activeComparison}
+                        onChange={(event) => setComparison(event.target.value as FiscalYear)}
+                      >
+                        {comparisonYears.map((value) => (
+                          <option value={value} key={value}>
+                            FY {fiscalLabel(value)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </div>
+                <div className="salary-comparison-right">
+                  <span className="salary-comparison-annual-label">Annual difference</span>
+                  <div className="salary-comparison-annual-val">
+                    <strong>
+                      {difference < 0
+                        ? `− ${currency(Math.abs(difference))}`
+                        : difference > 0
+                          ? `+ ${currency(Math.abs(difference))}`
+                          : currency(0)}
+                    </strong>
+                    <span>/ yr</span>
+                  </div>
+                </div>
+              </div>
+              <div className="salary-message">
+                <span className="salary-message-mark">
+                  <ToolIcon name="chart" size={29} />
+                </span>
+                <div>
+                  <h3>A clearer picture. A more confident tomorrow.</h3>
+                  <p>Every number tells a story. Make yours a plan.</p>
+                </div>
+                <span className="salary-message-aside">
+                  YOUR MONEY,
+                  <br />
+                  WITH PERSPECTIVE.
+                </span>
+              </div>
+              <div className="salary-tool-footer">
+                <div>
+                  Effective tax rate{" "}
+                  <strong>{`${result.effective.toFixed(2)}%`}</strong>
+                </div>
+                <button
+                  type="button"
+                  ref={insightsButton}
+                  className="salary-primary"
+                  aria-expanded={insights}
+                  aria-controls="salary-insights"
+                  onClick={() => {
+                    setInsights(!insights);
+                    if (!insights) requestAnimationFrame(() => scrollTo(insightsRef.current));
+                  }}
                 >
-                  {FISCAL_YEARS.map((value) => (
-                    <option value={value} key={value}>
-                      FY {fiscalLabel(value)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </div>
-          <div className="salary-message">
-            <span className="salary-message-mark">
-              <ToolIcon name="chart" size={29} />
-            </span>
-            <div>
-              <h3>A clearer picture. A more confident tomorrow.</h3>
-              <p>Every number tells a story. Make yours a plan.</p>
-            </div>
-            <span className="salary-message-aside">
-              YOUR MONEY,
-              <br />
-              WITH PERSPECTIVE.
-            </span>
-          </div>
-          <div className="salary-tool-footer">
-            <div>
-              Effective tax rate{" "}
-              <strong>{validSalary ? `${result.effective.toFixed(2)}%` : "—"}</strong>
-            </div>
-            <button
-              type="button"
-              ref={insightsButton}
-              className="salary-primary"
-              disabled={!validSalary}
-              aria-expanded={insights}
-              aria-controls="salary-insights"
-              onClick={() => {
-                setInsights(!insights);
-                if (!insights) requestAnimationFrame(() => scrollTo(insightsRef.current));
-              }}
-            >
-              <ToolIcon name="chart" size={14} />
-              {insights ? "Hide insights" : "Show insights"}
-            </button>
-          </div>
-          <div ref={insightsRef}>
-            {insights && (
-              <SalaryInsights
-                result={result}
-                year={year}
-                onClose={() => {
-                  setInsights(false);
-                  insightsButton.current?.focus();
-                }}
-              />
-            )}
-          </div>
+                  <ToolIcon name="chart" size={14} />
+                  {insights ? "Hide insights" : "Show insights"}
+                </button>
+              </div>
+              <div ref={insightsRef}>
+                {insights && (
+                  <SalaryInsights
+                    result={result}
+                    year={year}
+                    onClose={() => {
+                      setInsights(false);
+                      insightsButton.current?.focus();
+                    }}
+                  />
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -677,14 +727,16 @@ export default function SalaryCalculator() {
           )}
         </form>
       </div>
-      <div className="salary-tool-disclaimer">
-        <ToolIcon name="lock" size={12} />
-        <p>
-          Private, browser-only calculations. All amounts are Pakistani rupees (Rs.).
-          Salaried-person estimates for FY 2024–25 to FY 2026–27; excludes special reliefs, credits,
-          other income, and super tax. Not tax advice.
-        </p>
-      </div>
+      {(validSalary || tab === "multi") && (
+        <div className="salary-tool-disclaimer">
+          <ToolIcon name="lock" size={12} />
+          <p>
+            Private, browser-only calculations. All amounts are Pakistani rupees (Rs.).
+            Salaried-person estimates for FY 2024–25 to FY 2026–27; excludes special reliefs, credits,
+            other income, and super tax. Not tax advice.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
