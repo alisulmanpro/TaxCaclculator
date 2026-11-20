@@ -56,29 +56,91 @@ Single-page Pakistan Salary & Income Tax Calculator website recreated faithfully
 app/
   components/
     layout/
-      Header.tsx      ('use client' — useState for mobile menu)
-      Footer.tsx      (Server Component)
-      Logo.tsx        (Server Component — SVG brand mark)
-      nav.ts          (plain TS — nav array, shared by Header + Footer)
+      Header.tsx             ('use client' — useState for mobile menu)
+      Footer.tsx             (Server Component)
+      Logo.tsx               (Server Component — SVG brand mark)
+      nav.ts                 (plain TS — nav array, shared by Header + Footer)
+      ScrollReveal.tsx       ('use client' — IntersectionObserver reveal)
     home/
-      HeroSection.tsx      (Server Component)
-      QuoteSection.tsx     (Server Component)
-      ArticlesSection.tsx  ('use client' — dialog state)
-      FAQSection.tsx       ('use client' — accordion state)
-      ResourcesSection.tsx (Server Component)
-      BottomCTA.tsx        (Server Component)
+      HeroSection.tsx        (Server Component)
+      QuoteSection.tsx       (Server Component)
+      ArticlesSection.tsx    ('use client' — dialog state)
+      FAQSection.tsx         ('use client' — accordion state)
+      ResourcesSection.tsx   (Server Component)
+      BottomCTA.tsx          (Server Component)
     calculator/
-      SalaryCalculator.tsx  ('use client')
-      SalaryInsights.tsx    ('use client')
+      SalaryCalculator.tsx      ('use client' — backward-compatible wrapper for HeroSection)
+      SingleYearCalculator.tsx  ('use client' — new Figma Single Year UI & insights)
+      MultiYearCalculator.tsx   ('use client' — new Figma Multi-Year salary history UI)
+      SalaryInsights.tsx        ('use client' — legacy insights component retained)
+      calculator.css            (Modular CSS styling for Single & Multi-Year calculators)
+    multi-year/
+      MultiYearHeroSection.tsx  (Server Component — dedicated hero for multi-year page)
+      MultiYearFAQSection.tsx   ('use client' — 6 dedicated Multi-Year FAQ items)
+  multi-year-calculator/
+    page.tsx                 (Dedicated Multi-Year Calculator page)
 lib/
-  tax.ts              (pure TS calculation engine)
-  salary-history.ts   (multi-year calculation engine)
+  tax.ts                     (pure TS calculation engine, FY 2020-21 through 2026-27)
+  salary-history.ts          (multi-year calculation engine with proration & bonus mapping)
 ```
+
+## Routes Architecture & Navigation
+- **Homepage (`/`)**: Hosts the Single Year Calculator. Clicking the "Multi-Year" tab seamlessly links to `/multi-year-calculator`.
+- **Multi-Year Page (`/multi-year-calculator`)**: Hosts the dedicated Multi-Year Calculator. Clicking the "Single Year" tab navigates back to `/#calculator`. Also features dedicated Multi-Year FAQs, official resources, and consultation CTA.
+- Header and Footer are centrally mounted in `app/layout.tsx` and automatically serve both routes without duplication.
+
+## New Calculator Design Tokens & Reference
+- References: `design.md` and `TaxCalculato.com – Single Year and Multi-Year.html`.
+- Colors:
+  - Forest / Hero: `#0F3D2E`
+  - Cream / Page Background: `#F6F4EE`
+  - Mint / Card Accent: `#E3F5EC`
+  - Tax Accent / Contrast: `#C4705A` / `#A3452E`
+  - Card & Tile Borders: `#DDE3DF` / `#AEB9B2`
+  - Accent Green: `#08794D` / `#008857`
+- Typography: DM Sans with weights 400 to 750.
+- Layout width: 1040px max width centered container (`.calc-card`).
+
+## Calculator Behavioral State Rules
+- **Initial Salary State**:
+  - Single Year: Initial `salary: ""` (empty). Placeholder: `"Enter your Salary"`.
+  - Multi-Year: Initial 1 empty period with `salary: ""` (empty). Placeholder: `"Enter your monthly salary"`.
+- **Results Visibility**:
+  - Single Year: Hidden until user enters valid positive salary (`monthlySalary > 0 && !isAboveMax`). When hidden, `.calc-body.no-results` centers the input details column.
+  - Multi-Year: Hidden until user clicks "Calculate Taxes →". Editing period inputs immediately invalidates stale results.
+- **Insights Visibility**:
+  - Single Year: Hidden by default (`insightsOpen: false`). "Show Insights" reveals full-width section spanning both columns; toggles to "Hide Insights".
+  - Multi-Year: Visible by default after calculation (`insightsOpen: true`). User can click "Hide insights" to collapse only the insights section while keeping hero and gross/net cards visible.
+- **Chart Interactivity**:
+  - Monthly Cash Flow chart displays actual monthly PKR amounts for Gross, Tax, and Net.
+  - Interactive tooltip displays category name, exact PKR amount (`currency()`), and % of gross income on hover/tap.
+- **Layout Overflow Constraints**:
+  - Full-width insights section (`calc-insights-section: grid-column: 1 / -1`) prevents column squeezing and container blowout.
+  - All tables wrapped in `.calc-table-wrap` with horizontal scroll capability, preventing page-wide scroll.
+  - Headers configured with `white-space: normal; line-height: 1.35;` to prevent header text from expanding table width artificially.
 
 ## Reference Folder
 - Location: `h:\On-going Projects\TaxCalculato\Income Tax Calculator Homepage\`
 - This is the Vite/React project extracted from the Figma ZIP export.
 - **READ-ONLY** — do not modify any files inside it.
 - Key reference files: `src/App.tsx`, `src/index.css`, `src/SalaryCalculator.tsx`, `src/salary-calculator.css`, `src/SalaryInsights.tsx`, `src/salary-insights.css`, `src/tax.ts`, `src/salary-history.ts`
-- Old reference: `.figma-ref/` — from initial extraction, can be removed.
+- New reference files: `design.md` and `TaxCalculato.com – Single Year and Multi-Year.html` in project root.
 
+
+## Multi-Year Calculator Reset & Layout Fixes
+- **Factory Function Pattern**: `createDefaultPeriods()` produces fresh object and array references on initial state and on reset. This prevents reference sharing or stale state mutation issues during Reset actions.
+- **Layout Grid Sizing**: `.calc-body` uses `grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)` (with `1fr` at max-width: 720px) rather than `repeat(auto-fit, minmax(320px, 1fr))`, ensuring that the 2-column layout shrinks flexibly without overflowing the calculator container on mid-width viewports.
+
+
+## Results Overflow & Live Number Formatting (Phase 17)
+- **Multi-Year Results Overflow Root Causes & Fix**:
+  - Global `min-width: 500px` on `.calc-table` caused the 4-column Multi-Year table inside the ~472px right-hand column to blow out parent layout. Scoped `min-width: 500px` to `.calc-insights-section .calc-table`, while `.calc-col .calc-table` uses `width: 100%; min-width: 100%;` with compact padding.
+  - Added `min-width: 0; width: 100%; max-width: 100%; box-sizing: border-box;` on all result containers (`.calc-col`, `.calc-result-col`, `.calc-hero-card`, `.calc-mint-card`, `.calc-tile`, `.calc-tile-result`).
+  - Added `word-break: break-word; overflow-wrap: anywhere;` to `.calc-hero-val` and `.calc-stat-val` to prevent large currency numbers (e.g., Rs. 50,000,000) from forcing container width expansion.
+  - Set `@media (max-width: 900px)` on `.calc-body` to stack columns naturally on tablet and mobile viewports, while preserving 2-column desktop balance.
+- **Live Comma Number Formatting (`lib/format.ts`)**:
+  - Uses `formatWithCommas()` to format numbers with thousands separators live as the user types (e.g. 1000 → 1,000, 1000000 → 1,000,000).
+  - Uses `cleanNumber()` to strip commas before calculation, preventing `NaN` and preserving mathematical precision.
+  - Tracks non-comma characters before cursor in `calculateNewCursor()` and updates selection via `requestAnimationFrame`, preventing cursor jumping during typing, editing in the middle, or pasting.
+  - Handles Backspace across commas in `handleFormattedInputKeyDown()` to prevent cursor trapping.
+  - Allows empty input without forcing zero; Reset clears all formatted inputs completely.

@@ -1307,6 +1307,10 @@ footer {
     padding: 30px 28px 0;
 }
 
+.salary-body.is-compact {
+    padding-bottom: 28px;
+}
+
 .salary-input-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1320,9 +1324,9 @@ footer {
 
 .salary-tool label {
     display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: #485441;
+    font-size: 14px;
+    font-weight: 600;
+    color: #303d2c;
 }
 
 .salary-tool input,
@@ -1330,14 +1334,33 @@ footer {
     width: 100%;
     min-width: 0;
     display: block;
-    padding: 11px 12px;
+    padding: 11px 13px;
     border: 1px solid #c4d0be;
     border-radius: 7px;
     margin-top: 8px;
-    font-size: 13px;
+    font-size: 15px;
+    font-weight: 600;
     background: #fff;
-    color: #35402f;
-    height: 44px;
+    color: #1e261d;
+    height: 46px;
+}
+
+.salary-tool select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23485441' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px 16px;
+    padding-right: 38px;
+    cursor: pointer;
+}
+
+.salary-tool input::placeholder {
+    color: #939d8e;
+    font-size: 14px;
+    font-weight: 400;
 }
 
 .salary-tool input:focus,
@@ -1368,15 +1391,15 @@ footer {
 
 .salary-breakdown {
     padding: 20px;
-    border: 1px solid #d2e7d6;
+    border: 1px solid #a7f3d0;
     border-radius: 10px;
-    background: #f0f7f0;
+    background: rgba(167, 243, 208, 0.2);
 }
 
 .salary-breakdown h3 {
-    font-size: 11px;
+    font-size: 12px;
     color: #008857;
-    font-weight: 650;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.1px;
     margin-bottom: 18px;
@@ -1389,15 +1412,16 @@ footer {
 }
 
 .salary-breakdown dt {
-    font-size: 12px;
-    color: #63745f;
-    margin-bottom: 2px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #556651;
+    margin-bottom: 3px;
 }
 
 .salary-breakdown dd {
-    font-size: 19px;
-    line-height: 1.35;
-    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 650;
     letter-spacing: -0.4px;
     overflow-wrap: anywhere;
 }
@@ -1413,12 +1437,75 @@ footer {
 .salary-comparison {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    gap: 16px;
     margin-top: 20px;
-    border: 1px solid #e1e6dc;
+    border: 1px solid #a7f3d0;
     border-radius: 10px;
-    padding: 16px;
+    padding: 16px 20px;
     background: linear-gradient(110deg, #f2f4ef, #fff);
+}
+
+.salary-comparison-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.salary-comparison-right {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.salary-comparison-annual-label {
+    display: block;
+    font-size: 11px;
+    color: #687761;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.salary-comparison-annual-val {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.salary-comparison-annual-val strong {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #263328;
+}
+
+.salary-comparison.is-saving .salary-comparison-annual-val strong {
+    color: #008857;
+}
+
+.salary-comparison.is-increase .salary-comparison-annual-val strong {
+    color: #bc6858;
+}
+
+.salary-comparison.is-increase .salary-comparison-icon {
+    background: #bc6858;
+}
+
+.salary-comparison.is-increase .salary-change-tag {
+    background: #faeae7;
+    color: #bc6858;
+}
+
+.salary-comparison.is-saving .salary-change-tag {
+    background: #e3f2e8;
+    color: #008857;
+}
+
+.salary-comparison-annual-val span {
+    font-size: 11px;
+    color: #83917d;
+    font-weight: 500;
 }
 
 .salary-comparison-icon {
@@ -1438,14 +1525,14 @@ footer {
     color: #6f8062;
     border-radius: 10px;
     font-size: 11px;
-    padding: 3px 7px;
-    font-weight: 600;
+    padding: 3px 8px;
+    font-weight: 650;
 }
 
 .salary-comparison h3 {
-    font-size: 13px;
-    font-weight: 550;
-    letter-spacing: -0.1px;
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: -0.2px;
     margin-top: 6px;
     margin-bottom: 5px;
 }
@@ -1454,18 +1541,26 @@ footer {
     display: flex;
     align-items: center;
     gap: 7px;
-    color: #687761;
-    font-size: 12px;
-    font-weight: 400;
+    color: #586751;
+    font-size: 13px;
+    font-weight: 450;
 }
 
 .salary-comparison select {
     width: auto;
     height: 25px;
-    padding: 2px 6px;
+    padding: 2px 20px 2px 6px;
     margin: 0;
     font-size: 11px;
     border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23485441' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    background-size: 11px 11px;
+    cursor: pointer;
 }
 
 .salary-comparison.is-saving .salary-comparison-icon {
@@ -1522,20 +1617,21 @@ footer {
 }
 
 .salary-tool-footer>div {
-    font-size: 12px;
-    color: #64745f;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4b5847;
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
 }
 
 .salary-tool-footer strong {
     color: #008857;
-    background: #e7f3e6;
-    font-size: 12px;
+    background: #e3f2e4;
+    font-size: 14px;
     border-radius: 20px;
-    padding: 5px 9px;
-    font-weight: 500;
+    padding: 5px 12px;
+    font-weight: 700;
 }
 
 .salary-primary {
@@ -1561,19 +1657,21 @@ footer {
     margin-inline: auto;
     padding: 0 28px 17px;
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: flex-start;
     color: #6c7b65;
 }
 
 .salary-tool-disclaimer svg {
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 3px;
+    display: block;
 }
 
 .salary-tool-disclaimer p {
+    margin: 0;
     font-size: 11px;
-    line-height: 1.7;
+    line-height: 1.6;
 }
 
 .salary-subheading {
@@ -2631,7 +2729,9 @@ footer {
 
 /* ===================== Animations ===================== */
 
+
 /* --- Hero entrance keyframe --- */
+
 @keyframes hero-fade-up {
     from {
         opacity: 0;
@@ -2644,11 +2744,17 @@ footer {
 }
 
 @keyframes hero-fade-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
+
 /* Hero animated elements — played once on page load */
+
 .hero-anim {
     animation-fill-mode: both;
     animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -2678,13 +2784,13 @@ footer {
     animation-delay: 460ms;
 }
 
+
 /* --- Scroll reveal --- */
+
 .reveal-on-scroll {
     opacity: 0;
     transform: translateY(13px);
-    transition:
-        opacity 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: opacity 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
     /* Width/layout must be a pass-through; don't constrain children */
     width: 100%;
 }
@@ -2694,7 +2800,9 @@ footer {
     transform: translateY(0);
 }
 
+
 /* No-JS fallback: if JS is disabled, always show content */
+
 @media (scripting: none) {
     .reveal-on-scroll {
         opacity: 1;
@@ -2702,7 +2810,9 @@ footer {
     }
 }
 
+
 /* Respect prefers-reduced-motion */
+
 @media (prefers-reduced-motion: reduce) {
     .hero-anim,
     .reveal-on-scroll {
@@ -2713,7 +2823,9 @@ footer {
     }
 }
 
+
 /* --- Article card hover enhancements --- */
+
 .article-card {
     transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
@@ -2723,7 +2835,9 @@ footer {
     box-shadow: 0 8px 24px rgba(32, 34, 31, 0.08);
 }
 
+
 /* Image scale is already 1.05 — tighten to 1.02 for subtlety */
+
 .article-image-button img {
     transition: transform 0.25s ease;
 }
@@ -2732,15 +2846,20 @@ footer {
     transform: scale(1.02);
 }
 
+
 /* Diagonal icon on article card image — subtle shift */
-.article-image-button > span {
+
+.article-image-button>span {
     transition: transform 0.2s ease;
 }
-.article-image-button:hover > span {
+
+.article-image-button:hover>span {
     transform: translate(2px, -2px);
 }
 
+
 /* --- Resource card hover enhancements --- */
+
 .resource-card {
     transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
@@ -2751,7 +2870,9 @@ footer {
     border-color: #c4d5bd;
 }
 
+
 /* --- Button transitions --- */
+
 .button {
     transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -2765,7 +2886,9 @@ footer {
     background: #2a2e28;
 }
 
+
 /* Arrow icon nudge on text-link hover */
+
 .text-link svg {
     transition: transform 0.2s ease;
 }
@@ -2774,7 +2897,9 @@ footer {
     transform: translateX(3px);
 }
 
+
 /* Nav link hover — already has color transition; add subtle underline */
+
 .navigation a {
     position: relative;
 }
@@ -3495,34 +3620,63 @@ footer {
         gap: 10px;
     }
     .salary-tool label {
-        font-size: 12px;
+        font-size: 13px;
+        font-weight: 600;
     }
     .salary-tool input,
     .salary-tool select {
-        padding: 10px 8px;
-        font-size: 12px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-weight: 600;
         height: 44px;
+    }
+    .salary-tool select {
+        padding-right: 32px;
+        background-position: right 10px center;
     }
     .salary-breakdown {
         padding: 15px 12px;
     }
+    .salary-body.is-compact {
+        padding-bottom: 20px;
+    }
     .salary-breakdown h3 {
-        font-size: 7px;
-        letter-spacing: 0.7px;
+        font-size: 10px;
+        letter-spacing: 0.8px;
         margin-bottom: 15px;
     }
     .salary-breakdown dt {
-        font-size: 11px;
+        font-size: 12px;
     }
     .salary-breakdown dd {
-        font-size: 17px;
+        font-size: 19px;
     }
     .salary-comparison {
-        padding: 13px 11px;
-        gap: 9px;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 14px 12px;
+        gap: 12px;
+    }
+    .salary-comparison-left {
+        width: 100%;
+    }
+    .salary-comparison-right {
+        text-align: left;
+        width: 100%;
+        padding-top: 10px;
+        border-top: 1px solid #e1e7dc;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .salary-comparison-annual-val {
+        justify-content: flex-start;
+    }
+    .salary-comparison-annual-val strong {
+        font-size: 16px;
     }
     .salary-comparison h3 {
-        font-size: 13px;
+        font-size: 14px;
     }
     .salary-comparison select {
         height: 25px;
@@ -3544,12 +3698,12 @@ footer {
         width: 23px;
     }
     .salary-tool-footer>div {
-        font-size: 11px;
+        font-size: 12px;
         gap: 6px;
     }
     .salary-tool-footer strong {
-        font-size: 11px;
-        padding: 4px 7px;
+        font-size: 12px;
+        padding: 4px 8px;
     }
     .salary-primary {
         font-size: 11px;
