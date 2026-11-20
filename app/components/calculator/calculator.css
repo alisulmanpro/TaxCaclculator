@@ -1,0 +1,815 @@
+/* ==========================================================================
+   New Calculator Design System (Single Year & Multi-Year)
+   Source of Truth: design.md & TaxCalculato.com – Single Year and Multi-Year.html
+   ========================================================================== */
+
+.calc-card {
+  background: #F6F4EE;
+  color: #14261D;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: left;
+}
+
+/* Tab Switcher */
+.calc-tabs-bar {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  background: #F6F4EE;
+}
+
+.calc-tabs-track {
+  display: flex;
+  gap: 4px;
+  background: #E9E6DD;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.calc-tab {
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font: 600 13px "DM Sans", sans-serif;
+  color: #4F5D55;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.calc-tab:hover {
+  color: #14261D;
+}
+
+.calc-tab.on {
+  background: #FFFFFF;
+  color: #08794D;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* White Calculator Body */
+.calc-body {
+  background: #FFFFFF;
+  padding: 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  color: #14261D;
+  transition: all 0.25s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.calc-body.no-results {
+  display: flex;
+  justify-content: center;
+}
+
+.calc-body.no-results .calc-col {
+  max-width: 520px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .calc-body {
+    grid-template-columns: 1fr;
+    padding: 24px 18px;
+    gap: 28px;
+  }
+}
+
+/* Left / Right Columns */
+.calc-col {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.calc-result-col {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Full-Width Insights Section (spans both columns on desktop) */
+.calc-insights-section {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  border-top: 1px solid #DDE3DF;
+  padding-top: 24px;
+  margin-top: 8px;
+  display: grid;
+  gap: 20px;
+}
+
+.calc-h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: #14261D;
+  line-height: 1.3;
+}
+
+.calc-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #14261D;
+}
+
+.calc-input,
+.calc-select {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #AEB9B2;
+  border-radius: 10px;
+  padding: 0 14px;
+  font: 500 16px "DM Sans", sans-serif;
+  color: #14261D;
+  background: #FFFFFF;
+  display: block;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.calc-input:focus,
+.calc-select:focus {
+  outline: none;
+  border-color: #08794D;
+  box-shadow: 0 0 0 2px rgba(8, 121, 77, 0.2);
+}
+
+.calc-select {
+  cursor: pointer;
+}
+
+/* Expandable Optional Fields */
+.calc-details {
+  border-bottom: 1px solid #D8DDD9;
+  padding: 14px 0;
+}
+
+.calc-details summary {
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  color: #14261D;
+  outline: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.calc-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.calc-details summary::after {
+  content: "+";
+  font-size: 16px;
+  font-weight: 600;
+  color: #4F5D55;
+  transition: transform 0.2s ease;
+}
+
+.calc-details[open] summary::after {
+  content: "−";
+}
+
+.calc-details-body {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+/* Buttons */
+.calc-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.calc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 10px;
+  background: #08794D;
+  color: #FFFFFF;
+  font: 600 15px "DM Sans", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.calc-btn:hover {
+  background: #065F3D;
+  transform: translateY(-1px);
+}
+
+.calc-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 22px;
+  border: 1px solid #AEB9B2;
+  border-radius: 10px;
+  background: transparent;
+  color: #14261D;
+  font: 600 15px "DM Sans", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.calc-btn-ghost:hover {
+  background: #F6F4EE;
+  border-color: #4F5D55;
+  transform: translateY(-1px);
+}
+
+.calc-btn-dashed {
+  border-style: dashed;
+  width: fit-content;
+  color: #08794D;
+  border-color: #08794D;
+}
+
+.calc-btn-dashed:hover {
+  background: #E3F5EC;
+  border-color: #065F3D;
+}
+
+/* Disclaimer text */
+.calc-disclaimer {
+  color: #4F5D55;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 16px 0 0;
+}
+
+/* Result Column Elements */
+.calc-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+
+.calc-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #065F3D;
+  background: #E3F5EC;
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Forest Result Hero Card */
+.calc-hero-card {
+  background: #0F3D2E;
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.calc-hero-top {
+  color: #A9C7B8;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.calc-hero-val {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 4px 0 8px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.calc-hero-sub {
+  color: #A9C7B8;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+/* Mint Breakdown Cards Grid */
+.calc-mint-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .calc-mint-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calc-mint-card {
+  background: #E3F5EC;
+  border: 1px solid #B7E2CC;
+  border-radius: 14px;
+  padding: 18px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.calc-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #065F3D;
+}
+
+.calc-stat-key {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4F5D55;
+  margin-top: 10px;
+}
+
+.calc-stat-val {
+  font-size: clamp(16px, 2.5vw, 20px);
+  font-weight: 700;
+  margin-top: 4px;
+  color: #14261D;
+  line-height: 1.2;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.calc-stat-val.is-tax {
+  color: #A3452E;
+}
+
+/* Savings Strip */
+.calc-savings-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid #B7E2CC;
+  border-radius: 14px;
+  padding: 16px;
+  background: #FAFCFA;
+}
+
+.calc-savings-msg {
+  font-weight: 600;
+  margin-top: 4px;
+  font-size: 14px;
+  color: #14261D;
+}
+
+.calc-savings-diff {
+  font-weight: 700;
+  color: #065F3D;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* 4 Stat Tiles Grid */
+.calc-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.calc-tile {
+  background: #FFFFFF;
+  border: 1px solid #DDE3DF;
+  border-radius: 12px;
+  padding: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.calc-tile-result {
+  padding: 20px;
+}
+
+@media (max-width: 540px) {
+  .calc-tile-result {
+    padding: 16px 12px;
+  }
+}
+
+.calc-tile .k {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4F5D55;
+}
+
+.calc-tile .v {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 4px;
+  color: #14261D;
+}
+
+/* Insights Sub-tabs */
+.calc-subtabs {
+  display: flex;
+  gap: 6px;
+  background: #E9E6DD;
+  padding: 4px;
+  border-radius: 12px;
+  width: fit-content;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Monthly Cash Flow Chart in Overview */
+.calc-cashflow-container {
+  display: grid;
+  gap: 16px;
+}
+
+.calc-chart-tooltip {
+  background: #0F3D2E;
+  color: #FFFFFF;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  min-height: 38px;
+}
+
+.calc-chart-tooltip-label {
+  color: #A9C7B8;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calc-chart-tooltip-val {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.calc-cashflow-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  height: 140px;
+  padding: 10px 8px 0;
+  border-bottom: 2px solid #DDE3DF;
+  position: relative;
+}
+
+.calc-chart-bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.calc-chart-bar-gross {
+  width: 100%;
+  background: #2B3A4A;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.25s ease;
+  min-height: 4px;
+}
+
+.calc-chart-bar-tax {
+  width: 100%;
+  background: #C4705A;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.25s ease;
+  min-height: 4px;
+}
+
+.calc-chart-bar-net {
+  width: 100%;
+  background: #08794D;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.25s ease;
+  min-height: 4px;
+}
+
+.calc-chart-bar-item:hover .calc-chart-bar-gross,
+.calc-chart-bar-item.is-active .calc-chart-bar-gross {
+  filter: brightness(1.2);
+  box-shadow: 0 0 0 2px #2B3A4A;
+}
+
+.calc-chart-bar-item:hover .calc-chart-bar-tax,
+.calc-chart-bar-item.is-active .calc-chart-bar-tax {
+  filter: brightness(1.15);
+  box-shadow: 0 0 0 2px #C4705A;
+}
+
+.calc-chart-bar-item:hover .calc-chart-bar-net,
+.calc-chart-bar-item.is-active .calc-chart-bar-net {
+  filter: brightness(1.15);
+  box-shadow: 0 0 0 2px #08794D;
+}
+
+.calc-chart-labels {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 4px;
+  color: #4F5D55;
+}
+
+.calc-chart-labels > div {
+  flex: 1;
+  line-height: 1.4;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.calc-chart-labels > div:hover,
+.calc-chart-labels > div.is-active {
+  background: #F6F4EE;
+  color: #14261D;
+  font-weight: 600;
+}
+
+/* For every Rs. 100 earned */
+.calc-split-bar {
+  display: flex;
+  height: 22px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.calc-split-bar-net {
+  background: #08794D;
+  transition: width 0.3s ease;
+}
+
+.calc-split-bar-tax {
+  background: #C4705A;
+  transition: width 0.3s ease;
+}
+
+.calc-split-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 6px;
+  color: #4F5D55;
+}
+
+/* Multi-Year Notice Box */
+.calc-notice-box {
+  background: #F6F4EE;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #4F5D55;
+}
+
+.calc-notice-box b {
+  color: #14261D;
+}
+
+/* Multi-Year Period Card */
+.calc-period-card {
+  border: 1px solid #DDE3DF;
+  border-radius: 14px;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+  background: #FFFFFF;
+}
+
+.calc-period-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calc-period-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: #14261D;
+}
+
+.calc-period-remove {
+  background: transparent;
+  border: 0;
+  color: #A3452E;
+  font: 600 13px "DM Sans", sans-serif;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.calc-period-remove:hover {
+  background: #FCEEED;
+}
+
+.calc-dates-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 500px) {
+  .calc-dates-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tables */
+.calc-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  border-radius: 10px;
+  border: 1px solid #DDE3DF;
+  background: #FFFFFF;
+  box-sizing: border-box;
+}
+
+.calc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+/* Wide 7-year comparison & progressive bands tables in full-width insights */
+.calc-insights-section .calc-table {
+  min-width: 500px;
+}
+
+/* Multi-Year fiscal breakdown table in results column */
+.calc-col .calc-table {
+  width: 100%;
+  min-width: 100%;
+}
+
+.calc-col .calc-table th,
+.calc-col .calc-table td {
+  padding: 8px 10px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.calc-col .calc-table th:first-child,
+.calc-col .calc-table td:first-child {
+  padding-left: 12px;
+}
+
+.calc-col .calc-table th:last-child,
+.calc-col .calc-table td:last-child {
+  padding-right: 12px;
+}
+
+.calc-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4F5D55;
+  padding: 10px 12px;
+  border-bottom: 1px solid #DDE3DF;
+  background: #FAF9F5;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.calc-table td {
+  padding: 10px 12px;
+  border-top: 1px solid #EAEFEA;
+  color: #14261D;
+  vertical-align: middle;
+}
+
+.calc-table tr.calc-row-highlight {
+  background: #E3F5EC;
+  font-weight: 600;
+}
+
+.calc-table tr.calc-row-total {
+  font-weight: 700;
+  border-top: 2px solid #14261D;
+  background: #F6F4EE;
+}
+
+/* Stale Calculation Warning Banner */
+.calc-stale-banner {
+  background: #FEF9E7;
+  border: 1px solid #FAD7A0;
+  color: #935116;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+/* Error banner */
+.calc-error {
+  color: #A3452E;
+  background: #FCEEED;
+  border: 1px solid #F5C6CB;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Toast message for copied link */
+.calc-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #065F3D;
+  background: #E3F5EC;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: #FFFFFF !important;
+  }
+  header, footer, nav, .hero-copy, .quote-section, .articles-section, .faq-section, .resources-section, .bottom-cta, .calc-actions, .calc-tabs-bar {
+    display: none !important;
+  }
+  .calc-card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+  }
+  .calc-body {
+    padding: 0 !important;
+  }
+}

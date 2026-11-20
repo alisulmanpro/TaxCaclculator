@@ -1324,9 +1324,9 @@ footer {
 
 .salary-tool label {
     display: block;
-    font-size: 13px;
-    font-weight: 550;
-    color: #3b4937;
+    font-size: 14px;
+    font-weight: 600;
+    color: #303d2c;
 }
 
 .salary-tool input,
@@ -1339,10 +1339,22 @@ footer {
     border-radius: 7px;
     margin-top: 8px;
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     background: #fff;
-    color: #263328;
+    color: #1e261d;
     height: 46px;
+}
+
+.salary-tool select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23485441' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px 16px;
+    padding-right: 38px;
+    cursor: pointer;
 }
 
 .salary-tool input::placeholder {
@@ -1379,9 +1391,9 @@ footer {
 
 .salary-breakdown {
     padding: 20px;
-    border: 1px solid #d2e7d6;
+    border: 1px solid #a7f3d0;
     border-radius: 10px;
-    background: #f0f7f0;
+    background: rgba(167, 243, 208, 0.2);
 }
 
 .salary-breakdown h3 {
@@ -1428,7 +1440,7 @@ footer {
     justify-content: space-between;
     gap: 16px;
     margin-top: 20px;
-    border: 1px solid #e1e6dc;
+    border: 1px solid #a7f3d0;
     border-radius: 10px;
     padding: 16px 20px;
     background: linear-gradient(110deg, #f2f4ef, #fff);
@@ -1537,10 +1549,18 @@ footer {
 .salary-comparison select {
     width: auto;
     height: 25px;
-    padding: 2px 6px;
+    padding: 2px 20px 2px 6px;
     margin: 0;
     font-size: 11px;
     border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23485441' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    background-size: 11px 11px;
+    cursor: pointer;
 }
 
 .salary-comparison.is-saving .salary-comparison-icon {
@@ -1637,19 +1657,21 @@ footer {
     margin-inline: auto;
     padding: 0 28px 17px;
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: flex-start;
     color: #6c7b65;
 }
 
 .salary-tool-disclaimer svg {
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 3px;
+    display: block;
 }
 
 .salary-tool-disclaimer p {
+    margin: 0;
     font-size: 11px;
-    line-height: 1.7;
+    line-height: 1.6;
 }
 
 .salary-subheading {
@@ -3598,13 +3620,19 @@ footer {
         gap: 10px;
     }
     .salary-tool label {
-        font-size: 12px;
+        font-size: 13px;
+        font-weight: 600;
     }
     .salary-tool input,
     .salary-tool select {
-        padding: 10px 8px;
-        font-size: 12px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-weight: 600;
         height: 44px;
+    }
+    .salary-tool select {
+        padding-right: 32px;
+        background-position: right 10px center;
     }
     .salary-breakdown {
         padding: 15px 12px;
