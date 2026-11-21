@@ -53,6 +53,7 @@ export function SplitBarChart({ parts, total, summary }: { parts: Part[]; total:
           />
           {parts.map((p) => (
             <Bar
+              animationDuration={450}
               key={p.key}
               dataKey={p.key}
               stackId="a"
@@ -112,7 +113,7 @@ export function ComparePairChart({
                 );
               }}
             />
-            <Bar dataKey="value" barSize={28} radius={[0, 8, 8, 0]} background={{ fill: "#EAF1EC", radius: 8 }}>
+            <Bar animationDuration={450} dataKey="value" barSize={28} radius={[0, 8, 8, 0]} background={{ fill: "#EAF1EC", radius: 8 }}>
               {rows.map((r) => (
                 <Cell key={r.label} fill={r.color} />
               ))}
@@ -170,7 +171,7 @@ export function YearsColumnChart({ data }: { data: YearBar[] }) {
               );
             }}
           />
-          <Bar dataKey="tax" radius={[6, 6, 0, 0]} maxBarSize={56}>
+          <Bar animationDuration={450} dataKey="tax" radius={[6, 6, 0, 0]} maxBarSize={56}>
             {data.map((d) => (
               <Cell key={d.label} fill={roleColor[d.role]} />
             ))}
@@ -216,7 +217,7 @@ export function BandTaxChart({ data }: { data: BandBar[] }) {
               );
             }}
           />
-          <Bar dataKey="tax" radius={[6, 6, 0, 0]} maxBarSize={72}>
+          <Bar animationDuration={450} dataKey="tax" radius={[6, 6, 0, 0]} maxBarSize={72}>
             {data.map((d) => (
               <Cell key={d.rate + d.range} fill={d.top ? chartColors.keep : chartColors.tax} />
             ))}
@@ -266,8 +267,8 @@ export function FyStackChart({ data }: { data: FyStack[] }) {
               );
             }}
           />
-          <Bar dataKey="net" name="You keep" stackId="fy" fill={chartColors.keep} maxBarSize={110} stroke="#fff" strokeWidth={1} />
-          <Bar dataKey="tax" name="Tax" stackId="fy" fill={chartColors.tax} radius={[6, 6, 0, 0]} maxBarSize={110} />
+          <Bar animationDuration={450} dataKey="net" name="You keep" stackId="fy" fill={chartColors.keep} maxBarSize={110} stroke="#fff" strokeWidth={1} />
+          <Bar animationDuration={450} dataKey="tax" name="Tax" stackId="fy" fill={chartColors.tax} radius={[6, 6, 0, 0]} maxBarSize={110} />
         </BarChart>
       </ResponsiveContainer>
     </div>
