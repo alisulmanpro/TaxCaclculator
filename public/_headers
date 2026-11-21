@@ -1,0 +1,17 @@
+# Cloudflare static-asset headers (next.config.ts headers() only reach pages served by the Worker).
+# Keep the security headers in sync with next.config.ts.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Hashed build files never change.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Offline-mode service worker: always check for a new version.
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /

@@ -1,17 +1,14 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { OG_LOGO_SRC } from "./og-logo";
 import { site } from "./site";
 
 export const ogSize = { width: 1200, height: 630 };
 
 /**
- * Social share image (1200×630) built from lib/site.ts text and public/logo.png.
+ * Social share image (1200×630) built from lib/site.ts text and the embedded logo (lib/og-logo.ts).
  * Used by app/opengraph-image.tsx and app/multi-year-calculator/opengraph-image.tsx.
  */
 export async function renderOgImage(headline: string, subline: string) {
-  const logo = await readFile(join(process.cwd(), "public", "logo.png"));
-  const logoSrc = `data:image/png;base64,${logo.toString("base64")}`;
   return new ImageResponse(
     (
       <div
@@ -36,7 +33,7 @@ export async function renderOgImage(headline: string, subline: string) {
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse renders to an image, next/image is not supported here */}
-          <img src={logoSrc} width={262} height={90} alt="" />
+          <img src={OG_LOGO_SRC} width={262} height={90} alt="" />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 68, fontWeight: 700, lineHeight: 1.08, letterSpacing: -2 }}>{headline}</div>

@@ -69,6 +69,18 @@ tests/
 When the page opens it reads, validates (`lib/share.ts`) and restores that state, including the open
 Insights tab. Invalid or hand-edited links are ignored. The canonical URL is always the clean page.
 
+## Deploy (Cloudflare Workers)
+
+The site is deployed to Cloudflare Workers with [OpenNext](https://opennext.js.org/cloudflare).
+
+| Setting (Workers Builds in the Cloudflare dashboard) | Value |
+| --- | --- |
+| Build command | `pnpm run build` |
+| Deploy command | `pnpm run deploy` |
+| Environment variable | `NEXT_PUBLIC_SITE_URL` = your domain, e.g. `https://findtaxcalculator.com` |
+
+Do not use a plain `npx wrangler deploy` as the deploy command. Test the Worker locally with `pnpm preview`.
+
 ## Offline mode
 
 The calculators run fully in the browser, so a small service worker (`public/sw.js`) saves the pages, scripts, styles and fonts on the device the first time the site is opened online.

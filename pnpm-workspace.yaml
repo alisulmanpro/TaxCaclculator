@@ -1,3 +1,6 @@
 allowBuilds:
   sharp: false
   unrs-resolver: false
+  # Needed by wrangler / the Cloudflare deploy (esbuild and workerd download their native binary in a build script).
+  esbuild: true
+  workerd: true

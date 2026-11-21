@@ -11,7 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Development Instructions for Tax Calculator
 
 ## Project Architecture & Tech Stack
-- Framework: Next.js 16.4.6 (App Router, Turbopack, Cache Components), React 19.3.0, TypeScript.
+- Framework: Next.js 16.4.6 (App Router, Turbopack; Cache Components is off because Cloudflare/OpenNext does not support it yet), React 19.3.0, TypeScript.
 - Styling: Tailwind CSS v4 base + hand-written CSS (`app/globals.css`, `app/components/calculator/calculator.css`) using design tokens (CSS variables).
 - Fonts: self-hosted Inter + Space Grotesk in `app/fonts/` via `next/font/local` (no request to Google).
 - Charts: Recharts (`app/components/calculator/charts.tsx`). PDF: `@react-pdf/renderer`, loaded with `import()` only when "Download PDF" is clicked (`calculator/pdf/reports.tsx`).
@@ -44,6 +44,14 @@ tests/
 - **PDF:** generated client-side from numbers already computed by the calculators. The PDF code never calculates tax.
 - **Charts:** Recharts, fed from the engine results; each chart has an `aria-label` summary and a table/legend with the same numbers.
 - Tables are wrapped in `.table-scroll` / `.rtable-scroll` (horizontal scroll on mobile, no page-wide overflow).
+
+## Deployment (Cloudflare Workers via OpenNext)
+- Build with `pnpm run build`, deploy with `pnpm run deploy` (`opennextjs-cloudflare build && opennextjs-cloudflare deploy`). Do **not** use a bare `npx wrangler deploy` (it tries to auto-configure the project and fails).
+- Config: `wrangler.jsonc` (Worker name `taxcaclculator`), `open-next.config.ts`, `public/_headers` (headers for static files; keep in sync with `next.config.ts`).
+- `pnpm-workspace.yaml` `allowBuilds` must allow `esbuild` and `workerd`, or pnpm blocks their install scripts.
+- Local check: `pnpm preview` (runs the Worker in workerd).
+- Don't re-enable `cacheComponents` / `partialPrefetching` without checking Cloudflare support: pages returned HTTP 500 on Workers.
+- No `fs`/file reads at runtime (no file system on Workers). The OG logo is embedded in `lib/og-logo.ts`.
 
 ## Offline Mode
 - `public/sw.js` (service worker) + `app/components/layout/OfflineSupport.tsx` (registration in production, PDF chunk warm-up, offline notice). Mounted in `app/layout.tsx`.
