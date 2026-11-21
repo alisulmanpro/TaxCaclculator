@@ -46,10 +46,11 @@ tests/
 - Tables are wrapped in `.table-scroll` / `.rtable-scroll` (horizontal scroll on mobile, no page-wide overflow).
 
 ## Deployment (Cloudflare Workers via OpenNext)
-- Build with `pnpm run build`, deploy with `pnpm run deploy` (`opennextjs-cloudflare build && opennextjs-cloudflare deploy`). Do **not** use a bare `npx wrangler deploy` (it tries to auto-configure the project and fails).
+- `pnpm run build` runs `opennextjs-cloudflare build` (which runs a plain `next build` first, see `buildCommand` in `open-next.config.ts`; `pnpm build:next` = plain Next build only). Then `pnpm run deploy` or `npx wrangler deploy` uploads it. The deploy step needs the `.open-next` folder from the build.
 - Config: `wrangler.jsonc` (Worker name `taxcaclculator`), `open-next.config.ts`, `public/_headers` (headers for static files; keep in sync with `next.config.ts`).
 - `pnpm-workspace.yaml` `allowBuilds` must allow `esbuild` and `workerd`, or pnpm blocks their install scripts.
 - Local check: `pnpm preview` (runs the Worker in workerd).
+- Worker size: the free plan allows 3 MiB gzip. `@react-pdf` (~4 MB) is kept out of the server bundle with `turbopack.resolveAlias` (`pdf-reports` → real file in the browser, `lib/pdf-reports-server-stub.ts` on the server). Always import the PDF code as `import("pdf-reports")`. Check the size with `npx wrangler deploy --dry-run` ("Total Upload ... gzip").
 - Don't re-enable `cacheComponents` / `partialPrefetching` without checking Cloudflare support: pages returned HTTP 500 on Workers.
 - No `fs`/file reads at runtime (no file system on Workers). The OG logo is embedded in `lib/og-logo.ts`.
 
@@ -85,5 +86,5 @@ tests/
 - Type check: `node node_modules/typescript/bin/tsc --noEmit` (or `pnpm typecheck`)
 - Lint: `pnpm lint`
 - Tests: `pnpm test`
-- Build: `node node_modules/next/dist/bin/next build`
+- Build: `pnpm run build` (OpenNext/Cloudflare) or `pnpm build:next` (plain Next build)
 - Dev server: `node node_modules/next/dist/bin/next dev`

@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    resolveAlias: {
+      // "pdf-reports" is the PDF code (@react-pdf, ~4 MB). Browser bundle: the real file. Server/Worker bundle: an empty stub.
+      "pdf-reports": {
+        browser: "./app/components/calculator/pdf/reports.tsx",
+        default: "./lib/pdf-reports-server-stub.ts",
+      },
+    },
+  },
   // Cache Components / Partial Prefetching are off on purpose: OpenNext on Cloudflare does not support them yet
   // (every page returned HTTP 500 on Workers). The pages are fully static anyway, so nothing is lost.
   async headers() {

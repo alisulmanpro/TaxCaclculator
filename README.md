@@ -75,11 +75,11 @@ The site is deployed to Cloudflare Workers with [OpenNext](https://opennext.js.o
 
 | Setting (Workers Builds in the Cloudflare dashboard) | Value |
 | --- | --- |
-| Build command | `pnpm run build` |
-| Deploy command | `pnpm run deploy` |
+| Build command | `pnpm run build` (runs the OpenNext build, creates `.open-next`) |
+| Deploy command | `npx wrangler deploy` or `pnpm run deploy` (both work after the build) |
 | Environment variable | `NEXT_PUBLIC_SITE_URL` = your domain, e.g. `https://findtaxcalculator.com` |
 
-Do not use a plain `npx wrangler deploy` as the deploy command. Test the Worker locally with `pnpm preview`.
+Test the Worker locally with `pnpm preview`. A plain Next.js build without the OpenNext step is `pnpm build:next`.
 
 ## Offline mode
 

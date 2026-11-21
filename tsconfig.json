@@ -20,7 +20,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "pdf-reports": ["./app/components/calculator/pdf/reports.tsx"]
     }
   },
   "include": [
