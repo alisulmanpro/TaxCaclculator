@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import MultiYearHeroSection from "@/app/components/multi-year/MultiYearHeroSection";
-import QuoteSection from "@/app/components/home/QuoteSection";
 import MultiYearFAQSection from "@/app/components/multi-year/MultiYearFAQSection";
 import ResourcesSection from "@/app/components/home/ResourcesSection";
-import BottomCTA from "@/app/components/home/BottomCTA";
 import ScrollReveal from "@/app/components/layout/ScrollReveal";
 
 export const metadata: Metadata = {
@@ -29,17 +27,11 @@ export default function MultiYearPage() {
   return (
     <main className="flex flex-col items-center justify-center w-screen">
       <MultiYearHeroSection />
-      <ScrollReveal>
-        <QuoteSection />
-      </ScrollReveal>
       <ScrollReveal delay={60}>
         <MultiYearFAQSection />
       </ScrollReveal>
       <ScrollReveal delay={60}>
         <ResourcesSection />
-      </ScrollReveal>
-      <ScrollReveal delay={60}>
-        <BottomCTA />
       </ScrollReveal>
     </main>
   );

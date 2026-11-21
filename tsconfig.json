@@ -33,7 +33,6 @@
   ],
   "exclude": [
     "node_modules",
-    "Income Tax Calculator Homepage",
-    ".figma-ref"
+    "design-ref"
   ]
 }

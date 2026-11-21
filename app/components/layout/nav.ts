@@ -3,5 +3,5 @@ export const nav = [
   { label: "Disputes", href: "#guides" },
   { label: "International", href: "#resources" },
   { label: "Rates & Fees", href: "#calculator" },
-  { label: "Contact", href: "mailto:consultation@thomasnorthman.com" },
+  { label: "Contact", href: "mailto:hello@taxcalculato.com" },
 ];

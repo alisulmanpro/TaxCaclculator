@@ -56,7 +56,7 @@ export default function Header() {
       </nav>
       <a
         className="button button-black consultation"
-        href="mailto:consultation@thomasnorthman.com"
+        href="mailto:hello@taxcalculato.com"
       >
         Consultation <DiagonalIcon />
       </a>

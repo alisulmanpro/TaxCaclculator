@@ -64,7 +64,7 @@ export default function MultiYearFAQSection() {
         </p>
         <div className="faq-contact">
           <span>Still have a question?</span>
-          <a className="text-link" href="mailto:consultation@thomasnorthman.com">
+          <a className="text-link" href="mailto:hello@taxcalculato.com">
             Let&apos;s talk <ArrowIcon />
           </a>
         </div>
