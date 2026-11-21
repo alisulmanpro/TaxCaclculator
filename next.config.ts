@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Cache Components / Partial Prefetching are off on purpose: OpenNext on Cloudflare does not support them yet
+  // (every page returned HTTP 500 on Workers). The pages are fully static anyway, so nothing is lost.
   async headers() {
     return [
       {
