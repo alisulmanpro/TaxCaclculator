@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   calculateSalaryHistory,
+  fiscalYearOf,
   validatePeriods,
   MIN_DATE,
   MAX_DATE,
@@ -11,11 +11,26 @@ import {
   type YearSummary,
 } from "@/lib/salary-history";
 import { currency, compactCurrency, fiscalLabel } from "@/lib/tax";
+import { cleanNumber, formatWithCommas } from "@/lib/format";
 import {
-  cleanNumber,
-  handleFormattedInputChange,
-  handleFormattedInputKeyDown,
-} from "@/lib/format";
+  buildShareUrl,
+  decodeMulti,
+  encodeMulti,
+  type MultiInsightTab,
+} from "@/lib/share";
+import { FyStackChart } from "./charts";
+import {
+  ArrowRight,
+  CloseIcon,
+  Empty,
+  InfoIcon,
+  InsightsHeader,
+  ModeTabs,
+  MoneyInput,
+  PlusIcon,
+  ResultActions,
+  pct,
+} from "./ui";
 import "./calculator.css";
 
 // Helper to sanitize periods by removing formatting commas before engine validation
@@ -39,6 +54,8 @@ interface MultiYearCalculationResult {
   totalNet: number;
   totalMonths: number;
   avgRate: number;
+  /** The exact (cleaned) periods that produced this result — used for the PDF and the shared link. */
+  periods: SalaryPeriod[];
 }
 
 // Factory function: returns a fresh default period array on every call
@@ -57,13 +74,106 @@ function createDefaultPeriods(): SalaryPeriod[] {
   ];
 }
 
+/**
+ * Validates the periods and runs the (unchanged) salary-history engine.
+ * Returns either an error message or the full result.
+ */
+function runCalculation(
+  periods: SalaryPeriod[]
+): { error: string } | { result: MultiYearCalculationResult } {
+  // Validate that every period has a salary entered
+  const hasEmptySalary = periods.some(
+    (p) => !p.salary || p.salary.trim() === "" || cleanNumber(p.salary) === 0
+  );
+  if (hasEmptySalary) return { error: "Please enter a valid monthly salary for all periods." };
+
+  const sanitized = sanitizePeriods(periods);
+  const err = validatePeriods(sanitized);
+  if (err) return { error: err };
+
+  try {
+    const summaries = calculateSalaryHistory(sanitized);
+    const totalGross = summaries.reduce((sum, s) => sum + s.gross, 0);
+    const totalTax = summaries.reduce((sum, s) => sum + s.tax, 0);
+    const totalNet = summaries.reduce((sum, s) => sum + s.net, 0);
+    const avgRate = totalGross > 0 ? (totalTax / totalGross) * 100 : 0;
+
+    // Calculate approximate months worked from period dates
+    let totalDays = 0;
+    for (const p of sanitized) {
+      const sTime = Date.parse(`${p.start}T00:00:00Z`);
+      const eTime = Date.parse(`${p.end}T00:00:00Z`);
+      if (eTime >= sTime) {
+        totalDays += Math.round((eTime - sTime) / 86400000) + 1;
+      }
+    }
+    const totalMonths = Math.max(1, Math.round(totalDays / 30.4375));
+
+    return {
+      result: { summaries, totalGross, totalTax, totalNet, totalMonths, avgRate, periods: sanitized },
+    };
+  } catch (e: unknown) {
+    return { error: e instanceof Error ? e.message : "Invalid period values." };
+  }
+}
+
+const formatDate = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+/** Fiscal years a period touches, e.g. "2024–2025" or "2024–2025, 2025–2026". */
+function periodFiscalYears(p: SalaryPeriod): string {
+  const first = fiscalYearOf(new Date(`${p.start}T00:00:00Z`));
+  const last = fiscalYearOf(new Date(`${p.end}T00:00:00Z`));
+  if (first === last) return fiscalLabel(first);
+  return `${fiscalLabel(first)}, ${fiscalLabel(last)}`;
+}
+
 export default function MultiYearCalculator() {
   const [periods, setPeriods] = useState<SalaryPeriod[]>(createDefaultPeriods);
   const [calculatedResult, setCalculatedResult] = useState<MultiYearCalculationResult | null>(null);
   const [isStale, setIsStale] = useState(false);
-  const [insightsOpen, setInsightsOpen] = useState(true); // Part 10: Multi-Year insights visible by default after calculation
-  const [copied, setCopied] = useState(false);
+  const [insightsOpen, setInsightsOpen] = useState(true); // Multi-Year insights visible by default after calculation
+  const [activeTab, setActiveTab] = useState<MultiInsightTab>("chart");
   const [validationError, setValidationError] = useState<string | null>(null);
+  const resultRef = useRef<HTMLElement>(null);
+
+  // Open a shared link: restore the periods and show the same result the sender saw.
+  useEffect(() => {
+    const shared = decodeMulti(window.location.search);
+    if (!shared) return;
+    const restored: SalaryPeriod[] = shared.periods.map((p, i) => ({
+      id: i + 1,
+      start: p.start,
+      end: p.end,
+      salary: formatWithCommas(p.salary),
+      monthlyBonus: formatWithCommas(p.monthlyBonus) || "0",
+      monthlyDeductions: formatWithCommas(p.monthlyDeductions) || "0",
+      bonuses: [],
+    }));
+    const outcome = runCalculation(restored);
+    /* eslint-disable react-hooks/set-state-in-effect -- one-time restore from the URL after mount */
+    setPeriods(restored);
+    if ("result" in outcome) {
+      setCalculatedResult(outcome.result);
+      setInsightsOpen(shared.insightsOpen);
+      setActiveTab(shared.tab);
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
+  // Editing any input invalidates the shown result (AGENTS.md: stale results are hidden)
+  const markStale = () => {
+    if (calculatedResult) {
+      setIsStale(true);
+      setCalculatedResult(null);
+    }
+    setValidationError(null);
+  };
 
   // Period management
   const addPeriod = () => {
@@ -97,22 +207,13 @@ export default function MultiYearCalculator() {
         bonuses: [],
       },
     ]);
-    // Stale handling: editing invalidates previous results
-    if (calculatedResult) {
-      setIsStale(true);
-      setCalculatedResult(null);
-    }
-    setValidationError(null);
+    markStale();
   };
 
   const removePeriod = (id: number) => {
     if (periods.length <= 1) return;
     setPeriods(periods.filter((p) => p.id !== id));
-    if (calculatedResult) {
-      setIsStale(true);
-      setCalculatedResult(null);
-    }
-    setValidationError(null);
+    markStale();
   };
 
   const updatePeriod = (id: number, field: keyof SalaryPeriod, val: string) => {
@@ -122,180 +223,166 @@ export default function MultiYearCalculator() {
         return { ...p, [field]: val };
       })
     );
-    // Stale handling: editing invalidates previous results
-    if (calculatedResult) {
-      setIsStale(true);
-      setCalculatedResult(null);
-    }
-    setValidationError(null);
+    markStale();
   };
 
-  // Actions
   const handleReset = () => {
     setPeriods(createDefaultPeriods());
     setCalculatedResult(null);
     setIsStale(false);
     setInsightsOpen(true);
+    setActiveTab("chart");
     setValidationError(null);
-    setCopied(false);
-  };
-
-  const handleCopyLink = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
-    }
-  };
-
-  const handleDownloadPdf = () => {
-    if (typeof window !== "undefined") {
-      window.print();
+    // Forget a previously opened shared link, so a reload does not bring it back.
+    if (window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
     }
   };
 
   const handleCalculate = () => {
-    // Validate that every period has a salary entered
-    const hasEmptySalary = periods.some(
-      (p) => !p.salary || p.salary.trim() === "" || cleanNumber(p.salary) === 0
+    const outcome = runCalculation(periods);
+    if ("error" in outcome) {
+      setValidationError(outcome.error);
+      setCalculatedResult(null);
+      return;
+    }
+    setCalculatedResult(outcome.result);
+    setValidationError(null);
+    setIsStale(false);
+    setInsightsOpen(true); // Default to visible on valid calculation
+    setActiveTab("chart");
+    // On small screens the result sits below the form: bring it into view.
+    requestAnimationFrame(() =>
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
     );
-    if (hasEmptySalary) {
-      setValidationError("Please enter a valid monthly salary for all periods.");
-      setCalculatedResult(null);
-      return;
-    }
-
-    const sanitized = sanitizePeriods(periods);
-    const err = validatePeriods(sanitized);
-    if (err) {
-      setValidationError(err);
-      setCalculatedResult(null);
-      return;
-    }
-
-    try {
-      const summaries = calculateSalaryHistory(sanitized);
-      const totalGross = summaries.reduce((sum, s) => sum + s.gross, 0);
-      const totalTax = summaries.reduce((sum, s) => sum + s.tax, 0);
-      const totalNet = summaries.reduce((sum, s) => sum + s.net, 0);
-      const avgRate = totalGross > 0 ? (totalTax / totalGross) * 100 : 0;
-
-      // Calculate approximate months worked from period dates
-      let totalDays = 0;
-      for (const p of sanitized) {
-        const sTime = Date.parse(`${p.start}T00:00:00Z`);
-        const eTime = Date.parse(`${p.end}T00:00:00Z`);
-        if (eTime >= sTime) {
-          totalDays += Math.round((eTime - sTime) / 86400000) + 1;
-        }
-      }
-      const totalMonths = Math.max(1, Math.round(totalDays / 30.4375));
-
-      setCalculatedResult({
-        summaries,
-        totalGross,
-        totalTax,
-        totalNet,
-        totalMonths,
-        avgRate,
-      });
-      setValidationError(null);
-      setIsStale(false);
-      setInsightsOpen(true); // Default to visible on valid calculation
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Invalid period values.";
-      setValidationError(msg);
-      setCalculatedResult(null);
-    }
   };
 
   const hasResults = calculatedResult !== null;
 
+  /** The link always describes the result on screen right now. */
+  const getShareUrl = useCallback(() => {
+    const source = calculatedResult?.periods ?? [];
+    return buildShareUrl(
+      window.location.origin,
+      window.location.pathname,
+      encodeMulti({
+        periods: source.map((p) => ({
+          start: p.start,
+          end: p.end,
+          salary: p.salary,
+          monthlyBonus: p.monthlyBonus,
+          monthlyDeductions: p.monthlyDeductions,
+        })),
+        insightsOpen,
+        tab: activeTab,
+      })
+    );
+  }, [calculatedResult, insightsOpen, activeTab]);
+
+  const handleDownloadPdf = useCallback(async () => {
+    if (!calculatedResult) return;
+    const { downloadMultiReport } = await import("./pdf/reports");
+    await downloadMultiReport({
+      generated: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+      shareUrl: getShareUrl(),
+      totalTax: calculatedResult.totalTax,
+      totalGross: calculatedResult.totalGross,
+      totalNet: calculatedResult.totalNet,
+      totalMonths: calculatedResult.totalMonths,
+      avgRate: calculatedResult.avgRate,
+      years: calculatedResult.summaries.map((s) => ({
+        label: fiscalLabel(s.year),
+        gross: s.gross,
+        tax: s.tax,
+        net: s.net,
+      })),
+      periods: calculatedResult.periods.map((p, i) => ({
+        n: i + 1,
+        dates: `${formatDate(p.start)} - ${formatDate(p.end)}`,
+        salary: cleanNumber(p.salary),
+        bonus: cleanNumber(p.monthlyBonus),
+        deductions: cleanNumber(p.monthlyDeductions),
+        fiscalYears: periodFiscalYears(p).replace(/–/g, "-"),
+      })),
+    });
+  }, [calculatedResult, getShareUrl]);
+
+  const stackData =
+    calculatedResult?.summaries.map((s) => ({
+      label: fiscalLabel(s.year),
+      gross: s.gross,
+      tax: s.tax,
+      net: s.net,
+    })) ?? [];
+
   return (
-    <div className="calc-card" id="salary-tool">
-      {/* Tab Switcher: Single Year navigates to /, Multi-Year active */}
-      <div className="calc-tabs-bar">
-        <div className="calc-tabs-track" role="tablist" aria-label="Tax calculation mode">
-          <Link
-            href="/#calculator"
-            role="tab"
-            aria-selected="false"
-            className="calc-tab"
-          >
-            Single Year
-          </Link>
-          <button
-            type="button"
-            role="tab"
-            aria-selected="true"
-            className="calc-tab on"
-          >
-            Multi-Year
-          </button>
-        </div>
-      </div>
+    <div className="calc" id="salary-tool">
+      <ModeTabs active="multi" />
 
-      {/* Calculator Body: Compact single column when empty, 2 columns when calculated */}
-      <div className={`calc-body ${!hasResults ? "no-results" : ""}`}>
-        {/* Left Column: Salary history */}
-        <div className="calc-col">
+      <div className="calc-grid">
+        {/* ───────────────────────────────────── Salary history ───────────────────────────────────── */}
+        <form
+          className="calc-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleCalculate();
+          }}
+          noValidate
+          style={{ gap: 24 }}
+        >
           <div>
-            <h2 className="calc-h2">Salary history</h2>
-            <p className="calc-disclaimer" style={{ margin: "6px 0 0", fontSize: "14px" }}>
-              Add each period where your monthly salary stayed the same.
-            </p>
+            <h2 className="calc-title">Salary history</h2>
+            <p className="calc-sub">Add each period where your monthly salary stayed the same.</p>
           </div>
 
-          {/* Dates Guidance Notice */}
-          <div className="calc-notice-box">
-            <b>Dates you can enter:</b> 01 Jul 2024 – 30 Jun 2027. Each fiscal year uses its own rates.
-            <br />
-            <b>Mid-month changes are fine:</b> only days covered count.
-            <br />
-            <b>One period per date:</b> periods cannot overlap.
+          <div className="notice">
+            <InfoIcon />
+            <ul>
+              <li><strong>Dates you can enter:</strong> 1 Jul 2024 – 30 Jun 2027.</li>
+              <li><strong>Mid-month changes are fine:</strong> only the days covered count.</li>
+              <li><strong>One period per date:</strong> periods cannot overlap.</li>
+            </ul>
           </div>
 
-          {/* Periods List */}
           {periods.map((period, index) => (
-            <div key={period.id} className="calc-period-card">
-              <div className="calc-period-header">
-                <span className="calc-period-title">Period {index + 1}</span>
+            <div key={period.id} className="period" role="group" aria-label={`Salary period ${index + 1}`}>
+              <div className="period-head">
+                <p className="period-title">
+                  <span aria-hidden="true">{index + 1}</span>
+                  Period {index + 1}
+                </p>
                 {periods.length > 1 && (
                   <button
                     type="button"
-                    className="calc-period-remove"
+                    className="btn btn-small"
                     onClick={() => removePeriod(period.id)}
                     aria-label={`Remove period ${index + 1}`}
                   >
+                    <CloseIcon />
                     Remove
                   </button>
                 )}
               </div>
 
-              {/* Start & End Dates */}
-              <div className="calc-dates-grid">
-                <div>
-                  <label className="calc-label" htmlFor={`start-${period.id}`}>
-                    Start date
-                  </label>
+              <div className="period-dates">
+                <div className="field">
+                  <label className="field-label" htmlFor={`start-${period.id}`}>Start date</label>
                   <input
                     id={`start-${period.id}`}
                     type="date"
-                    className="calc-input"
+                    className="control"
                     value={period.start}
                     min={MIN_DATE}
                     max={MAX_DATE}
                     onChange={(e) => updatePeriod(period.id, "start", e.target.value)}
                   />
                 </div>
-                <div>
-                  <label className="calc-label" htmlFor={`end-${period.id}`}>
-                    End date
-                  </label>
+                <div className="field">
+                  <label className="field-label" htmlFor={`end-${period.id}`}>End date</label>
                   <input
                     id={`end-${period.id}`}
                     type="date"
-                    className="calc-input"
+                    className="control"
                     value={period.end}
                     min={MIN_DATE}
                     max={MAX_DATE}
@@ -304,76 +391,42 @@ export default function MultiYearCalculator() {
                 </div>
               </div>
 
-              {/* Monthly Salary */}
-              <div>
-                <label className="calc-label" htmlFor={`sal-${period.id}`}>
-                  Monthly salary (Rs.)
-                </label>
-                <input
+              <div className="field">
+                <label className="field-label" htmlFor={`sal-${period.id}`}>Monthly salary</label>
+                <MoneyInput
                   id={`sal-${period.id}`}
-                  className="calc-input"
+                  large
                   value={period.salary}
-                  inputMode="numeric"
+                  onChange={(formatted) => updatePeriod(period.id, "salary", formatted)}
                   placeholder="Enter your monthly salary"
-                  onChange={(e) =>
-                    handleFormattedInputChange(e, (formatted) =>
-                      updatePeriod(period.id, "salary", formatted)
-                    )
-                  }
-                  onKeyDown={(e) =>
-                    handleFormattedInputKeyDown(e, (formatted) =>
-                      updatePeriod(period.id, "salary", formatted)
-                    )
-                  }
                 />
+                <p className="field-hint">What you earn each month in this period, before tax.</p>
               </div>
 
-              {/* Optional Fields (Bonus & Deductions) */}
-              <details className="calc-details" open={false}>
-                <summary>Additional fields (optional)</summary>
-                <div className="calc-details-body">
-                  <div>
-                    <label className="calc-label" htmlFor={`bonus-${period.id}`}>
-                      Regular monthly bonus (Rs.)
-                    </label>
-                    <input
+              <details className="disclosure">
+                <summary>
+                  <span className="disclosure-title">
+                    <b>Additional fields (optional)</b>
+                    <span>Regular monthly bonus and monthly deductions</span>
+                  </span>
+                </summary>
+                <div className="disclosure-body">
+                  <div className="field">
+                    <label htmlFor={`bonus-${period.id}`}>Regular monthly bonus (Rs.)</label>
+                    <MoneyInput
                       id={`bonus-${period.id}`}
-                      className="calc-input"
                       value={period.monthlyBonus}
-                      inputMode="numeric"
+                      onChange={(formatted) => updatePeriod(period.id, "monthlyBonus", formatted)}
                       placeholder="0"
-                      onChange={(e) =>
-                        handleFormattedInputChange(e, (formatted) =>
-                          updatePeriod(period.id, "monthlyBonus", formatted)
-                        )
-                      }
-                      onKeyDown={(e) =>
-                        handleFormattedInputKeyDown(e, (formatted) =>
-                          updatePeriod(period.id, "monthlyBonus", formatted)
-                        )
-                      }
                     />
                   </div>
-                  <div>
-                    <label className="calc-label" htmlFor={`ded-${period.id}`}>
-                      Monthly deductions (Rs.)
-                    </label>
-                    <input
+                  <div className="field">
+                    <label htmlFor={`ded-${period.id}`}>Monthly deductions (Rs.)</label>
+                    <MoneyInput
                       id={`ded-${period.id}`}
-                      className="calc-input"
                       value={period.monthlyDeductions}
-                      inputMode="numeric"
+                      onChange={(formatted) => updatePeriod(period.id, "monthlyDeductions", formatted)}
                       placeholder="0"
-                      onChange={(e) =>
-                        handleFormattedInputChange(e, (formatted) =>
-                          updatePeriod(period.id, "monthlyDeductions", formatted)
-                        )
-                      }
-                      onKeyDown={(e) =>
-                        handleFormattedInputKeyDown(e, (formatted) =>
-                          updatePeriod(period.id, "monthlyDeductions", formatted)
-                        )
-                      }
                     />
                   </div>
                 </div>
@@ -381,217 +434,217 @@ export default function MultiYearCalculator() {
             </div>
           ))}
 
-          {/* Add Period Button */}
-          <button
-            type="button"
-            className="calc-btn-ghost calc-btn-dashed"
-            onClick={addPeriod}
-          >
-            + Add another period
+          <button type="button" className="btn btn-add" onClick={addPeriod}>
+            <PlusIcon />
+            Add another period
           </button>
 
-          {/* Validation Error Banner */}
           {validationError && (
-            <div className="calc-error" role="alert">
+            <div className="alert alert-error" role="alert">
               {validationError}
             </div>
           )}
-
-          {/* Stale Warning Banner */}
           {isStale && !validationError && (
-            <div className="calc-stale-banner" role="status">
-              Inputs changed. Click &quot;Calculate Taxes&quot; to calculate updated results.
+            <div className="alert alert-info" role="status">
+              Inputs changed. Click &quot;Calculate taxes&quot; to see the updated result.
             </div>
           )}
 
-          {/* Calculate & Reset Actions */}
-          <div className="calc-actions">
-            <button
-              type="button"
-              className="calc-btn"
-              onClick={handleCalculate}
-            >
-              Calculate Taxes →
+          <div className="btn-row">
+            <button type="submit" className="btn btn-primary">
+              Calculate taxes
+              <ArrowRight />
             </button>
-            <button
-              type="button"
-              className="calc-btn-ghost"
-              onClick={handleReset}
-            >
+            <button type="button" className="btn btn-secondary" onClick={handleReset}>
               Reset
             </button>
           </div>
 
-          <p className="calc-disclaimer">
-            Private, browser-only calculations. All amounts in Pakistani rupees (Rs.).
-            Excludes special reliefs, credits, other income and super tax. Not tax advice.
+          <p className="fine-print">
+            Private, browser-only calculations. All amounts are in Pakistani rupees (Rs.). Excludes
+            special reliefs, credits, other income and super tax. Not tax advice.
           </p>
-        </div>
+        </form>
 
-        {/* Right Column: Your result (Rendered ONLY after user calculates) */}
-        {hasResults && calculatedResult && (
-          <div className="calc-col calc-result-col">
-            <div className="calc-result-header">
-              <h2 className="calc-h2">Your result</h2>
-              <span className="calc-badge">
-                Live calculation
-              </span>
-            </div>
+        {/* ───────────────────────────────────── Result ───────────────────────────────────── */}
+        <aside className="result" aria-label="Your result" ref={resultRef}>
+          <div className="result-head">
+            <h2 className="calc-title">Your result</h2>
+            {hasResults && <span className="live-badge">Calculated</span>}
+          </div>
 
-            {/* Forest Total Tax Hero Card */}
-            <div className="calc-hero-card">
-              <div className="calc-hero-top">
-                Total tax across {periods.length} {periods.length === 1 ? "period" : "periods"}
+          {!calculatedResult ? (
+            <Empty
+              lines={[
+                "Tax for each fiscal year",
+                "Total tax, gross and net income",
+                "Average tax rate across all periods",
+              ]}
+            />
+          ) : (
+            <>
+              <div className="hero-figure" aria-live="polite">
+                <p className="lbl">
+                  Total tax across {calculatedResult.periods.length}{" "}
+                  {calculatedResult.periods.length === 1 ? "period" : "periods"}
+                </p>
+                <p className="num">{currency(calculatedResult.totalTax)}</p>
+                <p className="sub">
+                  {calculatedResult.totalMonths} months · Average effective rate{" "}
+                  {calculatedResult.avgRate.toFixed(1)}%
+                </p>
               </div>
-              <div className="calc-hero-val">{currency(calculatedResult.totalTax)}</div>
-              <div className="calc-hero-sub">
-                {calculatedResult.totalMonths} months · Average effective rate{" "}
-                {calculatedResult.avgRate.toFixed(1)}%
-              </div>
-            </div>
 
-            {/* Gross & Net Mint Breakdown Cards */}
-            <div className="calc-mint-grid">
-              <div className="calc-mint-card">
-                <div className="calc-stat-key" style={{ marginTop: 0 }}>
-                  Total gross income
+              <dl className="mini-stats mini-stats-lg">
+                <div className="mini-stat">
+                  <dt>Total gross income</dt>
+                  <dd>{currency(calculatedResult.totalGross)}</dd>
                 </div>
-                <div className="calc-stat-val">{currency(calculatedResult.totalGross)}</div>
-              </div>
-              <div className="calc-mint-card">
-                <div className="calc-stat-key" style={{ marginTop: 0 }}>
-                  Total net income
+                <div className="mini-stat">
+                  <dt>Total net income</dt>
+                  <dd>{currency(calculatedResult.totalNet)}</dd>
                 </div>
-                <div className="calc-stat-val">{currency(calculatedResult.totalNet)}</div>
-              </div>
-            </div>
+              </dl>
 
-            {/* Multi-Year Insights (VISIBLE by default after calculation) */}
-            {insightsOpen && (
-              <>
-                {/* Fiscal Year Table */}
-                <div className="calc-tile calc-tile-result">
-                  <div style={{ fontWeight: 700, marginBottom: "12px", fontSize: "15px", color: "#14261D" }}>
-                    Fiscal year breakdown
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Fiscal year breakdown</h3>
+                <div className="rtable-scroll">
+                  <table className="rtable rtable-fy">
+                    <caption>Gross, tax and net income for each fiscal year</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Fiscal year</th>
+                        <th scope="col">Gross</th>
+                        <th scope="col">Tax</th>
+                        <th scope="col">Net</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {calculatedResult.summaries.map((s) => (
+                        <tr key={s.year}>
+                          <th scope="row">FY {fiscalLabel(s.year)}</th>
+                          <td>{Math.round(s.gross).toLocaleString("en-US")}</td>
+                          <td className="is-tax">{Math.round(s.tax).toLocaleString("en-US")}</td>
+                          <td>{Math.round(s.net).toLocaleString("en-US")}</td>
+                        </tr>
+                      ))}
+                      <tr className="is-total">
+                        <th scope="row">Total</th>
+                        <td>{Math.round(calculatedResult.totalGross).toLocaleString("en-US")}</td>
+                        <td className="is-tax">{Math.round(calculatedResult.totalTax).toLocaleString("en-US")}</td>
+                        <td>{Math.round(calculatedResult.totalNet).toLocaleString("en-US")}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <ResultActions onPdf={handleDownloadPdf} getUrl={getShareUrl} />
+            </>
+          )}
+        </aside>
+      </div>
+
+      {/* ───────────────────────────────────── Insights ───────────────────────────────────── */}
+      {calculatedResult && (
+        <section className="insights" aria-labelledby="insights-title">
+          <InsightsHeader
+            subtitle="See how your tax changed from year to year."
+            open={insightsOpen}
+            onToggle={() => setInsightsOpen((open) => !open)}
+          />
+
+          {insightsOpen && (
+            <div className="insight-body" id="insights-body">
+              <div className="seg" role="group" aria-label="Insight views">
+                {(
+                  [
+                    ["chart", "Tax vs take-home"],
+                    ["periods", "Salary periods"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={activeTab === key}
+                    onClick={() => setActiveTab(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {activeTab === "chart" && (
+                <div className="insight-body">
+                  <div>
+                    <h3 className="insight-h">Tax vs take-home by fiscal year</h3>
+                    <p className="insight-p">
+                      Each column is one fiscal year&apos;s gross income, split into what you keep and what goes
+                      to tax.
+                    </p>
                   </div>
-                  <div className="calc-table-wrap">
-                    <table className="calc-table">
+                  <FyStackChart data={stackData} />
+                  <div className="legend">
+                    <div className="legend-item"><span className="dot dot-keep" aria-hidden="true" />You keep (net income)</div>
+                    <div className="legend-item"><span className="dot dot-tax" aria-hidden="true" />Tax</div>
+                  </div>
+                  <ul className="legend" style={{ padding: 0, listStyle: "none", flexDirection: "column" }}>
+                    {calculatedResult.summaries.map((s) => (
+                      <li key={s.year} className="legend-item" style={{ flexWrap: "wrap" }}>
+                        <b>FY {fiscalLabel(s.year)}</b>
+                        <span className="val">
+                          {pct(s.gross > 0 ? (s.tax / s.gross) * 100 : 0)} tax · {compactCurrency(s.tax)} of{" "}
+                          {compactCurrency(s.gross)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {activeTab === "periods" && (
+                <div className="insight-body">
+                  <div>
+                    <h3 className="insight-h">Your salary periods</h3>
+                    <p className="insight-p">How each period was placed in a fiscal year.</p>
+                  </div>
+                  <div className="table-scroll">
+                    <table className="wtable" style={{ minWidth: 680 }}>
+                      <caption>Salary periods and the fiscal years they fall in</caption>
                       <thead>
                         <tr>
-                          <th>Fiscal year</th>
-                          <th>Gross</th>
-                          <th>Tax</th>
-                          <th>Net</th>
+                          <th scope="col">Period</th>
+                          <th scope="col">Dates</th>
+                          <th scope="col" className="r">Monthly salary</th>
+                          <th scope="col" className="r">Bonus / deductions</th>
+                          <th scope="col">Fiscal year</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {calculatedResult.summaries.map((s) => (
-                          <tr key={s.year}>
-                            <td>
-                              <b>FY {fiscalLabel(s.year)}</b>
+                        {calculatedResult.periods.map((p, i) => (
+                          <tr key={p.id}>
+                            <th scope="row" style={{ fontWeight: 600 }}>Period {i + 1}</th>
+                            <td>{formatDate(p.start)} – {formatDate(p.end)}</td>
+                            <td className="r">{currency(cleanNumber(p.salary))}</td>
+                            <td className="r">
+                              {currency(cleanNumber(p.monthlyBonus))} / {currency(cleanNumber(p.monthlyDeductions))}
                             </td>
-                            <td>{compactCurrency(s.gross)}</td>
-                            <td style={{ color: "#A3452E", fontWeight: 600 }}>
-                              {compactCurrency(s.tax)}
-                            </td>
-                            <td>{compactCurrency(s.net)}</td>
+                            <td>{periodFiscalYears(p)}</td>
                           </tr>
                         ))}
-                        <tr className="calc-row-total">
-                          <td>
-                            <b>Total</b>
-                          </td>
-                          <td>
-                            <b>{compactCurrency(calculatedResult.totalGross)}</b>
-                          </td>
-                          <td style={{ color: "#A3452E" }}>
-                            <b>{compactCurrency(calculatedResult.totalTax)}</b>
-                          </td>
-                          <td>
-                            <b>{compactCurrency(calculatedResult.totalNet)}</b>
-                          </td>
-                        </tr>
                       </tbody>
                     </table>
                   </div>
+                  <p className="field-hint">
+                    Tax is worked out per fiscal year (see the breakdown above), because salary from several periods
+                    in one year is added together before it is taxed.
+                  </p>
                 </div>
-
-                {/* Tax vs Take-home by Fiscal Year */}
-                <div className="calc-tile calc-tile-result">
-                  <div style={{ fontWeight: 700, marginBottom: "14px", fontSize: "15px", color: "#14261D" }}>
-                    Tax vs take-home by fiscal year
-                  </div>
-                  <div style={{ display: "grid", gap: "14px" }}>
-                    {calculatedResult.summaries.map((s) => {
-                      const eff = s.gross > 0 ? (s.tax / s.gross) * 100 : 0;
-                      const netP = Math.max(0, 100 - eff);
-                      return (
-                        <div key={s.year}>
-                          <div
-                            style={{
-                              fontSize: "12px",
-                              marginBottom: "4px",
-                              color: "#4F5D55",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              flexWrap: "wrap",
-                              gap: "4px",
-                            }}
-                          >
-                            <span>FY {fiscalLabel(s.year)}</span>
-                            <span>{eff.toFixed(1)}% tax</span>
-                          </div>
-                          <div
-                            className="calc-split-bar"
-                            style={{ height: "20px" }}
-                            role="img"
-                            aria-label={`FY ${fiscalLabel(s.year)}: ${netP.toFixed(1)}% take-home, ${eff.toFixed(1)}% tax`}
-                          >
-                            <div
-                              className="calc-split-bar-net"
-                              style={{ width: `${netP}%` }}
-                            />
-                            <div
-                              className="calc-split-bar-tax"
-                              style={{ width: `${eff}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Action Buttons */}
-            <div className="calc-actions">
-              <button
-                type="button"
-                className="calc-btn"
-                onClick={() => setInsightsOpen((prev) => !prev)}
-                aria-expanded={insightsOpen}
-              >
-                {insightsOpen ? "Hide insights" : "Show insights"}
-              </button>
-              <button
-                type="button"
-                className="calc-btn-ghost"
-                onClick={handleDownloadPdf}
-              >
-                Download PDF
-              </button>
-              <button
-                type="button"
-                className="calc-btn-ghost"
-                onClick={handleCopyLink}
-              >
-                {copied ? "Link copied! ✓" : "Copy shareable link"}
-              </button>
+              )}
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

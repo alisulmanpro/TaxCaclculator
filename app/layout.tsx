@@ -1,63 +1,63 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import Header from "@/app/components/layout/Header";
 import Footer from "@/app/components/layout/Footer";
+import JsonLd from "@/app/components/seo/JsonLd";
+import { siteJsonLd } from "@/lib/seo";
+import { fullTitle, pages, site } from "@/lib/site";
 import "./globals.css";
 
+// Self-hosted variable fonts (app/fonts, SIL Open Font License): no request to Google at runtime.
+const inter = localFont({
+  src: "./fonts/inter-latin-wght-normal.woff2",
+  weight: "100 900",
+  variable: "--font-inter",
+  display: "swap",
+});
+const grotesk = localFont({
+  src: "./fonts/space-grotesk-latin-wght-normal.woff2",
+  weight: "300 700",
+  variable: "--font-grotesk",
+  display: "swap",
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: site.themeColor,
+};
+
+// Site-wide defaults. Per-page title/description/canonical are set in each page (lib/seo.ts → lib/site.ts).
 export const metadata: Metadata = {
-  title: "Pakistan Salary & Income Tax Calculator | TaxCalculato.com",
-  description:
-    "Calculate your Pakistan salary income tax instantly. Supports FY 2024–25, 2025–26, and 2026–27. See monthly and annual tax breakdowns, compare fiscal years, and explore tax bands.",
-  robots: { index: true, follow: true },
-  openGraph: {
-    title: "Pakistan Salary & Income Tax Calculator",
-    description:
-      "Understand your income. Know your taxes. Free Pakistan salary income tax calculator for FY 2024–27.",
-    type: "website",
-    locale: "en_PK",
+  metadataBase: new URL(site.url),
+  title: { default: fullTitle(pages.home), template: `%s | ${site.name}` },
+  description: pages.home.description,
+  applicationName: site.name,
+  authors: [{ name: site.name, url: site.url }],
+  creator: site.name,
+  publisher: site.name,
+  formatDetection: { telephone: false, email: false, address: false },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Pakistan Salary & Income Tax Calculator",
-    description:
-      "Free Pakistan salary income tax calculator. Monthly and annual estimates for FY 2024–27.",
+  openGraph: { type: "website", siteName: site.name, locale: site.locale },
+  twitter: { card: "summary_large_image" },
+  verification: {
+    ...(site.verification.google ? { google: site.verification.google } : {}),
+    ...(site.verification.bing ? { other: { "msvalidate.01": site.verification.bing } } : {}),
   },
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      name: "TaxCalculato.com",
-      url: "https://taxcalculato.com",
-      description: "Pakistan salary income tax calculator for salaried individuals.",
-    },
-    {
-      "@type": "WebPage",
-      name: "Pakistan Salary & Income Tax Calculator",
-      description:
-        "Free Pakistan salary income tax calculator covering FY 2024–25, 2025–26, and 2026–27.",
-      inLanguage: "en",
-    },
-  ],
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </head>
+    <html lang={site.language} className={`${inter.variable} ${grotesk.variable}`}>
       <body>
+        <a className="skip-link" href="#main">
+          Skip to the calculator
+        </a>
+        <JsonLd data={siteJsonLd()} />
         <Header />
         {children}
         <Footer />
