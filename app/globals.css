@@ -542,3 +542,36 @@
     display: none;
   }
 }
+
+/* ── Offline notice (components/layout/OfflineSupport.tsx) ── */
+.offline-notice {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 24px);
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--forest, #0b3d2e);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1.35;
+  box-shadow: 0 8px 24px rgba(11, 61, 46, 0.28);
+}
+.offline-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f0b84b;
+}
+@media (max-width: 540px) {
+  .offline-notice {
+    border-radius: 16px;
+    font-size: 14px;
+  }
+}

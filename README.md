@@ -15,6 +15,7 @@
 - **Multi-year** – add several salary periods (raise, new job, mid-month change). Each period is split at 30 June, every fiscal year is taxed with its own rates, and you get totals plus a tax vs take-home chart.
 - **Download PDF** – a proper PDF report (not a print dialog) with the figures, bands and the link to reopen them.
 - **Copy shareable link** – the link contains the inputs, so whoever opens it sees exactly what you saw.
+- **Works offline** – open the site once with internet and it keeps working without it (calculator, charts, PDF, shared links). Installable from the browser menu ("Add to Home screen"). See [Offline mode](#offline-mode).
 - **Fiscal years:** 2020–21 to 2026–27 (multi-year: 1 Jul 2024 – 30 Jun 2027).
 - **Private:** nothing is sent to a server. Numbers in a shared link only exist in that link.
 
@@ -47,7 +48,7 @@ app/
   components/
     calculator/   SingleYearCalculator, MultiYearCalculator, charts (Recharts),
                   ui (shared pieces + copy link/PDF hooks), pdf/reports (PDF), calculator.css
-    layout/       Header, Footer, Logo, NavLinks
+    layout/       Header, Footer, Logo, NavLinks, OfflineSupport (offline notice + service worker registration)
     sections/     Hero, FaqSection, HowItWorks, ResourcesSection
     seo/          JsonLd
 lib/
@@ -55,6 +56,7 @@ lib/
   share.ts                    ← shareable-link encode / decode + validation
   format.ts                   ← live thousands-separator inputs
   site.ts, faqs.ts, seo.ts    ← SEO settings, FAQ text, metadata + JSON-LD builders
+public/sw.js                  ← service worker for offline mode
 design-ref/                   ← approved design boards, logo and design tokens
 tests/
 ```
@@ -66,6 +68,17 @@ tests/
 `/multi-year-calculator?p=2024-07-01_2025-06-30_150000_0_0&p=…`.
 When the page opens it reads, validates (`lib/share.ts`) and restores that state, including the open
 Insights tab. Invalid or hand-edited links are ignored. The canonical URL is always the clean page.
+
+## Offline mode
+
+The calculators run fully in the browser, so a small service worker (`public/sw.js`) saves the pages, scripts, styles and fonts on the device the first time the site is opened online.
+
+- Pages: network first (3 s limit), saved copy when offline. New deploys show up as soon as the device is online.
+- `/_next/static/*`: saved copy first (file names contain a hash, so they never go stale).
+- Shared links open offline too: the saved page is reused and the numbers come from the link.
+- A small "You are offline" notice appears while the connection is down. The PDF code is loaded in the background once, so Download PDF works offline later.
+- Registered in production builds only (`next dev` is unaffected). Test with `pnpm build && pnpm start`, open the site, then switch DevTools → Network → Offline.
+- **Adding a new page?** Add its path to `PAGES` in `public/sw.js`. Changed `sw.js` heavily? Bump `CACHE_VERSION`.
 
 ## SEO
 

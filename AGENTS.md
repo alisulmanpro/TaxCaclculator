@@ -25,7 +25,7 @@ app/
   multi-year-calculator/page.tsx (+ opengraph-image.tsx)
   components/
     calculator/  SingleYearCalculator, MultiYearCalculator, charts, ui, pdf/reports, calculator.css
-    layout/      Header, Footer, Logo, NavLinks
+    layout/      Header, Footer, Logo, NavLinks, OfflineSupport
     sections/    Hero, FaqSection, HowItWorks, ResourcesSection
     seo/         JsonLd
 lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, faqs.ts, seo.ts, og.tsx
@@ -44,6 +44,12 @@ tests/
 - **PDF:** generated client-side from numbers already computed by the calculators. The PDF code never calculates tax.
 - **Charts:** Recharts, fed from the engine results; each chart has an `aria-label` summary and a table/legend with the same numbers.
 - Tables are wrapped in `.table-scroll` / `.rtable-scroll` (horizontal scroll on mobile, no page-wide overflow).
+
+## Offline Mode
+- `public/sw.js` (service worker) + `app/components/layout/OfflineSupport.tsx` (registration in production, PDF chunk warm-up, offline notice). Mounted in `app/layout.tsx`.
+- Pages are network-first with a saved fallback matched by path (query strings ignored, so shared links work offline). `/_next/static/*` is cache-first. RSC/data requests and other origins are not touched.
+- New page → add its path to `PAGES` in `public/sw.js`. Keep `/sw.js` headers in `next.config.ts` (no-cache).
+- Never cache calculation results or user input in the service worker.
 
 ## Styling Rules
 - Follow `design-ref/`: primary green `#0F6B4C`, forest `#0B3D2E`, amber `#B7791F` for tax. Tokens are CSS variables in `app/globals.css`.
