@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useId, useMemo } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   calculateTax,
   currency,
@@ -10,124 +9,149 @@ import {
   fiscalLabel,
   type FiscalYear,
 } from "@/lib/tax";
+import { cleanNumber, formatWithCommas } from "@/lib/format";
 import {
-  formatWithCommas,
-  cleanNumber,
-  handleFormattedInputChange,
-  handleFormattedInputKeyDown,
-} from "@/lib/format";
+  buildShareUrl,
+  decodeSingle,
+  encodeSingle,
+  type InsightTab,
+} from "@/lib/share";
+import {
+  BandTaxChart,
+  ComparePairChart,
+  SplitBarChart,
+  YearsColumnChart,
+  type BandBar,
+  type YearBar,
+} from "./charts";
+import {
+  ArrowRight,
+  Empty,
+  InsightsHeader,
+  ModeTabs,
+  MoneyInput,
+  ResultActions,
+  SelectField,
+  chartColors,
+  pct,
+} from "./ui";
 import "./calculator.css";
+
+const MAX_MONTHLY = 1_000_000_000;
 
 export default function SingleYearCalculator() {
   const [year, setYear] = useState<FiscalYear>("2026");
-  const [salary, setSalary] = useState(""); // Starts empty
+  const [salary, setSalary] = useState(""); // Starts empty (AGENTS.md)
   const [bonus, setBonus] = useState("0");
   const [deductions, setDeductions] = useState("0");
   const [withheld, setWithheld] = useState("0");
   const [comparison, setComparison] = useState<FiscalYear | "none">("2025");
-  const [insightsOpen, setInsightsOpen] = useState(false); // Hidden by default
-  const [activeTab, setActiveTab] = useState<"overview" | "comparison" | "bands">("overview");
-  const [hoveredBar, setHoveredBar] = useState<"gross" | "tax" | "net" | null>("net");
-  const [copied, setCopied] = useState(false);
+  const [insightsOpen, setInsightsOpen] = useState(false); // Hidden by default (AGENTS.md)
+  const [activeTab, setActiveTab] = useState<InsightTab>("overview");
+  const [needSalary, setNeedSalary] = useState(false);
 
-  // Form IDs for accessibility
   const fyId = useId();
   const salId = useId();
   const bonusId = useId();
   const dedId = useId();
   const whId = useId();
   const cmpId = useId();
+  const salaryRef = useRef<HTMLInputElement>(null);
+  const resultRef = useRef<HTMLElement>(null);
 
-  // Numeric values
+  // Open a shared link: restore exactly what the sender saw.
+  useEffect(() => {
+    const shared = decodeSingle(window.location.search);
+    if (!shared) return;
+    /* eslint-disable react-hooks/set-state-in-effect -- one-time restore from the URL after mount */
+    setYear(shared.year);
+    setSalary(formatWithCommas(shared.salary));
+    setBonus(formatWithCommas(shared.bonus) || "0");
+    setDeductions(formatWithCommas(shared.deductions) || "0");
+    setWithheld(formatWithCommas(shared.withheld) || "0");
+    setComparison(shared.comparison);
+    setInsightsOpen(shared.insightsOpen);
+    setActiveTab(shared.tab);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
+  // Numeric values (calculations never receive formatted strings)
   const monthlySalary = cleanNumber(salary);
   const annualBonus = cleanNumber(bonus);
   const monthlyDeductions = cleanNumber(deductions);
   const taxWithheld = cleanNumber(withheld);
 
-  // Bounds & Results Visibility
-  const isAboveMax = monthlySalary > 1000000000;
+  // Bounds & results visibility
+  const isAboveMax = monthlySalary > MAX_MONTHLY;
   const hasResults = monthlySalary > 0 && !isAboveMax;
 
-  // Calculation Logic (100% authoritative via lib/tax.ts)
+  // Calculation (100% authoritative via lib/tax.ts — unchanged)
   const annualGross = isAboveMax ? 0 : monthlySalary * 12 + annualBonus;
   const monthlyGross = isAboveMax ? 0 : annualGross / 12;
 
   const result = useMemo(() => {
-    if (!hasResults) {
-      return {
-        income: 0,
-        tax: 0,
-        baseTax: 0,
-        surcharge: 0,
-        takeHome: 0,
-        marginal: 0,
-        effective: 0,
-        bands: [],
-      };
-    }
+    const empty = {
+      income: 0,
+      tax: 0,
+      baseTax: 0,
+      surcharge: 0,
+      takeHome: 0,
+      marginal: 0,
+      effective: 0,
+      bands: [] as ReturnType<typeof calculateTax>["bands"],
+    };
+    if (!hasResults) return empty;
     try {
       return calculateTax({ income: annualGross, year });
     } catch {
-      return {
-        income: 0,
-        tax: 0,
-        baseTax: 0,
-        surcharge: 0,
-        takeHome: 0,
-        marginal: 0,
-        effective: 0,
-        bands: [],
-      };
+      return empty;
     }
   }, [annualGross, year, hasResults]);
 
   const annualTax = result.tax;
   const monthlyTax = annualTax / 12;
-  const annualNet = Math.max(0, annualGross - annualTax - monthlyDeductions * 12);
+  const annualDeductions = monthlyDeductions * 12;
+  const annualNet = Math.max(0, annualGross - annualTax - annualDeductions);
   const monthlyNet = Math.max(0, monthlyGross - monthlyTax - monthlyDeductions);
   const effectiveRate = annualGross > 0 ? (annualTax / annualGross) * 100 : 0;
   const marginalRate = result.marginal;
-  const netPercent = Math.max(0, 100 - effectiveRate);
+  const keptAfterTax = Math.max(0, 100 - effectiveRate);
   const taxStillDue = Math.max(0, annualTax - taxWithheld);
 
-  // Comparison Calculations
+  // Comparison with one other fiscal year
   const comparisonResult = useMemo(() => {
     if (!hasResults || comparison === "none" || isAboveMax || annualGross === 0) return null;
     try {
       const prev = calculateTax({ income: annualGross, year: comparison });
       const annualDiff = prev.tax - annualTax;
-      const monthlyDiff = annualDiff / 12;
-      const isSaving = annualDiff > 0.005;
-      const isIncrease = annualDiff < -0.005;
       return {
         prev,
         annualDiff,
-        monthlyDiff,
-        isSaving,
-        isIncrease,
+        isSaving: annualDiff > 0.005,
+        isIncrease: annualDiff < -0.005,
       };
     } catch {
       return null;
     }
   }, [annualGross, comparison, annualTax, isAboveMax, hasResults]);
 
-  // Full 7-year comparison for the comparison tab
-  const allYearComparisons = useMemo(() => {
+  // The same income in every supported fiscal year
+  const allYears = useMemo(() => {
     if (!hasResults || annualGross === 0) return [];
     return FISCAL_YEARS.map((fy) => {
       const res = calculateTax({ income: annualGross, year: fy });
-      const diff = res.tax - annualTax;
       return {
         year: fy,
         annualTax: res.tax,
         monthlyTax: res.tax / 12,
         effective: res.effective,
-        diff,
+        diff: res.tax - annualTax,
       };
     });
   }, [annualGross, annualTax, hasResults]);
 
-  // Actions
+  /* ────────────────────────────────────────── actions ────────────────────────────────────────── */
+
   const handleReset = () => {
     setYear("2026");
     setSalary("");
@@ -137,74 +161,150 @@ export default function SingleYearCalculator() {
     setComparison("2025");
     setInsightsOpen(false);
     setActiveTab("overview");
-    setHoveredBar("net");
-  };
-
-  const handleCopyLink = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
+    setNeedSalary(false);
+    // Forget a previously opened shared link, so a reload does not bring it back.
+    if (window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
     }
   };
 
-  const handleDownloadPdf = () => {
-    if (typeof window !== "undefined") {
-      window.print();
+  const handleCalculate = () => {
+    if (!hasResults) {
+      setNeedSalary(true);
+      salaryRef.current?.focus();
+      return;
     }
+    setNeedSalary(false);
+    setSalary(formatWithCommas(salary));
+    resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Bar chart proportional heights
-  const maxBarVal = Math.max(monthlyGross, 1);
-  const grossHeightPercent = 100;
-  const taxHeightPercent = monthlyGross > 0 ? Math.max(6, Math.min(100, (monthlyTax / maxBarVal) * 100)) : 0;
-  const netHeightPercent = monthlyGross > 0 ? Math.max(6, Math.min(100, (monthlyNet / maxBarVal) * 100)) : 0;
+  /** The link always describes the state on screen right now. */
+  const getShareUrl = useCallback(
+    () =>
+      buildShareUrl(
+        window.location.origin,
+        window.location.pathname,
+        encodeSingle({
+          year,
+          salary,
+          bonus,
+          deductions,
+          withheld,
+          comparison,
+          insightsOpen,
+          tab: activeTab,
+        })
+      ),
+    [year, salary, bonus, deductions, withheld, comparison, insightsOpen, activeTab]
+  );
+
+  const handleDownloadPdf = useCallback(async () => {
+    const { downloadSingleReport } = await import("./pdf/reports");
+    await downloadSingleReport({
+      generated: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+      shareUrl: getShareUrl(),
+      yearLabel: fiscalLabel(year),
+      monthlySalary,
+      annualBonus,
+      monthlyDeductions,
+      taxWithheld,
+      annualGross,
+      monthlyGross,
+      annualTax,
+      monthlyTax,
+      annualNet,
+      monthlyNet,
+      effective: effectiveRate,
+      marginal: marginalRate,
+      taxStillDue,
+      baseTax: result.baseTax,
+      surcharge: result.surcharge,
+      bands: result.bands,
+      comparison:
+        comparison !== "none" && comparisonResult
+          ? { label: fiscalLabel(comparison), tax: comparisonResult.prev.tax, diff: comparisonResult.annualDiff }
+          : null,
+      allYears: allYears.map((y) => ({
+        label: fiscalLabel(y.year),
+        tax: y.annualTax,
+        effective: y.effective,
+        selected: y.year === year,
+      })),
+    });
+  }, [
+    getShareUrl, year, monthlySalary, annualBonus, monthlyDeductions, taxWithheld, annualGross, monthlyGross,
+    annualTax, monthlyTax, annualNet, monthlyNet, effectiveRate, marginalRate, taxStillDue, result,
+    comparison, comparisonResult, allYears,
+  ]);
+
+  /* ────────────────────────────────────── chart / table data ────────────────────────────────────── */
+
+  const deductionShare = Math.min(annualDeductions, Math.max(0, annualGross - annualTax));
+  const splitParts = [
+    { key: "net", label: "Take-home", value: annualNet, color: chartColors.keep },
+    ...(deductionShare > 0
+      ? [{ key: "ded", label: "Deductions", value: deductionShare, color: chartColors.deduction }]
+      : []),
+    { key: "tax", label: "Tax", value: annualTax, color: chartColors.tax },
+  ];
+  const takeHomePct = annualGross > 0 ? (annualNet / annualGross) * 100 : 0;
+  const taxPct = annualGross > 0 ? (annualTax / annualGross) * 100 : 0;
+  const dedPct = annualGross > 0 ? (deductionShare / annualGross) * 100 : 0;
+
+  const yearBars: YearBar[] = allYears.map((y) => ({
+    label: fiscalLabel(y.year),
+    tax: y.annualTax,
+    effective: y.effective,
+    role: y.year === year ? "selected" : y.year === comparison ? "compare" : "other",
+  }));
+
+  const activeBands = result.bands.filter((b) => b.income > 0);
+  const topBand = activeBands[activeBands.length - 1];
+  const bandRange = (lower: number, upper: number) =>
+    lower === 0
+      ? `Up to ${currency(upper)}`
+      : Number.isFinite(upper)
+        ? `${currency(lower + 1)} – ${Math.round(upper).toLocaleString("en-US")}`
+        : `Above ${currency(lower)}`;
+  const bandBars: BandBar[] = activeBands.map((b) => ({
+    rate: `${+b.rate.toFixed(2)}%`,
+    range: bandRange(b.lower, b.upper),
+    income: b.income,
+    tax: b.tax,
+    top: b === topBand,
+  }));
+  const maxBandIncome = Math.max(...activeBands.map((b) => b.income), 1);
 
   return (
-    <div className="calc-card" id="salary-tool">
-      {/* Tab Switcher: Single Year active, Multi-Year navigates to /multi-year-calculator */}
-      <div className="calc-tabs-bar">
-        <div className="calc-tabs-track" role="tablist" aria-label="Tax calculation mode">
-          <button
-            type="button"
-            role="tab"
-            aria-selected="true"
-            className="calc-tab on"
-          >
-            Single Year
-          </button>
-          <Link
-            href="/multi-year-calculator"
-            role="tab"
-            aria-selected="false"
-            className="calc-tab"
-          >
-            Multi-Year
-          </Link>
-        </div>
-      </div>
+    <div className="calc" id="salary-tool">
+      <ModeTabs active="single" />
 
-      {/* Calculator Body: Compact single column when empty, 2 columns when calculated */}
-      <div className={`calc-body ${!hasResults ? "no-results" : ""}`}>
-        {/* Left Column: Your details */}
-        <div className="calc-col">
-          <h2 className="calc-h2">Your details</h2>
+      <div className="calc-grid">
+        {/* ───────────────────────────────────── Form ───────────────────────────────────── */}
+        <form
+          className="calc-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleCalculate();
+          }}
+          noValidate
+        >
+          <h2 className="calc-title">Your details</h2>
 
-          {/* Fiscal year */}
-          <div>
-            <label htmlFor={fyId} className="calc-label">
+          <div className="field">
+            <label htmlFor={fyId} className="field-label">
+              <span className="step-num" aria-hidden="true">1</span>
               Fiscal year
             </label>
-            <select
+            <SelectField
               id={fyId}
-              className="calc-select"
               value={year}
-              onChange={(e) => {
-                const newYear = e.target.value as FiscalYear;
+              onChange={(value) => {
+                const newYear = value as FiscalYear;
                 setYear(newYear);
                 if (comparison === newYear) {
-                  const alt = FISCAL_YEARS.find((y) => y !== newYear) ?? "2025";
-                  setComparison(alt);
+                  setComparison(FISCAL_YEARS.find((y) => y !== newYear) ?? "2025");
                 }
               }}
             >
@@ -213,88 +313,75 @@ export default function SingleYearCalculator() {
                   {fiscalLabel(fy)}
                 </option>
               ))}
-            </select>
+            </SelectField>
+            <p className="field-hint">A fiscal year runs from July to June.</p>
           </div>
 
-          {/* Monthly salary */}
-          <div>
-            <label htmlFor={salId} className="calc-label">
-              Monthly salary (Rs.)
+          <div className="field">
+            <label htmlFor={salId} className="field-label">
+              <span className="step-num" aria-hidden="true">2</span>
+              Monthly salary
             </label>
-            <input
+            <MoneyInput
               id={salId}
-              className="calc-input"
+              inputRef={salaryRef}
+              large
               value={salary}
-              inputMode="numeric"
+              onChange={(v) => {
+                setSalary(v);
+                setNeedSalary(false);
+              }}
               placeholder="Enter your Salary"
-              onChange={(e) => handleFormattedInputChange(e, setSalary)}
-              onKeyDown={(e) => handleFormattedInputKeyDown(e, setSalary)}
+              invalid={isAboveMax || needSalary}
+              describedBy={`${salId}-hint`}
             />
+            <p className="field-hint" id={`${salId}-hint`}>
+              What you earn each month, before tax.
+            </p>
+            {isAboveMax && (
+              <div className="alert alert-error" role="alert">
+                Enter a monthly salary between Rs. 1 and Rs. 1,000,000,000.
+              </div>
+            )}
+            {needSalary && !isAboveMax && (
+              <div className="alert alert-error" role="alert">
+                Enter your monthly salary to see your tax.
+              </div>
+            )}
           </div>
 
-          {/* Optional additional fields */}
-          <details className="calc-details" open={false}>
-            <summary>Additional fields (optional)</summary>
-            <div className="calc-details-body">
-              <div>
-                <label htmlFor={bonusId} className="calc-label">
-                  Annual bonus (Rs.)
-                </label>
-                <input
-                  id={bonusId}
-                  className="calc-input"
-                  value={bonus}
-                  inputMode="numeric"
-                  placeholder="0"
-                  onChange={(e) => handleFormattedInputChange(e, setBonus)}
-                  onKeyDown={(e) => handleFormattedInputKeyDown(e, setBonus)}
-                />
+          <details className="disclosure">
+            <summary>
+              <span className="disclosure-title">
+                <b>Additional fields (optional)</b>
+                <span>Bonus, deductions and tax already paid</span>
+              </span>
+            </summary>
+            <div className="disclosure-body">
+              <div className="field">
+                <label htmlFor={bonusId}>Annual bonus (Rs.)</label>
+                <MoneyInput id={bonusId} value={bonus} onChange={setBonus} placeholder="0" />
               </div>
-
-              <div>
-                <label htmlFor={dedId} className="calc-label">
-                  Monthly deductions (Rs.)
-                </label>
-                <input
-                  id={dedId}
-                  className="calc-input"
-                  value={deductions}
-                  inputMode="numeric"
-                  placeholder="0"
-                  onChange={(e) => handleFormattedInputChange(e, setDeductions)}
-                  onKeyDown={(e) => handleFormattedInputKeyDown(e, setDeductions)}
-                />
+              <div className="field">
+                <label htmlFor={dedId}>Monthly deductions (Rs.)</label>
+                <MoneyInput id={dedId} value={deductions} onChange={setDeductions} placeholder="0" />
               </div>
-
-              <div>
-                <label htmlFor={whId} className="calc-label">
-                  Tax already withheld (Rs.)
-                </label>
-                <input
-                  id={whId}
-                  className="calc-input"
-                  value={withheld}
-                  inputMode="numeric"
-                  placeholder="0"
-                  onChange={(e) => handleFormattedInputChange(e, setWithheld)}
-                  onKeyDown={(e) => handleFormattedInputKeyDown(e, setWithheld)}
-                />
+              <div className="field">
+                <label htmlFor={whId}>Tax already withheld (Rs.)</label>
+                <MoneyInput id={whId} value={withheld} onChange={setWithheld} placeholder="0" />
               </div>
             </div>
           </details>
 
-          {/* Compare with */}
-          <div>
-            <label htmlFor={cmpId} className="calc-label">
-              Compare with
+          <div className="field">
+            <label htmlFor={cmpId} className="field-label">
+              <span className="step-num" aria-hidden="true">3</span>
+              Compare with <span className="opt">(another year)</span>
             </label>
-            <select
+            <SelectField
               id={cmpId}
-              className="calc-select"
               value={comparison}
-              onChange={(e) => {
-                setComparison(e.target.value as FiscalYear | "none");
-              }}
+              onChange={(value) => setComparison(value as FiscalYear | "none")}
             >
               {FISCAL_YEARS.filter((fy) => fy !== year).map((fy) => (
                 <option key={fy} value={fy}>
@@ -302,457 +389,379 @@ export default function SingleYearCalculator() {
                 </option>
               ))}
               <option value="none">No comparison</option>
-            </select>
+            </SelectField>
+            <p className="field-hint">See how your tax changed between two years.</p>
           </div>
 
-          {/* Error messages */}
-          {isAboveMax && (
-            <div className="calc-error" role="alert">
-              Enter a monthly salary between Rs. 1 and Rs. 1,000,000,000.
-            </div>
-          )}
-
-          {/* Action buttons */}
-          <div className="calc-actions">
-            <button
-              type="button"
-              className="calc-btn"
-              onClick={() => {
-                if (salary.trim()) setSalary(formatWithCommas(salary));
-              }}
-            >
+          <div className="btn-row">
+            <button type="submit" className="btn btn-primary">
               Calculate tax
+              <ArrowRight />
             </button>
-            <button
-              type="button"
-              className="calc-btn-ghost"
-              onClick={handleReset}
-            >
+            <button type="button" className="btn btn-secondary" onClick={handleReset}>
               Reset
             </button>
           </div>
 
-          <p className="calc-disclaimer">
-            Private, browser-only calculations. All amounts in Pakistani rupees (Rs.).
-            Excludes special reliefs, credits, other income and super tax. Not tax advice.
+          <p className="fine-print">
+            Private, browser-only calculations. All amounts are in Pakistani rupees (Rs.). Excludes
+            special reliefs, credits, other income and super tax. Not tax advice.
           </p>
-        </div>
+        </form>
 
-        {/* Right Column: Your result (Rendered ONLY when valid salary entered) */}
-        {hasResults && (
-          <div className="calc-col">
-            <div className="calc-result-header">
-              <h2 className="calc-h2">Your result</h2>
-              <span className="calc-badge">
-                Live estimate
-              </span>
-            </div>
+        {/* ───────────────────────────────────── Result ───────────────────────────────────── */}
+        <aside className="result" aria-label="Your result" ref={resultRef}>
+          <div className="result-head">
+            <h2 className="calc-title">Your result</h2>
+            {hasResults && <span className="live-badge">Live estimate</span>}
+          </div>
 
-            {/* Forest Result Hero Card */}
-            <div className="calc-hero-card">
-              <div className="calc-hero-top">Annual tax due</div>
-              <div className="calc-hero-val">{currency(annualTax)}</div>
-              <div className="calc-hero-sub">
-                Effective rate {effectiveRate.toFixed(2)}% · Marginal rate {marginalRate}%
-              </div>
-            </div>
-
-            {/* Monthly & Annual Mint Breakdown Cards */}
-            <div className="calc-mint-grid">
-              {/* Monthly */}
-              <div className="calc-mint-card">
-                <div className="calc-eyebrow">Monthly breakdown</div>
-                <div className="calc-stat-key">Gross income</div>
-                <div className="calc-stat-val">{currency(monthlyGross)}</div>
-                <div className="calc-stat-key">Monthly tax</div>
-                <div className="calc-stat-val is-tax">{currency(monthlyTax)}</div>
-                <div className="calc-stat-key">Net income</div>
-                <div className="calc-stat-val">{currency(monthlyNet)}</div>
+          {!hasResults ? (
+            <Empty
+              lines={[
+                "Tax you pay each month",
+                "Salary you take home each month",
+                "Tax for the full year",
+              ]}
+            />
+          ) : (
+            <>
+              <div className="hero-figure" aria-live="polite">
+                <p className="lbl">Annual tax due · FY {fiscalLabel(year)}</p>
+                <p className="num">{currency(annualTax)}</p>
+                <p className="sub">
+                  Effective rate {pct(effectiveRate)} · Marginal rate {pct(marginalRate)}
+                </p>
               </div>
 
-              {/* Annual */}
-              <div className="calc-mint-card">
-                <div className="calc-eyebrow">Annual breakdown</div>
-                <div className="calc-stat-key">Gross income</div>
-                <div className="calc-stat-val">{currency(annualGross)}</div>
-                <div className="calc-stat-key">Annual tax</div>
-                <div className="calc-stat-val is-tax">{currency(annualTax)}</div>
-                <div className="calc-stat-key">Net income</div>
-                <div className="calc-stat-val">{currency(annualNet)}</div>
-              </div>
-            </div>
+              <table className="rtable">
+                <caption>Monthly and annual breakdown</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Rs.</th>
+                    <th scope="col">Monthly</th>
+                    <th scope="col">Annual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Gross income</th>
+                    <td>{Math.round(monthlyGross).toLocaleString("en-US")}</td>
+                    <td>{Math.round(annualGross).toLocaleString("en-US")}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Tax</th>
+                    <td className="is-tax">{Math.round(monthlyTax).toLocaleString("en-US")}</td>
+                    <td className="is-tax">{Math.round(annualTax).toLocaleString("en-US")}</td>
+                  </tr>
+                  {monthlyDeductions > 0 && (
+                    <tr>
+                      <th scope="row">Deductions</th>
+                      <td>{Math.round(monthlyDeductions).toLocaleString("en-US")}</td>
+                      <td>{Math.round(annualDeductions).toLocaleString("en-US")}</td>
+                    </tr>
+                  )}
+                  <tr className="is-total">
+                    <th scope="row">Net income</th>
+                    <td>{Math.round(monthlyNet).toLocaleString("en-US")}</td>
+                    <td>{Math.round(annualNet).toLocaleString("en-US")}</td>
+                  </tr>
+                </tbody>
+              </table>
 
-            {/* Tax Saving / Comparison Strip */}
-            {comparisonResult && (
-              <div className="calc-savings-strip" aria-live="polite">
-                <div>
-                  <span className="calc-eyebrow">
-                    {comparisonResult.isSaving
-                      ? "Tax saving"
-                      : comparisonResult.isIncrease
-                      ? "Tax increase"
-                      : "No change"}
-                  </span>
-                  <div className="calc-savings-msg">
-                    {comparisonResult.isSaving
-                      ? `You save ${currency(Math.abs(comparisonResult.monthlyDiff))} per month vs FY ${fiscalLabel(comparison as FiscalYear)}`
-                      : comparisonResult.isIncrease
-                      ? `You pay ${currency(Math.abs(comparisonResult.monthlyDiff))} more per month vs FY ${fiscalLabel(comparison as FiscalYear)}`
-                      : `No tax difference compared with FY ${fiscalLabel(comparison as FiscalYear)}`}
+              {comparisonResult && comparison !== "none" && (
+                <div className="compare-banner">
+                  <div className="left">
+                    <span className="compare-icon" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path
+                          d={comparisonResult.isIncrease ? "M9 15V3M4 8l5-5 5 5" : "M9 3v12M4 10l5 5 5-5"}
+                          fill="none"
+                          stroke="#0B3D2E"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    <div>
+                      <p className="tag">
+                        {comparisonResult.isSaving
+                          ? "LOWER TAX"
+                          : comparisonResult.isIncrease
+                            ? "HIGHER TAX"
+                            : "SAME TAX"}
+                      </p>
+                      <p>Compared with FY {fiscalLabel(comparison)}</p>
+                    </div>
+                  </div>
+                  <p className="amount">
+                    {currency(Math.abs(comparisonResult.annualDiff))} <small>/ yr</small>
+                  </p>
+                </div>
+              )}
+
+              <dl className="mini-stats">
+                <div className="mini-stat">
+                  <dt>Kept after tax</dt>
+                  <dd>{pct(keptAfterTax)}</dd>
+                </div>
+                <div className="mini-stat">
+                  <dt>Net / month</dt>
+                  <dd>{compactCurrency(monthlyNet)}</dd>
+                </div>
+                <div className="mini-stat">
+                  <dt>Tax still due</dt>
+                  <dd>{currency(taxStillDue)}</dd>
+                </div>
+              </dl>
+
+              <ResultActions onPdf={handleDownloadPdf} getUrl={getShareUrl} />
+            </>
+          )}
+        </aside>
+      </div>
+
+      {/* ───────────────────────────────────── Insights ───────────────────────────────────── */}
+      {hasResults && (
+        <section className="insights" aria-labelledby="insights-title">
+          <InsightsHeader
+            subtitle="See where your salary goes, year by year and band by band."
+            open={insightsOpen}
+            onToggle={() => setInsightsOpen((open) => !open)}
+          />
+
+          {insightsOpen && (
+            <div className="insight-body" id="insights-body">
+              <div className="seg" role="group" aria-label="Insight views">
+                {(
+                  [
+                    ["overview", "Overview"],
+                    ["comparison", "Fiscal year comparison"],
+                    ["bands", "Tax bands"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={activeTab === key}
+                    onClick={() => setActiveTab(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {activeTab === "overview" && (
+                <div className="insight-body">
+                  <div>
+                    <h3 className="insight-h">Where your salary goes</h3>
+                    <p className="insight-p">Every year, out of {currency(annualGross)}.</p>
+                  </div>
+                  <SplitBarChart
+                    parts={splitParts}
+                    total={annualGross}
+                    summary={`Of every Rs. 100 you earn, Rs. ${takeHomePct.toFixed(2)} is take-home and Rs. ${taxPct.toFixed(2)} is tax`}
+                  />
+                  <div className="legend">
+                    <div className="legend-item">
+                      <span className="dot dot-keep" aria-hidden="true" />
+                      <b>You keep</b>
+                      <span className="val">{currency(annualNet)} · {pct(takeHomePct)}</span>
+                    </div>
+                    {deductionShare > 0 && (
+                      <div className="legend-item">
+                        <span className="dot dot-old" aria-hidden="true" />
+                        <b>Deductions</b>
+                        <span className="val">{currency(deductionShare)} · {pct(dedPct)}</span>
+                      </div>
+                    )}
+                    <div className="legend-item">
+                      <span className="dot dot-tax" aria-hidden="true" />
+                      <b>Tax</b>
+                      <span className="val">{currency(annualTax)} · {pct(taxPct)}</span>
+                    </div>
+                  </div>
+                  <div className="tiles">
+                    <div className="tile">
+                      <p>Gross salary</p>
+                      <p>{currency(monthlyGross)}</p>
+                    </div>
+                    <div className="tile tile-tax">
+                      <p>Tax</p>
+                      <p>{currency(monthlyTax)}</p>
+                    </div>
+                    <div className="tile tile-keep">
+                      <p>Take-home</p>
+                      <p>{currency(monthlyNet)}</p>
+                    </div>
+                  </div>
+                  <p className="field-hint" style={{ marginTop: -12 }}>
+                    Tiles show the monthly figure.
+                  </p>
+                  <p className="kept-line">
+                    For every Rs. 100 you earn, <strong>Rs. {takeHomePct.toFixed(2)}</strong> is take-home and{" "}
+                    <strong>Rs. {taxPct.toFixed(2)}</strong> goes to tax.
+                  </p>
+                </div>
+              )}
+
+              {activeTab === "comparison" && (
+                <div className="insight-body">
+                  {comparisonResult && comparison !== "none" ? (
+                    <>
+                      <div className="cmp-head">
+                        <div>
+                          <h3 className="insight-h">
+                            FY {fiscalLabel(year)} compared with FY {fiscalLabel(comparison)}
+                          </h3>
+                          <p className="insight-p">
+                            Same income of {currency(annualGross)} a year, taxed with each year&apos;s rates.
+                          </p>
+                        </div>
+                        <span className={`pill-green${comparisonResult.isIncrease ? " pill-amber" : ""}`}>
+                          {comparisonResult.isSaving
+                            ? `${currency(comparisonResult.annualDiff)} less tax per year`
+                            : comparisonResult.isIncrease
+                              ? `${currency(-comparisonResult.annualDiff)} more tax per year`
+                              : "Same tax in both years"}
+                        </span>
+                      </div>
+                      <div className="chart-grid">
+                        <ComparePairChart
+                          title="Tax per year"
+                          rows={[
+                            { label: `FY ${fiscalLabel(comparison)}`, value: comparisonResult.prev.tax, color: chartColors.old },
+                            { label: `FY ${fiscalLabel(year)}`, value: annualTax, color: chartColors.keep },
+                          ]}
+                        />
+                        <ComparePairChart
+                          title="Take-home per year"
+                          rows={[
+                            {
+                              label: `FY ${fiscalLabel(comparison)}`,
+                              value: Math.max(0, annualGross - comparisonResult.prev.tax - annualDeductions),
+                              color: chartColors.old,
+                            },
+                            { label: `FY ${fiscalLabel(year)}`, value: annualNet, color: chartColors.keep },
+                          ]}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <h3 className="insight-h">Fiscal year comparison</h3>
+                      <p className="insight-p">
+                        Pick a year in &ldquo;Compare with&rdquo; to see two years side by side. The chart below
+                        always shows every year.
+                      </p>
+                    </div>
+                  )}
+
+                  <div>
+                    <h3 className="insight-h">The same income in every fiscal year</h3>
+                    <p className="insight-p">Annual tax on {currency(annualGross)}.</p>
+                  </div>
+                  <YearsColumnChart data={yearBars} />
+                  <div className="legend">
+                    <div className="legend-item"><span className="dot dot-keep" aria-hidden="true" />Selected year</div>
+                    {comparison !== "none" && (
+                      <div className="legend-item"><span className="dot dot-old" aria-hidden="true" />Compared year</div>
+                    )}
+                    <div className="legend-item"><span className="dot" style={{ background: "#C5D6CB" }} aria-hidden="true" />Other years</div>
+                  </div>
+                  <div className="table-scroll">
+                    <table className="wtable" style={{ minWidth: 560 }}>
+                      <caption>Annual tax in each fiscal year</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Fiscal year</th>
+                          <th scope="col" className="r">Annual tax</th>
+                          <th scope="col" className="r">Monthly tax</th>
+                          <th scope="col" className="r">Effective rate</th>
+                          <th scope="col" className="r">vs. selected year</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allYears.map((y) => (
+                          <tr key={y.year} className={y.year === year ? "row-selected" : undefined}>
+                            <th scope="row">FY {fiscalLabel(y.year)}{y.year === year ? " (selected)" : ""}</th>
+                            <td className="r">{currency(y.annualTax)}</td>
+                            <td className="r">{currency(y.monthlyTax)}</td>
+                            <td className="r">{pct(y.effective)}</td>
+                            <td className={`r ${y.diff > 0.005 ? "up" : y.diff < -0.005 ? "down" : ""}`}>
+                              {y.year === year
+                                ? "—"
+                                : `${y.diff > 0 ? "+" : y.diff < 0 ? "−" : ""}${currency(Math.abs(y.diff))}`}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-                <div className="calc-savings-diff">
-                  {comparisonResult.isSaving
-                    ? `− ${currency(Math.abs(comparisonResult.annualDiff))} / yr`
-                    : comparisonResult.isIncrease
-                    ? `+ ${currency(Math.abs(comparisonResult.annualDiff))} / yr`
-                    : `${currency(0)} / yr`}
-                </div>
-              </div>
-            )}
+              )}
 
-            {/* 4 Stat Tiles */}
-            <div className="calc-tiles-grid">
-              <div className="calc-tile">
-                <div className="k">Effective rate</div>
-                <div className="v">{effectiveRate.toFixed(2)}%</div>
-              </div>
-              <div className="calc-tile">
-                <div className="k">Take-home share</div>
-                <div className="v">{netPercent.toFixed(2)}%</div>
-              </div>
-              <div className="calc-tile">
-                <div className="k">Net / month</div>
-                <div className="v">{compactCurrency(monthlyNet)}</div>
-              </div>
-              <div className="calc-tile">
-                <div className="k">Tax still due</div>
-                <div className="v">
-                  {taxWithheld > 0 && taxStillDue === 0
-                    ? "Fully paid"
-                    : compactCurrency(taxStillDue)}
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="calc-actions">
-              <button
-                type="button"
-                className="calc-btn"
-                onClick={() => setInsightsOpen((prev) => !prev)}
-                aria-expanded={insightsOpen}
-              >
-                {insightsOpen ? "Hide Insights" : "Show Insights"}
-              </button>
-              <button
-                type="button"
-                className="calc-btn-ghost"
-                onClick={handleDownloadPdf}
-              >
-                Download PDF
-              </button>
-              <button
-                type="button"
-                className="calc-btn-ghost"
-                onClick={handleCopyLink}
-              >
-                {copied ? "Link copied! ✓" : "Copy shareable link"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Full-Width Insights Section (Revealed across full width when Show Insights is clicked) */}
-        {hasResults && insightsOpen && (
-          <div className="calc-insights-section">
-            <div className="calc-subtabs" role="tablist" aria-label="Salary insights tabs">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === "overview"}
-                className={`calc-tab ${activeTab === "overview" ? "on" : ""}`}
-                onClick={() => setActiveTab("overview")}
-              >
-                Overview
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === "comparison"}
-                className={`calc-tab ${activeTab === "comparison" ? "on" : ""}`}
-                onClick={() => setActiveTab("comparison")}
-              >
-                Fiscal year comparison
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === "bands"}
-                className={`calc-tab ${activeTab === "bands" ? "on" : ""}`}
-                onClick={() => setActiveTab("bands")}
-              >
-                Tax bands
-              </button>
-            </div>
-
-            {/* Tab 1: Overview */}
-            {activeTab === "overview" && (
-              <div className="calc-tile" style={{ padding: "24px" }}>
-                <div className="calc-cashflow-container">
+              {activeTab === "bands" && (
+                <div className="insight-body">
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: "16px", color: "#14261D" }}>
-                      Monthly cash flow
-                    </div>
-                    <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#4F5D55" }}>
-                      Interactive breakdown of how your monthly salary is distributed.
+                    <h3 className="insight-h">Your tax, band by band</h3>
+                    <p className="insight-p">
+                      FY {fiscalLabel(year)} · yearly income of {currency(annualGross)}. Each part of your
+                      income is taxed at its own rate.
                     </p>
                   </div>
-
-                  {/* Active Bar Tooltip Display */}
-                  <div className="calc-chart-tooltip" aria-live="polite">
-                    <div>
-                      <span className="calc-chart-tooltip-label">
-                        {hoveredBar === "gross"
-                          ? "Gross Monthly Salary"
-                          : hoveredBar === "tax"
-                          ? "Monthly Income Tax"
-                          : "Monthly Net Take-Home"}
-                      </span>
-                      <div className="calc-chart-tooltip-val">
-                        {hoveredBar === "gross"
-                          ? currency(monthlyGross)
-                          : hoveredBar === "tax"
-                          ? currency(monthlyTax)
-                          : currency(monthlyNet)}
-                      </div>
-                    </div>
-                    <div style={{ fontSize: "12px", color: "#A9C7B8", textAlign: "right" }}>
-                      {hoveredBar === "gross"
-                        ? "100% of gross"
-                        : hoveredBar === "tax"
-                        ? `${((monthlyTax / monthlyGross) * 100).toFixed(1)}% of gross`
-                        : `${((monthlyNet / monthlyGross) * 100).toFixed(1)}% of gross`}
-                    </div>
-                  </div>
-
-                  {/* Interactive Chart Bars */}
-                  <div className="calc-cashflow-chart">
-                    {/* Gross */}
-                    <div
-                      className={`calc-chart-bar-item ${hoveredBar === "gross" ? "is-active" : ""}`}
-                      onMouseEnter={() => setHoveredBar("gross")}
-                      onClick={() => setHoveredBar("gross")}
-                      tabIndex={0}
-                      role="button"
-                      aria-label={`Gross income: ${currency(monthlyGross)}`}
-                    >
-                      <div
-                        className="calc-chart-bar-gross"
-                        style={{ height: `${grossHeightPercent}%` }}
-                      />
-                    </div>
-
-                    {/* Tax */}
-                    <div
-                      className={`calc-chart-bar-item ${hoveredBar === "tax" ? "is-active" : ""}`}
-                      onMouseEnter={() => setHoveredBar("tax")}
-                      onClick={() => setHoveredBar("tax")}
-                      tabIndex={0}
-                      role="button"
-                      aria-label={`Monthly tax: ${currency(monthlyTax)}`}
-                    >
-                      <div
-                        className="calc-chart-bar-tax"
-                        style={{ height: `${taxHeightPercent}%` }}
-                      />
-                    </div>
-
-                    {/* Net */}
-                    <div
-                      className={`calc-chart-bar-item ${hoveredBar === "net" ? "is-active" : ""}`}
-                      onMouseEnter={() => setHoveredBar("net")}
-                      onClick={() => setHoveredBar("net")}
-                      tabIndex={0}
-                      role="button"
-                      aria-label={`Take-home: ${currency(monthlyNet)}`}
-                    >
-                      <div
-                        className="calc-chart-bar-net"
-                        style={{ height: `${netHeightPercent}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Chart Labels */}
-                  <div className="calc-chart-labels">
-                    <div
-                      className={hoveredBar === "gross" ? "is-active" : ""}
-                      onMouseEnter={() => setHoveredBar("gross")}
-                      onClick={() => setHoveredBar("gross")}
-                    >
-                      <b>Gross</b>
-                      <br />
-                      {compactCurrency(monthlyGross)}
-                    </div>
-                    <div
-                      className={hoveredBar === "tax" ? "is-active" : ""}
-                      onMouseEnter={() => setHoveredBar("tax")}
-                      onClick={() => setHoveredBar("tax")}
-                    >
-                      <b>Tax</b>
-                      <br />− {compactCurrency(monthlyTax)}
-                    </div>
-                    <div
-                      className={hoveredBar === "net" ? "is-active" : ""}
-                      onMouseEnter={() => setHoveredBar("net")}
-                      onClick={() => setHoveredBar("net")}
-                    >
-                      <b>Take-home</b>
-                      <br />
-                      {compactCurrency(monthlyNet)}
-                    </div>
-                  </div>
-
-                  <div style={{ marginTop: "14px", paddingTop: "14px", borderTop: "1px solid #DDE3DF" }}>
-                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#14261D" }}>
-                      For every Rs. 100 earned
-                    </div>
-                    <div
-                      className="calc-split-bar"
-                      role="img"
-                      aria-label={`${netPercent.toFixed(2)} rupees kept, ${effectiveRate.toFixed(2)} rupees tax`}
-                    >
-                      <div
-                        className="calc-split-bar-net"
-                        style={{ width: `${netPercent}%` }}
-                      />
-                      <div
-                        className="calc-split-bar-tax"
-                        style={{ width: `${effectiveRate}%` }}
-                      />
-                    </div>
-                    <div className="calc-split-labels">
-                      <span>Rs. {netPercent.toFixed(2)} you keep</span>
-                      <span>Rs. {effectiveRate.toFixed(2)} tax</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 2: Fiscal Year Comparison Table */}
-            {activeTab === "comparison" && (
-              <div className="calc-tile" style={{ padding: "24px" }}>
-                <div style={{ fontWeight: 700, marginBottom: "6px", fontSize: "16px", color: "#14261D" }}>
-                  Comparison across fiscal years (same gross income)
-                </div>
-                <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#4F5D55" }}>
-                  See how the same gross income of {currency(annualGross)}/yr is taxed under different Finance Acts.
-                </p>
-                <div className="calc-table-wrap">
-                  <table className="calc-table">
-                    <thead>
-                      <tr>
-                        <th>Fiscal year</th>
-                        <th>Annual tax</th>
-                        <th>Monthly tax</th>
-                        <th>Effective</th>
-                        <th>Difference vs {fiscalLabel(year)}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {allYearComparisons.map((row) => (
-                        <tr
-                          key={row.year}
-                          className={row.year === year ? "calc-row-highlight" : ""}
-                        >
-                          <td>
-                            <b>FY {fiscalLabel(row.year)}</b>
-                            {row.year === year && " (selected)"}
-                          </td>
-                          <td style={{ color: "#A3452E", fontWeight: 600 }}>
-                            {currency(row.annualTax)}
-                          </td>
-                          <td>{currency(row.monthlyTax)}</td>
-                          <td>{row.effective.toFixed(2)}%</td>
-                          <td style={{ fontWeight: 600 }}>
-                            {row.year === year
-                              ? "—"
-                              : row.diff > 0
-                              ? `You save ${currency(row.diff)}`
-                              : `You pay ${currency(Math.abs(row.diff))} more`}
-                          </td>
+                  <BandTaxChart data={bandBars} />
+                  <div className="table-scroll">
+                    <table className="wtable">
+                      <caption>Tax by income band</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Yearly income band</th>
+                          <th scope="col">Rate</th>
+                          <th scope="col" style={{ width: "34%" }}>Your income in this band</th>
+                          <th scope="col" className="r">Tax</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 3: Tax Bands Table */}
-            {activeTab === "bands" && (
-              <div className="calc-tile" style={{ padding: "24px" }}>
-                <div style={{ fontWeight: 700, marginBottom: "6px", fontSize: "16px", color: "#14261D" }}>
-                  FY {fiscalLabel(year)} Progressive Tax Bands
-                </div>
-                <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#4F5D55" }}>
-                  Pakistan personal income tax is progressive. Each portion of your income is taxed at its respective slab rate.
-                </p>
-                <div className="calc-table-wrap">
-                  <table className="calc-table">
-                    <thead>
-                      <tr>
-                        <th>Income slab</th>
-                        <th>Rate</th>
-                        <th>Taxable in slab</th>
-                        <th>Tax in slab</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {result.bands.map((b, i) => (
-                        <tr key={i}>
-                          <td>
-                            {currency(b.lower)} –{" "}
-                            {b.upper === Infinity ? "Above" : currency(b.upper)}
-                          </td>
-                          <td>{b.rate}%</td>
-                          <td>{currency(b.income)}</td>
-                          <td style={{ color: b.tax > 0 ? "#A3452E" : "inherit" }}>
-                            {currency(b.tax)}
-                          </td>
+                      </thead>
+                      <tbody>
+                        {activeBands.map((b) => {
+                          const isTop = b === topBand;
+                          return (
+                            <tr key={b.lower} className={isTop ? "is-top" : undefined}>
+                              <th scope="row">
+                                {bandRange(b.lower, b.upper)}
+                                {isTop && <span className="badge-top">Your top band</span>}
+                              </th>
+                              <td><strong>{+b.rate.toFixed(2)}%</strong></td>
+                              <td>
+                                <div className="band-bar">
+                                  <i style={{ width: `${Math.max(2, (b.income / maxBandIncome) * 70)}%` }} />
+                                  <span>{Math.round(b.income).toLocaleString("en-US")}</span>
+                                </div>
+                              </td>
+                              <td className="r"><strong>{currency(b.tax)}</strong></td>
+                            </tr>
+                          );
+                        })}
+                        {result.surcharge > 0 && (
+                          <tr>
+                            <th scope="row" colSpan={3}>Surcharge on income above Rs. 10,000,000</th>
+                            <td className="r"><strong>{currency(result.surcharge)}</strong></td>
+                          </tr>
+                        )}
+                        <tr className="is-sum">
+                          <th scope="row" colSpan={3}>Total tax for the year</th>
+                          <td className="r">{currency(annualTax)}</td>
                         </tr>
-                      ))}
-                      {result.surcharge > 0 && (
-                        <tr style={{ background: "#FCEEED" }}>
-                          <td colSpan={3}>
-                            <b>Salary Surcharge (on income above Rs. 10M)</b>
-                          </td>
-                          <td style={{ color: "#A3452E", fontWeight: 700 }}>
-                            {currency(result.surcharge)}
-                          </td>
-                        </tr>
-                      )}
-                      <tr className="calc-row-total">
-                        <td colSpan={2}>
-                          <b>Total</b>
-                        </td>
-                        <td>
-                          <b>{currency(result.income)}</b>
-                        </td>
-                        <td style={{ color: "#A3452E" }}>
-                          <b>{currency(result.tax)}</b>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              )}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

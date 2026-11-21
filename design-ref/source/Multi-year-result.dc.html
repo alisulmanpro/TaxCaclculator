@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Multi-year tax result</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F6F3}
+*{box-sizing:border-box}
+a{color:#0F6B4C}
+a:hover{color:#0B5139}
+:focus-visible{outline:3px solid #0F6B4C;outline-offset:2px}
+aside :focus-visible{outline-color:#8FDDBB}
+.btn-primary:hover{background:#0B5139 !important}
+.btn-secondary:hover{background:#EAF1EC !important}
+.btn-add:hover{background:#EAF1EC !important}
+.btn-light:hover{background:#E1F0E8 !important}
+.btn-ghost:hover{background:#164F3E !important}
+.field:focus,.fw:focus-within{border-color:#0F6B4C !important;box-shadow:0 0 0 4px #CFE8DB}
+.field:focus,.fw input:focus{outline:none}
+.card-link:hover{border-color:#0F6B4C !important}
+.faq-btn:hover{background:#F3F8F5 !important}
+.tab-link:hover{background:#F3F8F5 !important}
+</style>
+</helmet>
+<div style="font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:#10201A;background:#F3F6F3;font-size:16px;line-height:1.5">
+
+<header style="background:#fff;border-bottom:1px solid #DDE7E0">
+<div style="max-width:1200px;margin:0 auto;padding:12px 24px;min-height:72px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 32px">
+<a href="Main.dc.html" style="display:flex;align-items:center;text-decoration:none">
+<img src="/_blob/18616f05c9b5bf3e53514b75b58c3523" alt="Tax Calculator" style="display:block;height:48px;width:auto">
+</a>
+<nav aria-label="Main" style="display:flex;flex-wrap:wrap;gap:8px 28px;font-size:15px;font-weight:500">
+<a href="Main.dc.html" style="color:#0F6B4C;text-decoration:none;font-weight:600">Salary tax</a>
+<a href="#" style="color:#33453D;text-decoration:none">Tax slabs</a>
+<a href="#" style="color:#33453D;text-decoration:none">Guides</a>
+<a href="#" style="color:#33453D;text-decoration:none">Contact</a>
+</nav>
+</div>
+</header>
+
+<section style="max-width:1200px;margin:0 auto;padding:48px 24px 32px;text-align:center">
+<p style="display:inline-flex;align-items:center;gap:8px;margin:0;padding:6px 14px;border-radius:999px;background:#E1F0E8;color:#0B5139;font-size:14px;font-weight:600">
+<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="none" stroke="#0B5139" stroke-width="1.6"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="#0B5139" stroke-width="1.6"/></svg>
+Free &middot; Private &middot; Runs in your browser
+</p>
+<h1 style="font-family:'Space Grotesk',Inter,sans-serif;font-size:clamp(34px,5vw,54px);line-height:1.08;letter-spacing:-0.025em;font-weight:700;margin:18px auto 14px;max-width:840px;text-wrap:balance">Pakistan Multi-Year Income Tax Calculator</h1>
+<p style="font-size:19px;line-height:1.55;color:#4B5C54;max-width:600px;margin:0 auto;text-wrap:pretty">Got a raise or changed jobs? Add each period and see your tax for every fiscal year.</p>
+</section>
+
+<section style="max-width:1200px;margin:0 auto;padding:0 24px 80px">
+<div style="background:#fff;border:1px solid #DDE7E0;border-radius:24px;overflow:hidden;box-shadow:0 1px 2px rgba(16,32,26,.04),0 16px 40px -16px rgba(16,32,26,.16)">
+
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:#EAF1EC;border-bottom:1px solid #DDE7E0">
+<a href="Main.dc.html" class="tab-link" style="display:flex;flex-direction:column;gap:2px;padding:18px 24px;text-decoration:none">
+<span style="font-weight:700;font-size:17px;color:#33453D">Single year</span>
+<span style="font-size:14px;color:#4B5C54;line-height:1.35">Same salary all year</span>
+</a>
+<a href="Multi-year.dc.html" aria-current="page" style="display:flex;flex-direction:column;gap:2px;padding:18px 24px;background:#fff;box-shadow:inset 0 3px 0 #0F6B4C;text-decoration:none">
+<span style="font-weight:700;font-size:17px;color:#0F6B4C">Multi-year</span>
+<span style="font-size:14px;color:#4B5C54;line-height:1.35">Salary changed or new job</span>
+</a>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr))">
+
+<form onSubmit="{{noSubmit}}" style="padding:40px;display:flex;flex-direction:column;gap:24px;align-self:start">
+<div style="display:flex;flex-direction:column;gap:6px">
+<h2 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:26px;letter-spacing:-0.015em">Salary history</h2>
+<p style="margin:0;color:#4B5C54;font-size:16px">Add each period where your monthly salary stayed the same.</p>
+</div>
+
+<div style="display:flex;gap:14px;padding:18px 20px;border-radius:14px;background:#EAF3EE">
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22" style="flex:none;margin-top:1px"><circle cx="11" cy="11" r="9.5" fill="none" stroke="#0F6B4C" stroke-width="1.8"/><path d="M11 10v5.5M11 6.6v.2" stroke="#0F6B4C" stroke-width="2" stroke-linecap="round"/></svg>
+<ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14.5px;line-height:1.5;color:#33453D">
+<li><strong style="color:#10201A">Dates you can enter:</strong> 1 Jul 2024 &ndash; 30 Jun 2027.</li>
+<li><strong style="color:#10201A">Mid-month changes are fine:</strong> only the days covered count.</li>
+<li><strong style="color:#10201A">One period per date:</strong> periods cannot overlap.</li>
+</ul>
+</div>
+
+<div role="group" aria-label="Salary period 1" style="border:1.5px solid #DDE7E0;border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:20px;background:#FCFDFC">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px">
+<p style="margin:0;display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',Inter,sans-serif;font-size:19px;font-weight:600">
+<span aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#0F6B4C;color:#fff;font-size:14px;display:inline-flex;align-items:center;justify-content:center;font-family:Inter,sans-serif">1</span>
+Period 1
+</p>
+<button type="button" class="btn-secondary" style="height:40px;padding:0 14px;border-radius:10px;border:1.5px solid #B9CBC0;background:#fff;color:#33453D;font:inherit;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="#33453D" stroke-width="1.8" stroke-linecap="round"/></svg>
+Remove
+</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:16px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="start-1" style="font-weight:600;font-size:15px">Start date</label>
+<input id="start-1" class="field" type="date" value="2024-07-01" style="height:56px;width:100%;border:1.5px solid #7F978B;border-radius:12px;padding:0 14px;font:inherit;font-size:16.5px;background:#fff;color:#10201A">
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="end-1" style="font-weight:600;font-size:15px">End date</label>
+<input id="end-1" class="field" type="date" value="2025-06-30" style="height:56px;width:100%;border:1.5px solid #7F978B;border-radius:12px;padding:0 14px;font:inherit;font-size:16.5px;background:#fff;color:#10201A">
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="sal-1" style="font-weight:600;font-size:15px">Monthly salary</label>
+<div class="fw" style="display:flex;align-items:center;height:60px;border:1.5px solid #7F978B;border-radius:12px;background:#fff;overflow:hidden">
+<span aria-hidden="true" style="padding:0 16px;height:100%;display:flex;align-items:center;background:#EAF1EC;color:#3F5249;font-weight:600;border-right:1px solid #DDE7E0">Rs.</span>
+<input id="sal-1" type="text" inputmode="numeric" value="150,000" style="flex:1;min-width:0;height:100%;border:0;padding:0 16px;font:inherit;font-size:22px;font-weight:500;color:#10201A;background:transparent">
+</div>
+<p style="margin:0;font-size:14px;color:#4B5C54">What you earn each month in this period, before tax.</p>
+</div>
+<div style="border:1.5px dashed #9DB3A6;border-radius:12px;background:#fff">
+<button type="button" class="faq-btn" aria-expanded="false" style="width:100%;min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 16px;border:0;background:transparent;font:inherit;text-align:left;cursor:pointer;color:#10201A;border-radius:12px">
+<span style="display:flex;flex-direction:column"><span style="font-weight:600;font-size:15px">Additional fields (optional)</span><span style="font-size:14px;color:#4B5C54">Bonus and monthly deductions</span></span>
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path d="M11 4v14M4 11h14" stroke="#0F6B4C" stroke-width="2.2" stroke-linecap="round"/></svg>
+</button>
+</div>
+</div>
+
+<div role="group" aria-label="Salary period 2" style="border:1.5px solid #DDE7E0;border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:20px;background:#FCFDFC">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px">
+<p style="margin:0;display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',Inter,sans-serif;font-size:19px;font-weight:600">
+<span aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#0F6B4C;color:#fff;font-size:14px;display:inline-flex;align-items:center;justify-content:center;font-family:Inter,sans-serif">2</span>
+Period 2
+</p>
+<button type="button" class="btn-secondary" style="height:40px;padding:0 14px;border-radius:10px;border:1.5px solid #B9CBC0;background:#fff;color:#33453D;font:inherit;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="#33453D" stroke-width="1.8" stroke-linecap="round"/></svg>
+Remove
+</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:16px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="start-2" style="font-weight:600;font-size:15px">Start date</label>
+<input id="start-2" class="field" type="date" value="2025-07-01" style="height:56px;width:100%;border:1.5px solid #7F978B;border-radius:12px;padding:0 14px;font:inherit;font-size:16.5px;background:#fff;color:#10201A">
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="end-2" style="font-weight:600;font-size:15px">End date</label>
+<input id="end-2" class="field" type="date" value="2026-06-30" style="height:56px;width:100%;border:1.5px solid #7F978B;border-radius:12px;padding:0 14px;font:inherit;font-size:16.5px;background:#fff;color:#10201A">
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="sal-2" style="font-weight:600;font-size:15px">Monthly salary</label>
+<div class="fw" style="display:flex;align-items:center;height:60px;border:1.5px solid #7F978B;border-radius:12px;background:#fff;overflow:hidden">
+<span aria-hidden="true" style="padding:0 16px;height:100%;display:flex;align-items:center;background:#EAF1EC;color:#3F5249;font-weight:600;border-right:1px solid #DDE7E0">Rs.</span>
+<input id="sal-2" type="text" inputmode="numeric" value="200,000" style="flex:1;min-width:0;height:100%;border:0;padding:0 16px;font:inherit;font-size:22px;font-weight:500;color:#10201A;background:transparent">
+</div>
+<p style="margin:0;font-size:14px;color:#4B5C54">What you earn each month in this period, before tax.</p>
+</div>
+<div style="border:1.5px dashed #9DB3A6;border-radius:12px;background:#fff">
+<button type="button" class="faq-btn" aria-expanded="false" style="width:100%;min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 16px;border:0;background:transparent;font:inherit;text-align:left;cursor:pointer;color:#10201A;border-radius:12px">
+<span style="display:flex;flex-direction:column"><span style="font-weight:600;font-size:15px">Additional fields (optional)</span><span style="font-size:14px;color:#4B5C54">Bonus and monthly deductions</span></span>
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22"><path d="M11 4v14M4 11h14" stroke="#0F6B4C" stroke-width="2.2" stroke-linecap="round"/></svg>
+</button>
+</div>
+</div>
+
+<button type="button" class="btn-add" style="height:56px;border-radius:14px;border:1.5px dashed #0F6B4C;background:#fff;color:#0F6B4C;font:inherit;font-weight:600;font-size:16.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M9 3v12M3 9h12" stroke="#0F6B4C" stroke-width="2.2" stroke-linecap="round"/></svg>
+Add another period
+</button>
+
+<div style="display:flex;flex-wrap:wrap;gap:12px">
+<a href="Multi-year-result.dc.html" class="btn-primary" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 32px;border-radius:12px;background:#0F6B4C;color:#fff;font-weight:600;font-size:17px;text-decoration:none;flex:1 1 200px">
+Calculate taxes
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M3 9h12M10 4l5 5-5 5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</a>
+<a href="Multi-year.dc.html" class="btn-secondary" style="display:inline-flex;align-items:center;justify-content:center;height:56px;padding:0 28px;border-radius:12px;border:1.5px solid #7F978B;background:#fff;color:#10201A;font-weight:600;font-size:17px;text-decoration:none">Reset</a>
+</div>
+
+<p style="margin:0;font-size:13.5px;line-height:1.55;color:#4B5C54">Private, browser-only calculations. All amounts are in Pakistani rupees (Rs.). Excludes special reliefs, credits, other income and super tax. Not tax advice.</p>
+</form>
+
+<aside aria-label="Your result" style="background:#0B3D2E;color:#fff;padding:40px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+<h2 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:26px;letter-spacing:-0.015em">Your result</h2>
+<span style="display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:#164F3E;color:#BBD6C8;font-size:13px;font-weight:600"><span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:#8FDDBB"></span>Live calculation &middot; sample figures</span>
+</div>
+
+<div style="padding:24px;border-radius:18px;background:#12503E;display:flex;flex-direction:column;gap:6px">
+<p style="margin:0;font-size:15px;color:#BBD6C8;font-weight:500">Total tax across 2 periods</p>
+<p style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:clamp(42px,6vw,56px);line-height:1.05;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums">Rs. 282,000</p>
+<p style="margin:0;font-size:15px;color:#BBD6C8">24 months &middot; Average effective rate 6.7%</p>
+</div>
+
+<dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:12px">
+<div style="padding:16px 18px;border-radius:14px;background:#12503E">
+<dt style="font-size:13.5px;color:#BBD6C8">Total gross income</dt>
+<dd style="margin:2px 0 0;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums">Rs. 4,200,000</dd>
+</div>
+<div style="padding:16px 18px;border-radius:14px;background:#12503E">
+<dt style="font-size:13.5px;color:#BBD6C8">Total net income</dt>
+<dd style="margin:2px 0 0;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums">Rs. 3,918,000</dd>
+</div>
+</dl>
+
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="margin:0;font-size:16px;font-weight:600">Fiscal year breakdown</h3>
+<div style="overflow-x:auto">
+<table style="width:100%;min-width:400px;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14.5px">
+<caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Gross, tax and net income for each fiscal year</caption>
+<thead>
+<tr style="color:#BBD6C8;font-size:13px">
+<th scope="col" style="text-align:left;font-weight:600;padding:0 0 10px">Fiscal year</th>
+<th scope="col" style="text-align:right;font-weight:600;padding:0 0 10px">Gross</th>
+<th scope="col" style="text-align:right;font-weight:600;padding:0 0 10px">Tax</th>
+<th scope="col" style="text-align:right;font-weight:600;padding:0 0 10px">Net</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-top:1px solid #265A48"><th scope="row" style="text-align:left;font-weight:600;padding:13px 0">FY 2024–2025</th><td style="text-align:right">1,800,000</td><td style="text-align:right;color:#F0B84B;font-weight:600">120,000</td><td style="text-align:right">1,680,000</td></tr>
+<tr style="border-top:1px solid #265A48"><th scope="row" style="text-align:left;font-weight:600;padding:13px 0">FY 2025–2026</th><td style="text-align:right">2,400,000</td><td style="text-align:right;color:#F0B84B;font-weight:600">162,000</td><td style="text-align:right">2,238,000</td></tr>
+<tr style="border-top:1.5px solid #4DAE8A"><th scope="row" style="text-align:left;font-weight:700;color:#8FDDBB;padding:13px 0">Total</th><td style="text-align:right;font-weight:700">4,200,000</td><td style="text-align:right;color:#F0B84B;font-weight:700">282,000</td><td style="text-align:right;font-weight:700">3,918,000</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:12px;margin-top:4px">
+<button type="button" class="btn-light" style="height:52px;border-radius:12px;border:0;background:#fff;color:#0B3D2E;font:inherit;font-weight:700;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M9 2v9M5 8l4 4 4-4M3 15h12" fill="none" stroke="#0B3D2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+Download PDF
+</button>
+<button type="button" onClick="{{copyLink}}" class="btn-ghost" style="height:52px;border-radius:12px;border:1.5px solid #5E9B83;background:transparent;color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px">
+<sc-if value="{{notCopied}}" hint-placeholder-val="{{ true }}">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M7.5 10.5a3 3 0 0 0 4.2 0l2.6-2.6a3 3 0 0 0-4.2-4.2l-.8.8M10.5 7.5a3 3 0 0 0-4.2 0L3.7 10.1a3 3 0 0 0 4.2 4.2l.8-.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</sc-if>
+<sc-if value="{{copied}}" hint-placeholder-val="{{ false }}">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M3.5 9.5l3.5 3.5 7.5-8" fill="none" stroke="#8FDDBB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</sc-if>
+<span aria-live="polite">{{copyLabel}}</span>
+</button>
+</div>
+</aside>
+
+</div>
+
+<section aria-labelledby="insights-title" style="border-top:1px solid #DDE7E0;padding:40px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 id="insights-title" style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:26px;letter-spacing:-0.015em">Insights</h2>
+<p style="margin:0;color:#4B5C54;font-size:16px">See how your tax changed from year to year.</p>
+</div>
+<button type="button" onClick="{{toggleInsights}}" aria-expanded="{{insightsOpen}}" aria-controls="insights-body" class="btn-secondary" style="height:48px;padding:0 20px;border-radius:12px;border:1.5px solid #7F978B;background:#fff;color:#10201A;font:inherit;font-weight:600;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:10px">
+{{insightsLabel}}
+<sc-if value="{{insightsOpen}}" hint-placeholder-val="{{ true }}">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M4 11.5l5-5 5 5" fill="none" stroke="#33453D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</sc-if>
+<sc-if value="{{insightsClosed}}" hint-placeholder-val="{{ false }}">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M4 6.5l5 5 5-5" fill="none" stroke="#33453D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</sc-if>
+</button>
+</div>
+
+<sc-if value="{{insightsOpen}}" hint-placeholder-val="{{ true }}">
+<div id="insights-body" style="display:flex;flex-direction:column;gap:28px">
+
+<div role="group" aria-label="Insight views" style="display:flex;gap:6px;padding:6px;background:#EAF1EC;border-radius:14px;overflow-x:auto;width:fit-content;max-width:100%">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="2">
+<button type="button" onClick="{{t.select}}" aria-pressed="{{t.selected}}" style="{{t.style}}">{{t.label}}</button>
+</sc-for>
+</div>
+
+<sc-if value="{{isChart}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<h3 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:20px">Tax vs take-home by fiscal year</h3>
+<p style="margin:0;color:#4B5C54;font-size:15.5px">Each column is one fiscal year's gross income, split into what you keep and what goes to tax.</p>
+</div>
+
+<div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:0 12px;max-width:760px">
+<div style="position:relative;height:280px;font-size:12.5px;color:#4B5C54;font-variant-numeric:tabular-nums">
+<span style="position:absolute;right:0;top:-9px">2.4M</span>
+<span style="position:absolute;right:0;top:calc(50% - 9px)">1.2M</span>
+<span style="position:absolute;right:0;bottom:-9px">0</span>
+</div>
+<div style="position:relative;height:280px">
+<div aria-hidden="true" style="position:absolute;left:0;right:0;top:0;border-top:1px solid #E6EDE8"></div>
+<div aria-hidden="true" style="position:absolute;left:0;right:0;top:50%;border-top:1px solid #E6EDE8"></div>
+<div aria-hidden="true" style="position:absolute;left:0;right:0;bottom:0;border-top:1.5px solid #9DB3A6"></div>
+<div style="position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:space-around;gap:24px;padding:0 16px">
+<div role="img" aria-label="FY 2024 to 2025: gross 1,800,000, tax 120,000, net 1,680,000" style="width:100%;max-width:150px;height:75%;display:flex;flex-direction:column;gap:2px">
+<div style="height:6.67%;min-height:10px;background:#B7791F;border-radius:6px 6px 0 0"></div>
+<div style="flex:1;background:#0F6B4C"></div>
+</div>
+<div role="img" aria-label="FY 2025 to 2026: gross 2,400,000, tax 162,000, net 2,238,000" style="width:100%;max-width:150px;height:100%;display:flex;flex-direction:column;gap:2px">
+<div style="height:6.75%;min-height:10px;background:#B7791F;border-radius:6px 6px 0 0"></div>
+<div style="flex:1;background:#0F6B4C"></div>
+</div>
+</div>
+</div>
+<div></div>
+<div style="display:flex;justify-content:space-around;gap:24px;padding:12px 16px 0">
+<div style="width:100%;max-width:150px;text-align:center"><p style="margin:0;font-weight:700;font-size:15px">FY 2024–2025</p><p style="margin:0;font-size:14px;color:#4B5C54">6.7% tax</p></div>
+<div style="width:100%;max-width:150px;text-align:center"><p style="margin:0;font-weight:700;font-size:15px">FY 2025–2026</p><p style="margin:0;font-size:14px;color:#4B5C54">6.75% tax</p></div>
+</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:12px 28px;font-size:15px">
+<div style="display:flex;align-items:center;gap:10px"><span aria-hidden="true" style="width:14px;height:14px;border-radius:4px;background:#0F6B4C"></span>You keep (net income)</div>
+<div style="display:flex;align-items:center;gap:10px"><span aria-hidden="true" style="width:14px;height:14px;border-radius:4px;background:#B7791F"></span>Tax</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isPeriods}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<h3 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:20px">Your salary periods</h3>
+<p style="margin:0;color:#4B5C54;font-size:15.5px">How each period was placed in a fiscal year.</p>
+</div>
+<div style="overflow-x:auto">
+<table style="width:100%;min-width:700px;border-collapse:collapse;font-variant-numeric:tabular-nums">
+<caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Salary periods and the tax on each</caption>
+<thead>
+<tr style="text-align:left;font-size:13.5px;color:#4B5C54">
+<th scope="col" style="padding:0 12px 12px 0;font-weight:600">Period</th>
+<th scope="col" style="padding:0 12px 12px;font-weight:600">Dates</th>
+<th scope="col" style="padding:0 12px 12px;font-weight:600;text-align:right">Monthly salary</th>
+<th scope="col" style="padding:0 12px 12px;font-weight:600;text-align:right">Months</th>
+<th scope="col" style="padding:0 12px 12px;font-weight:600">Fiscal year</th>
+<th scope="col" style="padding:0 0 12px 12px;font-weight:600;text-align:right">Tax</th>
+</tr>
+</thead>
+<tbody style="font-size:15.5px">
+<tr style="border-top:1px solid #E6EDE8"><th scope="row" style="text-align:left;font-weight:600;padding:16px 12px 16px 0">Period 1</th><td style="padding:16px 12px">1 Jul 2024 &ndash; 30 Jun 2025</td><td style="padding:16px 12px;text-align:right">Rs. 150,000</td><td style="padding:16px 12px;text-align:right">12</td><td style="padding:16px 12px">FY 2024–2025</td><td style="padding:16px 0 16px 12px;text-align:right;font-weight:600">Rs. 120,000</td></tr>
+<tr style="border-top:1px solid #E6EDE8"><th scope="row" style="text-align:left;font-weight:600;padding:16px 12px 16px 0">Period 2</th><td style="padding:16px 12px">1 Jul 2025 &ndash; 30 Jun 2026</td><td style="padding:16px 12px;text-align:right">Rs. 200,000</td><td style="padding:16px 12px;text-align:right">12</td><td style="padding:16px 12px">FY 2025–2026</td><td style="padding:16px 0 16px 12px;text-align:right;font-weight:600">Rs. 162,000</td></tr>
+<tr style="border-top:1.5px solid #10201A"><th scope="row" colspan="3" style="text-align:left;font-weight:700;padding:16px 12px 0 0;font-size:16.5px">Total</th><td style="padding:16px 12px 0;text-align:right;font-weight:700">24</td><td></td><td style="padding:16px 0 0 12px;text-align:right;font-weight:700;font-size:18px">Rs. 282,000</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</sc-if>
+
+</div>
+</sc-if>
+</section>
+
+</div>
+</section>
+
+<section style="max-width:1200px;margin:0 auto;padding:0 24px 88px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<p style="margin:0;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0F6B4C">How it works</p>
+<h2 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:clamp(28px,3.2vw,38px);line-height:1.1;letter-spacing:-0.02em">How tax is worked out across several years</h2>
+<p style="margin:0;color:#4B5C54;font-size:17px;max-width:620px">Pakistan taxes each fiscal year on its own, from 1 July to 30 June. Your salary history is cut into those years first.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:20px">
+<div style="background:#fff;border:1px solid #DDE7E0;border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:12px">
+<span aria-hidden="true" style="width:40px;height:40px;border-radius:50%;background:#E1F0E8;color:#0F6B4C;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center">1</span>
+<h3 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:20px;letter-spacing:-0.01em">Each period is split at 30 June</h3>
+<p style="margin:0;color:#4B5C54;font-size:15.5px;line-height:1.55">A period that runs past the year end is cut in two, so each part lands in the right fiscal year.</p>
+</div>
+<div style="background:#fff;border:1px solid #DDE7E0;border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:12px">
+<span aria-hidden="true" style="width:40px;height:40px;border-radius:50%;background:#E1F0E8;color:#0F6B4C;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center">2</span>
+<h3 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:20px;letter-spacing:-0.01em">Only the days you worked count</h3>
+<p style="margin:0;color:#4B5C54;font-size:15.5px;line-height:1.55">If you started or left part-way through a month, that month is counted by its days.</p>
+</div>
+<div style="background:#fff;border:1px solid #DDE7E0;border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:12px">
+<span aria-hidden="true" style="width:40px;height:40px;border-radius:50%;background:#E1F0E8;color:#0F6B4C;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center">3</span>
+<h3 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:20px;letter-spacing:-0.01em">Each year is added up, then taxed</h3>
+<p style="margin:0;color:#4B5C54;font-size:15.5px;line-height:1.55">Salary from every period in one fiscal year is added together and taxed once, with that year's rates.</p>
+</div>
+</div>
+</section>
+
+<section style="max-width:1200px;margin:0 auto;padding:0 24px 88px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:40px 64px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:14px">
+<p style="margin:0;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0F6B4C">Questions</p>
+<h2 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:clamp(30px,3.4vw,40px);line-height:1.1;letter-spacing:-0.02em">Multi-year tax clarity</h2>
+<p style="margin:0;color:#4B5C54;font-size:17px;max-width:360px">Short, plain answers to common questions about changing salaries.</p>
+</div>
+<div style="background:#fff;border:1px solid #DDE7E0;border-radius:20px;overflow:hidden">
+<sc-for list="{{faqs}}" as="item" hint-placeholder-count="6">
+<div style="border-bottom:1px solid #E6EDE8">
+<button type="button" onClick="{{item.toggle}}" aria-expanded="{{item.open}}" class="faq-btn" style="width:100%;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;border:0;background:transparent;font:inherit;font-weight:600;font-size:16.5px;text-align:left;cursor:pointer;color:#10201A">
+<span>{{item.q}}</span>
+<sc-if value="{{item.closed}}" hint-placeholder-val="{{ true }}">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 22 22" style="flex:none"><path d="M11 4v14M4 11h14" stroke="#0F6B4C" stroke-width="2.2" stroke-linecap="round"/></svg>
+</sc-if>
+<sc-if value="{{item.open}}" hint-placeholder-val="{{ false }}">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 22 22" style="flex:none"><path d="M4 11h14" stroke="#0F6B4C" stroke-width="2.2" stroke-linecap="round"/></svg>
+</sc-if>
+</button>
+<sc-if value="{{item.open}}" hint-placeholder-val="{{ false }}">
+<p style="margin:0;padding:0 24px 22px;color:#4B5C54;font-size:16px;line-height:1.6;max-width:640px">{{item.a}}</p>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="background:#fff;border-top:1px solid #DDE7E0;border-bottom:1px solid #DDE7E0">
+<div style="max-width:1200px;margin:0 auto;padding:72px 24px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<p style="margin:0;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0F6B4C">Trusted government sources</p>
+<h2 style="margin:0;font-family:'Space Grotesk',Inter,sans-serif;font-size:clamp(28px,3.2vw,38px);line-height:1.1;letter-spacing:-0.02em">Official resources. Reliable answers.</h2>
+<p style="margin:0;color:#4B5C54;font-size:17px">For the finer details, go directly to the people who write the rules.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:20px">
+<a href="https://www.fbr.gov.pk" class="card-link" style="display:flex;flex-direction:column;gap:14px;padding:28px;border:1.5px solid #DDE7E0;border-radius:18px;text-decoration:none;color:#10201A;background:#FBFCFB">
+<span style="width:48px;height:48px;border-radius:12px;background:#E1F0E8;display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#0F6B4C" stroke-width="1.8"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="#0F6B4C" stroke-width="1.8"/></svg></span>
+<span style="font-family:'Space Grotesk',Inter,sans-serif;font-weight:600;font-size:20px">Federal Board of Revenue</span>
+<span style="color:#4B5C54;font-size:15.5px;line-height:1.55">Pakistan's official source for income tax information, forms and updates.</span>
+<span style="margin-top:auto;display:inline-flex;align-items:center;gap:8px;color:#0F6B4C;font-weight:600;font-size:15px">Visit FBR <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="M4 12L12 4M6 4h6v6" fill="none" stroke="#0F6B4C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+</a>
+<a href="https://iris.fbr.gov.pk" class="card-link" style="display:flex;flex-direction:column;gap:14px;padding:28px;border:1.5px solid #DDE7E0;border-radius:18px;text-decoration:none;color:#10201A;background:#FBFCFB">
+<span style="width:48px;height:48px;border-radius:12px;background:#E1F0E8;display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.5" fill="none" stroke="#0F6B4C" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" fill="none" stroke="#0F6B4C" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+<span style="font-family:'Space Grotesk',Inter,sans-serif;font-weight:600;font-size:20px">FBR Iris portal</span>
+<span style="color:#4B5C54;font-size:15.5px;line-height:1.55">Access your official registration, income tax returns and filing records.</span>
+<span style="margin-top:auto;display:inline-flex;align-items:center;gap:8px;color:#0F6B4C;font-weight:600;font-size:15px">Open Iris <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="M4 12L12 4M6 4h6v6" fill="none" stroke="#0F6B4C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+</a>
+<a href="https://pakistancode.gov.pk" class="card-link" style="display:flex;flex-direction:column;gap:14px;padding:28px;border:1.5px solid #DDE7E0;border-radius:18px;text-decoration:none;color:#10201A;background:#FBFCFB">
+<span style="width:48px;height:48px;border-radius:12px;background:#E1F0E8;display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><path d="M12 6c-2-1.6-5-2-8-1.5v13c3-.5 6-.1 8 1.5 2-1.6 5-2 8-1.5v-13c-3-.5-6-.1-8 1.5zM12 6v13" fill="none" stroke="#0F6B4C" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+<span style="font-family:'Space Grotesk',Inter,sans-serif;font-weight:600;font-size:20px">Pakistan Code</span>
+<span style="color:#4B5C54;font-size:15.5px;line-height:1.55">Find federal legislation and review the laws behind your tax obligations.</span>
+<span style="margin-top:auto;display:inline-flex;align-items:center;gap:8px;color:#0F6B4C;font-weight:600;font-size:15px">Explore legislation <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="M4 12L12 4M6 4h6v6" fill="none" stroke="#0F6B4C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+</a>
+</div>
+</div>
+</section>
+
+<footer style="background:#0B3D2E;color:#CFE3D8">
+<div style="max-width:1200px;margin:0 auto;padding:48px 24px 36px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px 32px">
+<a href="Main.dc.html" style="display:inline-flex;align-items:center;padding:10px 18px;border-radius:14px;background:#fff;text-decoration:none">
+<img src="/_blob/18616f05c9b5bf3e53514b75b58c3523" alt="Tax Calculator" style="display:block;height:44px;width:auto">
+</a>
+<nav aria-label="Footer" style="display:flex;flex-wrap:wrap;gap:8px 28px;font-size:15px">
+<a href="Main.dc.html" style="color:#CFE3D8;text-decoration:none">Salary tax</a>
+<a href="#" style="color:#CFE3D8;text-decoration:none">Tax slabs</a>
+<a href="#" style="color:#CFE3D8;text-decoration:none">Guides</a>
+<a href="#" style="color:#CFE3D8;text-decoration:none">Contact</a>
+</nav>
+</div>
+<div style="border-top:1px solid #265A48;padding-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 32px;font-size:14px;line-height:1.6;color:#B3CFC0">
+<p style="margin:0;max-width:640px">This calculator provides general estimates of Pakistan salary income tax in rupees and does not constitute tax or legal advice.</p>
+<p style="margin:0">&copy; 2026 Tax Calculator</p>
+</div>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { faqOpen: -1, tab: 'chart', insightsOpen: true, copied: false };
+  }
+  renderVals() {
+    const faqData = [
+      { q: 'How does the Multi-Year calculator work?', a: 'Enter each period where your monthly salary stayed the same, between 1 July 2024 and 30 June 2027. Each period is placed in its July–June fiscal year and taxed with that year’s own rates.' },
+      { q: 'How are fiscal years decided for salary periods?', a: 'By the dates you enter. Pakistani fiscal years run from 1 July to 30 June, so a period that crosses 30 June is split in two, one part in each year.' },
+      { q: 'How are mid-month changes and part months handled?', a: 'Only the days covered count. If a period starts or ends in the middle of a month, that month is counted for the days you actually worked.' },
+      { q: 'Why can’t salary periods overlap?', a: 'Each date can have only one salary, otherwise the same days would be taxed twice. End one period the day before the next one starts.' },
+      { q: 'How are bonuses and monthly deductions treated across years?', a: 'Add them inside the period they belong to, using “Additional fields (optional)”. They are counted in that period’s fiscal year.' },
+      { q: 'Which fiscal years and tax rates are included?', a: 'FY 2024–2025, FY 2025–2026 and FY 2026–2027, each with its own salaried-person rates. Special reliefs, credits, other income and super tax are not included.' }
+    ];
+    const open = this.state.faqOpen;
+    const tab = this.state.tab;
+    const base = 'height:44px;padding:0 18px;border:0;border-radius:10px;font:inherit;font-size:15px;cursor:pointer;white-space:nowrap;';
+    const on = base + 'background:#fff;color:#0F6B4C;font-weight:700;box-shadow:0 1px 3px rgba(16,32,26,.15)';
+    const off = base + 'background:transparent;color:#33453D;font-weight:600';
+    const mk = (id, label) => ({
+      label: label,
+      selected: tab === id,
+      style: tab === id ? on : off,
+      select: () => this.setState({ tab: id })
+    });
+    const copied = this.state.copied;
+    return {
+      noSubmit: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+      tabs: [mk('chart', 'Tax vs take-home'), mk('periods', 'Salary periods')],
+      isChart: tab === 'chart',
+      isPeriods: tab === 'periods',
+      insightsOpen: this.state.insightsOpen,
+      insightsClosed: !this.state.insightsOpen,
+      insightsLabel: this.state.insightsOpen ? 'Hide insights' : 'Show insights',
+      toggleInsights: () => this.setState({ insightsOpen: !this.state.insightsOpen }),
+      copied: copied,
+      notCopied: !copied,
+      copyLabel: copied ? 'Link copied' : 'Copy link',
+      copyLink: () => {
+        this.setState({ copied: true });
+        setTimeout(() => this.setState({ copied: false }), 2000);
+      },
+      faqs: faqData.map((f, i) => ({
+        q: f.q,
+        a: f.a,
+        open: open === i,
+        closed: open !== i,
+        toggle: () => this.setState({ faqOpen: open === i ? -1 : i })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

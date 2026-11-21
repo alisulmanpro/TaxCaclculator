@@ -1,18 +1,12 @@
 import type { MetadataRoute } from "next";
+import { absoluteUrl, pages } from "@/lib/site";
 
+// Built from lib/site.ts: add a page there and it appears here automatically.
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: "https://taxcalculato.com",
-      lastModified: "2026-11-20T00:00:00.000Z",
-      changeFrequency: "monthly",
-      priority: 1,
-    },
-    {
-      url: "https://taxcalculato.com/multi-year-calculator",
-      lastModified: "2026-11-20T00:00:00.000Z",
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
-  ];
+  return Object.values(pages).map((page) => ({
+    url: absoluteUrl(page.path),
+    lastModified: page.sitemap.lastModified,
+    changeFrequency: page.sitemap.changeFrequency,
+    priority: page.sitemap.priority,
+  }));
 }

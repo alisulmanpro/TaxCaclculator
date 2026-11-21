@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="public/logo.png" alt="Tax Calculator" width="360">
+</p>
 
-## Getting Started
+<h1 align="center">Pakistan Salary &amp; Income Tax Calculator</h1>
 
-First, run the development server:
+<p align="center">
+  Type your monthly salary and see your tax and take-home pay in seconds.<br>
+  Free, private and runs entirely in your browser.
+</p>
+
+## What it does
+
+- **Single year** – one fiscal year, one monthly salary. Shows annual and monthly tax, net income, tax still due, a comparison with another year, and insights (where your salary goes, every fiscal year side by side, tax band by band).
+- **Multi-year** – add several salary periods (raise, new job, mid-month change). Each period is split at 30 June, every fiscal year is taxed with its own rates, and you get totals plus a tax vs take-home chart.
+- **Download PDF** – a proper PDF report (not a print dialog) with the figures, bands and the link to reopen them.
+- **Copy shareable link** – the link contains the inputs, so whoever opens it sees exactly what you saw.
+- **Fiscal years:** 2020–21 to 2026–27 (multi-year: 1 Jul 2024 – 30 Jun 2027).
+- **Private:** nothing is sent to a server. Numbers in a shared link only exist in that link.
+
+> General estimate only. It excludes special reliefs, tax credits, other income and super tax, and is not tax advice.
+
+## Tech
+
+Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Recharts (charts) · `@react-pdf/renderer` (PDF, loaded only when you click Download) · Tailwind CSS v4 base + hand-written CSS · self-hosted Inter and Space Grotesk fonts.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev          # http://localhost:3000
+pnpm build && pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Command | What it does |
+|---|---|
+| `pnpm typecheck` | TypeScript check |
+| `pnpm lint` | ESLint |
+| `pnpm test` | Unit tests for the tax engine, salary history, number formatting and share links |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project layout
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+  layout.tsx, page.tsx, multi-year-calculator/page.tsx
+  opengraph-image.tsx, robots.ts, sitemap.ts, manifest.ts, icon.png
+  components/
+    calculator/   SingleYearCalculator, MultiYearCalculator, charts (Recharts),
+                  ui (shared pieces + copy link/PDF hooks), pdf/reports (PDF), calculator.css
+    layout/       Header, Footer, Logo, NavLinks
+    sections/     Hero, FaqSection, HowItWorks, ResourcesSection
+    seo/          JsonLd
+lib/
+  tax.ts, salary-history.ts   ← the calculation engine (do not change casually)
+  share.ts                    ← shareable-link encode / decode + validation
+  format.ts                   ← live thousands-separator inputs
+  site.ts, faqs.ts, seo.ts    ← SEO settings, FAQ text, metadata + JSON-LD builders
+design-ref/                   ← approved design boards, logo and design tokens
+tests/
+```
 
-## Learn More
+## How the shareable link works
 
-To learn more about Next.js, take a look at the following resources:
+`Copy shareable link` writes the current inputs into the query string, for example
+`/?fy=2025&sal=200000&cmp=2024&ins=1&tab=comparison` or
+`/multi-year-calculator?p=2024-07-01_2025-06-30_150000_0_0&p=…`.
+When the page opens it reads, validates (`lib/share.ts`) and restores that state, including the open
+Insights tab. Invalid or hand-edited links are ignored. The canonical URL is always the clean page.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## SEO
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All SEO settings live in [`lib/site.ts`](lib/site.ts) and [`lib/faqs.ts`](lib/faqs.ts).
+See **[SEO.md](SEO.md)** for what to edit and a launch checklist.
 
-## Deploy on Vercel
+## Design
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The approved design is in [`design-ref/`](design-ref/README.md) (boards, logo, colours, fonts, spacing).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+
+Run `pnpm typecheck && pnpm lint && pnpm test` before opening a pull request. Calculation changes
+must come with tests in `tests/`.

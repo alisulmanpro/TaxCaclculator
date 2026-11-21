@@ -1,28 +1,28 @@
+import Link from "next/link";
 import { Logo } from "./Logo";
-import { nav } from "./nav";
+import { pages, site } from "@/lib/site";
 
 export default function Footer() {
   return (
-    <footer>
-      <div className="container footer-content">
-        <Logo footer />
-        <nav aria-label="Footer navigation">
-          {nav.map((link) => (
-            <a key={link.label} href={link.href}>
-              {link.label}
+    <footer className="site-footer">
+      <div className="site-footer-inner">
+        <div className="footer-top">
+          <Logo footer />
+          <nav className="footer-nav" aria-label="Footer">
+            <Link href={pages.home.path}>{pages.home.navLabel}</Link>
+            <Link href={pages.multiYear.path}>{pages.multiYear.navLabel}</Link>
+            <a href="https://www.fbr.gov.pk" target="_blank" rel="noreferrer noopener">
+              FBR
             </a>
-          ))}
-        </nav>
-        <div className="footer-rule" />
-        <div className="footer-bottom">
-          <span>© 2026 Thomas Northman. All rights reserved.</span>
-          <span>Thoughtful guidance. Clearer outcomes.</span>
-          <a href="#calculator">Back to calculator ↑</a>
+          </nav>
         </div>
-        <p className="footer-disclaimer">
-          This calculator provides general estimates of Pakistan salary income tax in rupees and
-          does not constitute tax or legal advice.
-        </p>
+        <div className="footer-bottom">
+          <p>
+            This calculator provides general estimates of Pakistan salary income tax in rupees and does not
+            constitute tax or legal advice.
+          </p>
+          <p>© 2026 {site.name}</p>
+        </div>
       </div>
     </footer>
   );
