@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Header from "@/app/components/layout/Header";
 import Footer from "@/app/components/layout/Footer";
+import OfflineSupport from "@/app/components/layout/OfflineSupport";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { siteJsonLd } from "@/lib/seo";
 import { fullTitle, pages, site } from "@/lib/site";
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         {children}
         <Footer />
+        <OfflineSupport />
       </body>
     </html>
   );
