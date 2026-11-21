@@ -200,7 +200,7 @@ export default function SingleYearCalculator() {
   );
 
   const handleDownloadPdf = useCallback(async () => {
-    const { downloadSingleReport } = await import("./pdf/reports");
+    const { downloadSingleReport } = await import("pdf-reports");
     await downloadSingleReport({
       generated: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
       shareUrl: getShareUrl(),

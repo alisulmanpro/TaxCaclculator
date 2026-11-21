@@ -37,7 +37,7 @@ export default function OfflineSupport() {
         if (cancelled || !navigator.onLine) return;
         const warm = () => {
           // The service worker saves this chunk the first time it is fetched.
-          void import("@/app/components/calculator/pdf/reports").catch(() => undefined);
+          void import("pdf-reports").catch(() => undefined);
         };
         if ("requestIdleCallback" in window) window.requestIdleCallback(warm, { timeout: 8000 });
         else setTimeout(warm, 3000);

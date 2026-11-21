@@ -281,7 +281,7 @@ export default function MultiYearCalculator() {
 
   const handleDownloadPdf = useCallback(async () => {
     if (!calculatedResult) return;
-    const { downloadMultiReport } = await import("./pdf/reports");
+    const { downloadMultiReport } = await import("pdf-reports");
     await downloadMultiReport({
       generated: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
       shareUrl: getShareUrl(),
