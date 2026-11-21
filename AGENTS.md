@@ -60,6 +60,12 @@ tests/
 - New page → add its path to `PAGES` in `public/sw.js`. Keep `/sw.js` headers in `next.config.ts` (no-cache).
 - Never cache calculation results or user input in the service worker.
 
+## Motion (animations)
+- CSS only, at the end of `app/globals.css` ("Motion"). No animation library, no JS. Everything sits inside `@media (prefers-reduced-motion: no-preference)`.
+- Time-based animations use `backwards` fill (not `both`), so hover `transform`s keep working afterwards. Don't add `transform` hover effects to elements with scroll-driven animations (`.step-card`, `.resource-card`, ...).
+- Results/insights animate when they mount, not on every keystroke (they update in place). Charts use `animationDuration={450}`.
+- New section or card below the fold: add its class to the scroll-reveal selector list.
+
 ## Styling Rules
 - Follow `design-ref/`: primary green `#0F6B4C`, forest `#0B3D2E`, amber `#B7791F` for tax. Tokens are CSS variables in `app/globals.css`.
 - Breakpoints used: 1050px, 760px, 540px, 480px, 360px. No horizontal page scroll at 360px.

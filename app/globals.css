@@ -575,3 +575,228 @@
     font-size: 14px;
   }
 }
+
+
+/* ──────────────────────────────────────────── Motion ────────────────────────────────────────────
+   CSS only (no library, no extra download). Everything is inside "no-preference", so people who ask
+   their device for reduced motion get a still page. Time-based animations use `backwards` fill, so after
+   they finish the element is back to normal and hover effects still work. */
+:root {
+  --ease-out: cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(143, 221, 187, 0.55); }
+  60%      { box-shadow: 0 0 0 7px rgba(143, 221, 187, 0); }
+}
+@keyframes toggle-flip {
+  from { transform: rotate(-90deg); }
+  to   { transform: none; }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Page load: heading block, then the calculator card. */
+  .hero-pill { animation: fade-up 0.45s var(--ease-out) backwards; }
+  .hero h1 { animation: fade-up 0.5s var(--ease-out) 0.05s backwards; }
+  .hero-lead { animation: fade-up 0.5s var(--ease-out) 0.1s backwards; }
+  .calc { animation: fade-up 0.55s var(--ease-out) 0.15s backwards; }
+  .not-found { animation: fade-up 0.5s var(--ease-out) backwards; }
+
+  /* Scroll: sections below the calculator slide in as they enter the screen (Chrome, Edge, Safari 26+).
+     Other browsers show them normally. */
+  @supports (animation-timeline: view()) {
+    .eyebrow,
+    .section-title,
+    .section-lead,
+    .step-card,
+    .resource-card,
+    .faq-list,
+    .footer-top {
+      animation: fade-up linear backwards;
+      animation-timeline: view();
+      animation-range: entry 5% entry 70%;
+    }
+    .faq-list {
+      animation-range: entry 0% entry 25%;
+    }
+  }
+
+  /* Click / hover feedback. */
+  .calc-mode,
+  .btn,
+  .btn-toggle,
+  .seg button,
+  .control,
+  .money,
+  .resource-card,
+  .resource-link,
+  .faq-item summary,
+  .disclosure summary,
+  .site-nav a {
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.25s ease,
+      transform 0.2s var(--ease-out);
+  }
+  .btn:not([disabled]):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 22px -14px rgba(11, 61, 46, 0.55);
+  }
+  .btn:not([disabled]):active,
+  .seg button:active,
+  .btn-toggle:active {
+    transform: scale(0.97);
+    transition-duration: 0.08s;
+  }
+  .resource-card:hover {
+    box-shadow: 0 14px 28px -18px rgba(11, 61, 46, 0.5);
+  }
+  .resource-card .resource-icon,
+  .resource-link svg {
+    transition: transform 0.25s var(--ease-out);
+  }
+  .resource-card:hover .resource-icon {
+    transform: scale(1.08) rotate(-3deg);
+  }
+  .resource-card:hover .resource-link svg {
+    transform: translateX(4px);
+  }
+
+  /* Results appear one after another when they show up (valid salary, or after "Calculate taxes"). */
+  .result > :not(.result-head) {
+    animation: pop-in 0.5s var(--ease-out) backwards;
+  }
+  .result > :nth-child(3) { animation-delay: 0.06s; }
+  .result > :nth-child(4) { animation-delay: 0.12s; }
+  .result > :nth-child(5) { animation-delay: 0.18s; }
+  .result > :nth-child(6) { animation-delay: 0.24s; }
+  .result > :nth-child(7) { animation-delay: 0.3s; }
+  .result > :nth-child(n + 8) { animation-delay: 0.36s; }
+  .live-badge::before {
+    animation: pulse-dot 2.2s ease-out infinite;
+  }
+  .alert,
+  .notice,
+  .result-error {
+    animation: fade-up 0.3s var(--ease-out) backwards;
+  }
+
+  /* Insights: every tab switch / open fades in; tiles, charts, rows and bars follow. */
+  .insight-body { animation: fade-up 0.45s var(--ease-out) backwards; }
+  .tile { animation: pop-in 0.45s var(--ease-out) backwards; }
+  .tile:nth-child(2) { animation-delay: 0.07s; }
+  .tile:nth-child(3) { animation-delay: 0.14s; }
+  .tile:nth-child(4) { animation-delay: 0.21s; }
+  .chart-block { animation: fade-up 0.5s var(--ease-out) 0.05s backwards; }
+  .chart-block:nth-child(2) { animation-delay: 0.13s; }
+  .legend-item { animation: fade-in 0.4s ease-out 0.1s backwards; }
+  .wtable tbody tr,
+  .rtable-fy tbody tr {
+    animation: fade-in 0.4s ease-out backwards;
+  }
+  .wtable tbody tr:nth-child(2),
+  .rtable-fy tbody tr:nth-child(2) {
+    animation-delay: 0.03s;
+  }
+.wtable tbody tr:nth-child(3),
+  .rtable-fy tbody tr:nth-child(3) {
+    animation-delay: 0.06s;
+  }
+.wtable tbody tr:nth-child(4),
+  .rtable-fy tbody tr:nth-child(4) {
+    animation-delay: 0.09s;
+  }
+.wtable tbody tr:nth-child(5),
+  .rtable-fy tbody tr:nth-child(5) {
+    animation-delay: 0.12s;
+  }
+.wtable tbody tr:nth-child(6),
+  .rtable-fy tbody tr:nth-child(6) {
+    animation-delay: 0.15s;
+  }
+.wtable tbody tr:nth-child(7),
+  .rtable-fy tbody tr:nth-child(7) {
+    animation-delay: 0.18s;
+  }
+.wtable tbody tr:nth-child(8),
+  .rtable-fy tbody tr:nth-child(8) {
+    animation-delay: 0.21s;
+  }
+.wtable tbody tr:nth-child(9),
+  .rtable-fy tbody tr:nth-child(9) {
+    animation-delay: 0.24s;
+  }
+.wtable tbody tr:nth-child(10),
+  .rtable-fy tbody tr:nth-child(10) {
+    animation-delay: 0.27s;
+  }
+  .band-bar i {
+    transform-origin: left center;
+    animation: grow-x 0.7s var(--ease-out) 0.15s backwards;
+  }
+
+  /* Multi-year: a new salary period pops in. */
+  .period { animation: pop-in 0.4s var(--ease-out) backwards; }
+  .empty { animation: fade-in 0.4s ease-out backwards; }
+
+  /* FAQ and "more options": content fades in, the + turns into a minus, and (Chrome) the height eases open. */
+  .faq-item[open] > p,
+  .disclosure[open] > .disclosure-body {
+    animation: fade-up 0.35s var(--ease-out) backwards;
+  }
+  .faq-item[open] summary::after,
+  .disclosure[open] summary::after {
+    animation: toggle-flip 0.3s var(--ease-out);
+  }
+  @supports (interpolate-size: allow-keywords) {
+    html { interpolate-size: allow-keywords; }
+    .faq-item::details-content,
+    .disclosure::details-content {
+      height: 0;
+      overflow: clip;
+      transition:
+        height 0.35s var(--ease-out),
+        content-visibility 0.35s allow-discrete;
+    }
+    .faq-item[open]::details-content,
+    .disclosure[open]::details-content {
+      height: auto;
+    }
+  }
+
+  .offline-notice { animation: toast-in 0.4s var(--ease-out); }
+}
+
+/* Where the page scrolls to (Calculate button, anchors) stops a little below the top edge. */
+.result,
+#calculator {
+  scroll-margin-top: 16px;
+}
+
+@media print {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

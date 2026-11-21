@@ -16,6 +16,7 @@
 - **Download PDF** – a proper PDF report (not a print dialog) with the figures, bands and the link to reopen them.
 - **Copy shareable link** – the link contains the inputs, so whoever opens it sees exactly what you saw.
 - **Works offline** – open the site once with internet and it keeps working without it (calculator, charts, PDF, shared links). Installable from the browser menu ("Add to Home screen"). See [Offline mode](#offline-mode).
+- **Smooth motion** – light CSS-only animations (page load, scroll reveal, results, tabs, FAQ). No library, no extra download, and switched off for people who prefer reduced motion.
 - **Fiscal years:** 2020–21 to 2026–27 (multi-year: 1 Jul 2024 – 30 Jun 2027).
 - **Private:** nothing is sent to a server. Numbers in a shared link only exist in that link.
 
