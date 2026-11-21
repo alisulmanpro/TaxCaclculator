@@ -8,100 +8,68 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Development Instructions for TaxCalculato
+# Development Instructions for Tax Calculator
 
 ## Project Architecture & Tech Stack
-- Framework: Next.js 16.4.6 (App Router with Turbopack, React 19.3.0)
-- Styling: Tailwind CSS v4 (`@tailwindcss/turbopack`) + modular CSS variables & classes
-- Typography: DM Sans loaded via Google Fonts
-- Calculations: Standalone TypeScript modules in `lib/` (`tax.ts`, `salary-history.ts`)
-- Client Components: Only interactive UI elements (`SalaryCalculator`, `SalaryInsights`, `ArticlesSection`, `FAQSection`, `Header`)
+- Framework: Next.js 16.4.6 (App Router, Turbopack, Cache Components), React 19.3.0, TypeScript.
+- Styling: Tailwind CSS v4 base + hand-written CSS (`app/globals.css`, `app/components/calculator/calculator.css`) using design tokens (CSS variables).
+- Fonts: self-hosted Inter + Space Grotesk in `app/fonts/` via `next/font/local` (no request to Google).
+- Charts: Recharts (`app/components/calculator/charts.tsx`). PDF: `@react-pdf/renderer`, loaded with `import()` only when "Download PDF" is clicked (`calculator/pdf/reports.tsx`).
+- Calculations: standalone TypeScript modules in `lib/` (`tax.ts`, `salary-history.ts`). **Do not change tax logic without tests.**
+- Design reference: `design-ref/` (read `design-ref/README.md`). The UI follows these boards.
 
 ## Component Organization
 ```
 app/
+  layout.tsx, page.tsx, not-found.tsx, robots.ts, sitemap.ts, manifest.ts, opengraph-image.tsx
+  multi-year-calculator/page.tsx (+ opengraph-image.tsx)
   components/
-    layout/
-      Header.tsx
-      Footer.tsx
-      ScrollReveal.tsx
-    home/
-      HeroSection.tsx
-      QuoteSection.tsx
-      ArticlesSection.tsx
-      FAQSection.tsx
-      ResourcesSection.tsx
-      BottomCTA.tsx
-    calculator/
-      SalaryCalculator.tsx
-      SingleYearCalculator.tsx
-      MultiYearCalculator.tsx
-      SalaryInsights.tsx
-      calculator.css
-    multi-year/
-      MultiYearHeroSection.tsx
-      MultiYearFAQSection.tsx
-  multi-year-calculator/
-    page.tsx
-lib/
-  tax.ts
-  salary-history.ts
+    calculator/  SingleYearCalculator, MultiYearCalculator, charts, ui, pdf/reports, calculator.css
+    layout/      Header, Footer, Logo, NavLinks
+    sections/    Hero, FaqSection, HowItWorks, ResourcesSection
+    seo/         JsonLd
+lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, faqs.ts, seo.ts, og.tsx
+tests/
 ```
 
-## Routes Architecture
-- `/`: Main homepage with Single Year Calculator UI (Multi-Year tab navigates to `/multi-year-calculator`).
-- `/multi-year-calculator`: Dedicated Multi-Year Calculator page with Multi-Year Calculator UI (Single Year tab navigates back to `/#calculator`), dedicated Multi-Year FAQ accordion, official resources, and consultation CTA.
-- Calculation engine: `lib/tax.ts` (supports FY 2020-21 through 2026-27 with benchmark verification) and `lib/salary-history.ts` (multi-period proration, bonus month mapping, FBR boundary validation).
+## Routes
+- `/`: Single Year calculator. `/multi-year-calculator`: Multi-Year calculator. The mode tabs are real links.
+- Both pages are statically prerendered. Calculator state is client-side only.
 
 ## Calculator Behavioral & Visibility Rules
-- **Initial Salary State**: Both calculators start with an empty salary input (`salary: ""`). No hardcoded or fake salaries.
-  - Single Year Placeholder: `"Enter your Salary"`.
-  - Multi-Year Placeholder: `"Enter your monthly salary"`.
-- **Single Year Visibility**:
-  - Initially shows ONLY inputs; calculated results (Hero card, Breakdown cards, Comparison strip, Stat tiles, Insights) are completely hidden until a valid positive salary is entered.
-  - Insights are HIDDEN by default (`insightsOpen: false`).
-  - "Show Insights" button reveals full-width insights section below the 2 columns; button toggles to "Hide Insights" without clearing inputs.
-- **Multi-Year Visibility**:
-  - Starts with exactly ONE empty period.
-  - Calculation does NOT run automatically. Requires clicking "Calculate Taxes →".
-  - Results are hidden until calculation.
-  - Insights are VISIBLE by default after calculation; user can click "Hide insights" to collapse only the insights portion while keeping primary results visible.
-  - Modifying any period input after calculation immediately marks results as stale/outdated and hides them until "Calculate Taxes →" is clicked again.
-- **Interactive Monthly Cash Flow Chart**:
-  - Uses actual monthly values (Gross, Tax, Net Take-Home).
-  - Hover/tap interactivity showing dynamic tooltip with category label, formatted PKR amount, and % of gross income.
-- **Fiscal Comparison & Tax Bands Layout**:
-  - Full-width insights section (`calc-insights-section`) prevents container blowout.
-  - Tables wrapped in `.calc-table-wrap` with horizontal scrolling fallback on mobile, preventing page-wide horizontal scroll.
+- **Initial salary state:** both calculators start with an empty salary (`""`). No fake salaries. Placeholders: single `"Enter your Salary"`, multi `"Enter your monthly salary"`.
+- **Single year:** results (hero figure, table, comparison banner, stats, insights) are hidden until a valid positive salary (≤ Rs. 1,000,000,000) is entered; the result column shows an empty-state panel. Results update live. Insights are hidden by default (`insightsOpen: false`); the Show/Hide button lives in the Insights header.
+- **Multi-year:** starts with exactly one empty period. Calculation needs "Calculate taxes". Results hidden until calculated; editing any input marks results stale and hides them. Insights are visible by default after calculation.
+- **Shared links (`lib/share.ts`):** "Copy shareable link" encodes the on-screen state in the query string; opening a link restores it (multi-year recalculates automatically from the restored periods). Decoding validates every value. Reset clears the query string. The canonical URL is always the clean path.
+- **PDF:** generated client-side from numbers already computed by the calculators. The PDF code never calculates tax.
+- **Charts:** Recharts, fed from the engine results; each chart has an `aria-label` summary and a table/legend with the same numbers.
+- Tables are wrapped in `.table-scroll` / `.rtable-scroll` (horizontal scroll on mobile, no page-wide overflow).
 
 ## Styling Rules
-- Exact match to Figma export reference.
-- Theme color emerald-600 (`#008857`) and primary dark green background (`#0f3d2e`).
-- DM Sans font family with font weights from 400 to 750.
-- Preserved responsive media queries matching breakpoint thresholds (1050px, 760px, 540px, 480px, 360px).
+- Follow `design-ref/`: primary green `#0F6B4C`, forest `#0B3D2E`, amber `#B7791F` for tax. Tokens are CSS variables in `app/globals.css`.
+- Breakpoints used: 1050px, 760px, 540px, 480px, 360px. No horizontal page scroll at 360px.
+- Inputs are at least 52px high, body text at least 16px, visible focus ring.
 
 ## Security Requirements
-- Safe input sanitization, bounds checking for numeric fields (0 to Rs. 1,000,000,000).
-- Strict HTTP security headers configured in `next.config.ts` (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy).
-- No external unverified scripts or sensitive key leakages; client-only calculation privacy.
-- Rel attributes for external links (`target="_blank" rel="noreferrer noopener"`).
+- Bounds checking for numeric fields (0 to Rs. 1,000,000,000), also when decoding shared links.
+- HTTP security headers in `next.config.ts`.
+- No external scripts; client-only calculation privacy.
+- External links use `target="_blank" rel="noreferrer noopener"`.
+- JSON-LD is serialised with `<` escaped (`app/components/seo/JsonLd.tsx`).
 
-## Technical SEO Requirements
-- Metadata configured in `app/layout.tsx` (Open Graph, Twitter Card, title, description).
-- Structured JSON-LD Data for WebSite & WebPage schema.
-- Accessible heading hierarchy (H1 in Hero, H2 for major sections, H3 for cards/faqs).
-- Robots.txt (`app/robots.ts`) and Sitemap (`app/sitemap.ts`).
-
-## Development and Verification Commands
-- Type check: `node node_modules/typescript/bin/tsc --noEmit`
-- Next.js Build: `node node_modules/next/dist/bin/next build`
-- Dev Server: `node node_modules/next/dist/bin/next dev`
-
-- Formatting unit tests: `node --experimental-strip-types tests/format.test.ts`
+## SEO
+- All SEO text/settings: `lib/site.ts` and `lib/faqs.ts`. Builders: `lib/seo.ts`. Guide: `SEO.md`.
+- Per page: title, description, canonical, Open Graph/Twitter, JSON-LD (WebPage, WebApplication, FAQPage, BreadcrumbList). Site-wide: Organization + WebSite, robots, sitemap, manifest, icons.
+- One H1 per page (Hero), H2 for sections, H3 for cards/FAQ items.
 
 ## Numeric Input Formatting Rules
-- All salary and financial amount input fields must use thousands separator formatting live as user types via `lib/format.ts`.
-- Values are parsed to clean numeric numbers before calculation; calculations never receive raw formatted strings.
-- Cursor positions are preserved during live typing and editing via `calculateNewCursor` and `requestAnimationFrame`.
-- Empty input state (`""`) is preserved and never converted into zero.
-- Reset must clear all formatted salary and amount fields completely.
+- All amount inputs use live thousands separators via `lib/format.ts` (`MoneyInput` in `calculator/ui.tsx`).
+- Values are cleaned to numbers before calculation; calculations never receive formatted strings.
+- Cursor position is preserved while typing. Empty input stays empty (never becomes 0). Reset clears all fields.
+
+## Verification Commands
+- Type check: `node node_modules/typescript/bin/tsc --noEmit` (or `pnpm typecheck`)
+- Lint: `pnpm lint`
+- Tests: `pnpm test`
+- Build: `node node_modules/next/dist/bin/next build`
+- Dev server: `node node_modules/next/dist/bin/next dev`
