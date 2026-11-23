@@ -6,28 +6,28 @@ export type Faq = { q: string; a: string };
 
 export const singleYearFaqs: Faq[] = [
   {
-    q: "How does the income tax calculator work?",
-    a: "Choose a fiscal year and enter your monthly salary in Pakistani rupees. The calculator applies that year's salaried-person tax schedule to your annual income and shows your tax and take-home pay.",
+    q: "What are the income tax slabs in Pakistan for FY 2026-2027?",
+    a: "For FY 2026–2027 (1 July 2026 – 30 June 2027), the salaried-person slabs are: 0% up to Rs. 600,000; 5% on Rs. 600,001–1,200,000; 10% on Rs. 1,200,001–2,200,000; 15% on Rs. 2,200,001–3,200,000; 20% on Rs. 3,200,001–4,100,000; 25% on Rs. 4,100,001–5,000,000; 30% on Rs. 5,000,001–6,000,000; 35% above Rs. 6,000,000. The calculator applies these automatically when you pick FY 2026–27.",
   },
   {
-    q: "What is the difference between gross and taxable income?",
-    a: "Gross salary includes your salary and taxable bonuses. This tool treats those amounts as taxable salary before calculating income tax. The monthly deductions field is for post-tax payroll deductions, which reduce take-home pay without reducing taxable income.",
+    q: "What were Pakistan's income tax brackets for FY 2025-2026?",
+    a: "For FY 2025–2026, the slabs are: 0% up to Rs. 600,000; 5% on Rs. 600,001–1,200,000; 10% on Rs. 1,200,001–2,200,000; 15% on Rs. 2,200,001–3,200,000; 20% on Rs. 3,200,001–4,100,000; 25% on Rs. 4,100,001–5,000,000; 30% on Rs. 5,000,001–6,000,000; 35% above Rs. 6,000,000. Select FY 2025–26 in the calculator to see your tax under these rates.",
   },
   {
-    q: "Which taxes and fiscal years are included?",
-    a: "The calculator estimates Pakistan salaried-person income tax for FY 2020–21 to FY 2026–27, including the salary surcharge where it applied. Special reliefs, tax credits, other income and super tax are not included.",
+    q: "How do I calculate income tax on my salary in Pakistan?",
+    a: "Enter your monthly gross salary and pick the fiscal year. The calculator annualises your salary (×12), applies the year's salaried-person slabs from lib/tax.ts, and shows monthly and annual tax, take-home, and effective rate. No manual math needed.",
   },
   {
-    q: "How do I enter bonuses and monthly deductions?",
-    a: "Open Additional fields and type your annual bonus, your monthly deductions and any tax already withheld. Leave them empty if you are not sure. Monthly deductions are post-tax amounts and affect take-home pay only.",
+    q: "How much tax will I pay on my salary in Pakistan?",
+    a: "That depends on your gross monthly salary and the fiscal year. Type your salary into the calculator — it instantly shows monthly tax, annual tax, and your effective tax rate for FY 2024–25 through FY 2026–27.",
   },
   {
-    q: "How accurate is my tax estimate?",
-    a: "Estimates use the salaried-person schedule of the selected fiscal year and assume salary is your main source of income. Monthly figures are the annual figure divided by 12. Your actual tax can differ because of other income, credits or reliefs. This is not tax advice.",
+    q: "What will my take-home salary be after tax?",
+    a: "The calculator shows 'Monthly take-home' and 'Annual take-home' right below the tax figure. Take-home = gross salary minus income tax. No other deductions (provident fund, EOBI, etc.) are included.",
   },
   {
-    q: "Is my financial information saved or shared?",
-    a: "No. All calculations happen in your browser. The amounts you type are not sent to a server or saved by this calculator. A shareable link only contains the numbers you choose to share.",
+    q: "Can I compare income tax across multiple years in Pakistan?",
+    a: "Yes. In the single-year calculator, turn on “Compare with another year” and pick a second fiscal year. For a detailed period-by-period view across years, open the Multi-Year Calculator at /multi-year-calculator.",
   },
 ];
 

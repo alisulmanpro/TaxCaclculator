@@ -1,3 +1,5 @@
+import { site } from "@/lib/site";
+
 const stroke = { fill: "none", stroke: "#0F6B4C", strokeWidth: 1.8 } as const;
 
 const resources = [
@@ -43,7 +45,13 @@ export default function ResourcesSection() {
     <section className="resources" id="resources" aria-labelledby="resources-title">
       <div className="resources-inner">
         <div className="stack-14" style={{ gap: 10 }}>
-          <p className="eyebrow">Trusted government sources</p>
+          <div className="resources-eyebrow-row">
+            <p className="eyebrow">Trusted government sources</p>
+            <span className="resources-review-badge">
+              <span className="resources-status-dot" aria-hidden="true" />
+              Last reviewed: {site.officialResourcesLastReviewed}
+            </span>
+          </div>
           <h2 className="section-title" id="resources-title">
             Official resources. Reliable answers.
           </h2>

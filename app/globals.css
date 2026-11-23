@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+/* ─────────────────────────── Arabic Font (Amiri) ─────────────────────────── */
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Amiri'), local('Amiri-Regular'), local('Amiri Regular'),
+       url('https://fonts.gstatic.com/s/amiri/v27/J7acnpF-5p0r4_T815T54g.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Amiri Bold'), local('Amiri-Bold'),
+       url('https://fonts.gstatic.com/s/amiri/v27/J7aanpF-5p0r4_T2Tqtz80Xq61qW.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+
 /* ───────────────────────────── Design tokens (see design-ref/README.md) ───────────────────────────── */
 :root {
   --green: #0f6b4c;
@@ -202,11 +222,43 @@
   margin: 0 auto;
   text-wrap: pretty;
 }
+.hero-trust-bar {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 14px;
+  margin-top: 18px;
+}
+.hero-update-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--mint-wash);
+  border: 1px solid rgba(15, 107, 76, 0.16);
+  color: var(--green);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+.hero-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.hero-date-text {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
 
 .calc-wrap {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px 80px;
+  padding: 0 24px 64px;
 }
 
 /* ──────────────────────────────────────── Page sections ──────────────────────────────────────── */
@@ -244,54 +296,364 @@
   gap: 14px;
 }
 
-/* FAQ — native <details>, works without JavaScript and keeps answers in the HTML */
-.faq-list {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  overflow: hidden;
+/* ────────────────────────── Tax Tables (Common Salaries & Slabs) ──────────────────────────
+   Dark forest green sections with crisp white data cards, reproducing FBR tax tables. */
+.tax-section-dark {
+  background: var(--forest);
+  padding: 64px 24px 56px;
+  border-top: 1px solid var(--forest-line);
+  color: #ffffff;
 }
-.faq-item {
+.tax-section-slabs {
+  padding: 56px 24px 64px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.tax-section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  text-align: center;
+}
+.tax-section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.tax-section-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(143, 221, 187, 0.12);
+  border: 1px solid rgba(143, 221, 187, 0.26);
+  color: var(--light-green);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tax-section-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.2vw, 38px);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+.tax-section-lead {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--on-dark-muted);
+  max-width: 640px;
+  text-wrap: balance;
+}
+.tax-card {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: var(--radius-card, 24px);
+  border: 1px solid var(--forest-line);
+  box-shadow: 0 1px 3px rgba(11, 61, 46, 0.08), 0 20px 44px -16px rgba(7, 39, 29, 0.36);
+  padding: 28px 32px 32px;
+  text-align: left;
+}
+.tax-card-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--line-soft);
 }
-.faq-item:last-child {
-  border-bottom: 0;
+.tax-card-topbar-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-2);
 }
-.faq-item summary {
-  list-style: none;
-  min-height: 64px;
+.tax-card-select {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.tax-card-select:hover,
+.tax-card-select:focus-visible {
+  border-color: var(--green);
+  outline: none;
+}
+.tax-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+}
+.tax-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 15px;
+}
+.tax-data-table th {
+  background: var(--mint-wash);
+  color: var(--forest);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.tax-data-table td {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.tax-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.tax-data-table tbody tr:hover {
+  background: #fafdfb;
+}
+.cell-num {
+  font-weight: 600;
+  color: var(--ink);
+}
+.cell-tax-amt {
+  color: #b91c1c;
+  font-weight: 600;
+}
+.cell-takehome-amt {
+  color: var(--green);
+  font-weight: 600;
+}
+.tax-table-footnote {
+  margin-top: 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* ── Table 2 Subtle Differentiation (Income Tax Slabs) ── */
+.tax-card-slabs .tax-card-topbar {
+  background: #f8faf9;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+}
+.tax-table-wrap-slabs {
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+}
+.tax-data-table-slabs th {
+  background: #f3f6f4;
+  color: var(--forest);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--line);
+  padding: 13px 18px;
+}
+.tax-data-table-slabs tbody tr:nth-child(even) td {
+  background: #fafcfb;
+}
+.tax-data-table-slabs tbody tr:nth-child(odd) td {
+  background: #ffffff;
+}
+.tax-data-table-slabs tbody tr:hover td {
+  background: #edf5f0;
+}
+.cell-slab-range {
+  font-weight: 600;
+  color: var(--ink);
+}
+.cell-slab-tax {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+/* ────────────────────────────────────────── FAQ Section ──────────────────────────────────────────
+   Clean, compact accordion with accessible trigger buttons, semantic H3 headings, and smooth CSS grid
+   expand/collapse transitions. Question cards have subtle mint green tinted answer containers. */
+.section-faq {
+  padding: 56px 24px 64px;
+  background: var(--page);
+  border-top: 1px solid var(--line-soft);
+}
+.faq-container {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.faq-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.faq-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  background: var(--mint);
+  color: var(--green);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+}
+.faq-title {
+  font-size: clamp(28px, 3.2vw, 38px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.faq-lead {
+  color: var(--muted);
+  font-size: 16.5px;
+  line-height: 1.5;
+  max-width: 600px;
+}
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.faq-item {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(16, 32, 26, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s var(--ease-out);
+}
+.faq-item:hover {
+  border-color: #b5c7bd;
+  box-shadow: 0 3px 12px -2px rgba(16, 32, 26, 0.06);
+}
+.faq-item.faq-item-open {
+  border-color: var(--green);
+  box-shadow: 0 4px 16px -3px rgba(15, 107, 76, 0.1);
+  background: #ffffff;
+}
+.faq-question-heading {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+.faq-trigger {
+  width: 100%;
+  min-height: 54px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 24px;
+  padding: 16px 20px;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-body);
   font-weight: 600;
-  font-size: 16.5px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink);
+  text-align: left;
   cursor: pointer;
+  transition: background-color 0.18s ease;
 }
-.faq-item summary::-webkit-details-marker {
-  display: none;
-}
-.faq-item summary:hover {
+.faq-trigger:hover {
   background: var(--mint-wash);
 }
-.faq-item summary::after {
-  content: "";
+.faq-trigger[aria-expanded="true"] {
+  color: var(--ink);
+}
+.faq-trigger:focus-visible {
+  outline: 2.5px solid var(--green);
+  outline-offset: -2px;
+}
+.faq-question-text {
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+.faq-icon-wrapper {
   flex: none;
-  width: 20px;
-  height: 20px;
-  background:
-    linear-gradient(var(--green), var(--green)) center / 14px 2.2px no-repeat,
-    linear-gradient(var(--green), var(--green)) center / 2.2px 14px no-repeat;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
-.faq-item[open] summary::after {
-  background: linear-gradient(var(--green), var(--green)) center / 14px 2.2px no-repeat;
+.faq-trigger:hover .faq-icon-wrapper {
+  background: #cce5d7;
 }
-.faq-item p {
-  padding: 0 24px 22px;
-  color: var(--muted);
-  line-height: 1.6;
-  max-width: 640px;
+.faq-trigger[aria-expanded="true"] .faq-icon-wrapper {
+  background: var(--green);
+  color: #fff;
+}
+.faq-icon-svg {
+  display: block;
+}
+.faq-icon-vert {
+  transform-origin: center;
+  transition: transform 0.22s cubic-bezier(0.22, 0.8, 0.3, 1), opacity 0.18s ease;
+}
+.faq-trigger[aria-expanded="true"] .faq-icon-vert {
+  transform: rotate(90deg) scale(0);
+  opacity: 0;
+}
+.faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s cubic-bezier(0.22, 0.8, 0.3, 1), visibility 0.25s;
+  visibility: hidden;
+}
+.faq-panel-open {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+.faq-panel-inner {
+  overflow: hidden;
+  background: var(--mint-wash);
+  border-radius: 0 0 15px 15px;
+}
+.faq-answer-text {
+  border-top: 1px solid var(--line-soft);
+  margin: 0;
+  padding: 16px 20px 20px 20px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-2);
 }
 
 /* How it works (multi-year) */
@@ -335,14 +697,48 @@
 
 /* Official resources */
 .resources {
-  background: #fff;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  background: #022641;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.resources .eyebrow {
+  color: var(--light-green);
+}
+.resources-eyebrow-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.resources-review-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #b8cde0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.resources-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--light-green);
+}
+.resources .section-title {
+  color: #ffffff;
+}
+.resources .section-lead {
+  color: #b8cde0;
 }
 .resources-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 72px 24px;
+  padding: 60px 24px;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -357,15 +753,19 @@
   flex-direction: column;
   gap: 14px;
   padding: 28px;
-  border: 1.5px solid var(--line);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
   text-decoration: none;
   color: var(--ink);
   background: #fbfcfb;
+  box-shadow: 0 4px 20px -4px rgba(2, 38, 65, 0.28);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .resource-card:hover {
-  border-color: var(--green);
+  border-color: var(--light-green);
   color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px -6px rgba(2, 38, 65, 0.45);
 }
 .resource-icon {
   width: 48px;
@@ -393,6 +793,86 @@
   color: var(--green);
   font-weight: 600;
   font-size: 15px;
+}
+
+/* ─────────────────────────────────── Quran Reflection ───────────────────────────────────
+   A serene, respectful reflection card featuring Surah Ibrahim (14:7).
+   Clean forest card with subtle lighter border, refined Amiri Arabic typography,
+   and clean attribution matching the green brand system. */
+.quran-reflection {
+  padding: 56px 24px 64px;
+  background: var(--page);
+}
+.quran-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 56px 32px;
+  background: var(--forest);
+  border: 1px solid var(--forest-line);
+  border-radius: var(--radius-card, 24px);
+  box-shadow: 0 1px 3px rgba(11, 61, 46, 0.08), 0 12px 32px -12px rgba(7, 39, 29, 0.28);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+/* .quran-card::before glow removed — solid background, no overlay needed */
+/* .quran-motif removed — no decorative icon */
+.quran-quote {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 760px;
+}
+.quran-arabic {
+  margin: 0;
+  font-family: "Amiri", "Scheherazade New", "Traditional Arabic", "Amiri Quran", "Noto Naskh Arabic", "Geeza Pro", "Segoe UI", serif;
+  font-size: clamp(30px, 4.2vw, 42px);
+  font-weight: 700;
+  line-height: 2.1;
+  color: #ffffff;
+  text-shadow: none;
+  word-spacing: 0.08em;
+  letter-spacing: 0.01em;
+}
+.quran-translation {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(16px, 2.1vw, 19px);
+  line-height: 1.6;
+  font-style: italic;
+  color: #ffffff;
+  max-width: 660px;
+}
+.quran-citation {
+  display: flex;
+  justify-content: center;
+}
+.quran-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(143, 221, 187, 0.1);
+  border: 1px solid rgba(143, 221, 187, 0.22);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.quran-badge-dot {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1;
 }
 
 /* ──────────────────────────────────────────── Footer ──────────────────────────────────────────── */
@@ -489,6 +969,11 @@
   .hero-lead {
     font-size: 17px;
   }
+  .hero-trust-bar {
+    font-size: 12.5px;
+    gap: 6px 10px;
+    margin-top: 14px;
+  }
   .calc-wrap {
     padding: 0 16px 56px;
   }
@@ -498,11 +983,65 @@
   .resources-inner {
     padding: 48px 20px;
   }
-  .faq-item summary {
-    padding: 14px 18px;
+  .resources-eyebrow-row {
+    gap: 8px 10px;
   }
-  .faq-item p {
-    padding: 0 18px 20px;
+  .tax-section-dark {
+    padding: 44px 16px 52px;
+  }
+  .tax-card {
+    padding: 20px 16px 24px;
+    border-radius: 18px;
+  }
+  .tax-data-table th,
+  .tax-data-table td {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  .tax-card-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .section-faq {
+    padding: 44px 16px 56px;
+  }
+  .faq-header {
+    margin-bottom: 24px;
+  }
+  .faq-list {
+    gap: 10px;
+  }
+  .faq-item {
+    border-radius: 14px;
+  }
+  .faq-trigger {
+    padding: 14px 16px;
+    font-size: 15.5px;
+    gap: 12px;
+  }
+  .faq-answer-text {
+    padding: 12px 16px 16px 16px;
+    font-size: 14.5px;
+  }
+  .quran-reflection {
+    padding: 24px 16px 52px;
+  }
+  .quran-card {
+    padding: 34px 22px 30px;
+    gap: 16px;
+    border-radius: 20px;
+  }
+  .quran-arabic {
+    font-size: 26px;
+    line-height: 1.75;
+  }
+  .quran-translation {
+    font-size: 15.5px;
+  }
+  .quran-badge {
+    font-size: 12px;
+    padding: 4px 12px;
+    gap: 6px;
   }
 }
 @media (max-width: 540px) {
@@ -521,6 +1060,33 @@
   }
 }
 @media (max-width: 480px) {
+  .section-faq {
+    padding: 36px 14px 48px;
+  }
+  .faq-trigger {
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+  .faq-icon-wrapper {
+    width: 26px;
+    height: 26px;
+  }
+  .faq-answer-text {
+    padding: 10px 14px 14px 14px;
+  }
+  .quran-reflection {
+    padding: 18px 14px 42px;
+  }
+  .quran-card {
+    padding: 28px 20px 24px;
+    border-radius: 18px;
+  }
+  .quran-arabic {
+    font-size: 22px;
+  }
+  .quran-translation {
+    font-size: 14px;
+  }
   .site-footer-inner {
     padding: 36px 16px 28px;
   }
@@ -621,23 +1187,31 @@
   .calc { animation: fade-up 0.55s var(--ease-out) 0.15s backwards; }
   .not-found { animation: fade-up 0.5s var(--ease-out) backwards; }
 
-  /* Scroll: sections below the calculator slide in as they enter the screen (Chrome, Edge, Safari 26+).
-     Other browsers show them normally. */
-  @supports (animation-timeline: view()) {
-    .eyebrow,
-    .section-title,
-    .section-lead,
-    .step-card,
-    .resource-card,
-    .faq-list,
-    .footer-top {
-      animation: fade-up linear backwards;
-      animation-timeline: view();
-      animation-range: entry 5% entry 70%;
-    }
-    .faq-list {
-      animation-range: entry 0% entry 25%;
-    }
+  /* Scroll reveal: lightweight one-shot entrance transitions triggered by ScrollObserver */
+  .js-reveal-ready .tax-section-header,
+  .js-reveal-ready .tax-card,
+  .js-reveal-ready .faq-header,
+  .js-reveal-ready .faq-container,
+  .js-reveal-ready .resource-card,
+  .js-reveal-ready .quran-card,
+  .js-reveal-ready .scroll-reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.4s var(--ease-out),
+      transform 0.4s var(--ease-out);
+    will-change: opacity, transform;
+  }
+  .js-reveal-ready .tax-section-header.is-revealed,
+  .js-reveal-ready .tax-card.is-revealed,
+  .js-reveal-ready .faq-header.is-revealed,
+  .js-reveal-ready .faq-container.is-revealed,
+  .js-reveal-ready .resource-card.is-revealed,
+  .js-reveal-ready .quran-card.is-revealed,
+  .js-reveal-ready .scroll-reveal.is-revealed {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
   }
 
   /* Click / hover feedback. */
@@ -649,7 +1223,7 @@
   .money,
   .resource-card,
   .resource-link,
-  .faq-item summary,
+  .faq-trigger,
   .disclosure summary,
   .site-nav a {
     transition:
@@ -760,18 +1334,15 @@
   .period { animation: pop-in 0.4s var(--ease-out) backwards; }
   .empty { animation: fade-in 0.4s ease-out backwards; }
 
-  /* FAQ and "more options": content fades in, the + turns into a minus, and (Chrome) the height eases open. */
-  .faq-item[open] > p,
+  /* "More options" disclosure: content fades in, the + turns into a minus, and (Chrome) the height eases open. */
   .disclosure[open] > .disclosure-body {
     animation: fade-up 0.35s var(--ease-out) backwards;
   }
-  .faq-item[open] summary::after,
   .disclosure[open] summary::after {
     animation: toggle-flip 0.3s var(--ease-out);
   }
   @supports (interpolate-size: allow-keywords) {
     html { interpolate-size: allow-keywords; }
-    .faq-item::details-content,
     .disclosure::details-content {
       height: 0;
       overflow: clip;
@@ -779,7 +1350,6 @@
         height 0.35s var(--ease-out),
         content-visibility 0.35s allow-discrete;
     }
-    .faq-item[open]::details-content,
     .disclosure[open]::details-content {
       height: auto;
     }

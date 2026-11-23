@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import SingleYearCalculator from "@/app/components/calculator/SingleYearCalculator";
 import Hero from "@/app/components/sections/Hero";
+import CommonSalariesSection from "@/app/components/sections/CommonSalariesSection";
+import TaxSlabsSection from "@/app/components/sections/TaxSlabsSection";
 import FaqSection from "@/app/components/sections/FaqSection";
 import ResourcesSection from "@/app/components/sections/ResourcesSection";
+import QuranReflection from "@/app/components/sections/QuranReflection";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { singleYearFaqs } from "@/lib/faqs";
 import { pageJsonLd, pageMetadata } from "@/lib/seo";
@@ -17,12 +20,11 @@ export default function Home() {
       <Hero h1={pages.home.h1} lead={pages.home.lead}>
         <SingleYearCalculator />
       </Hero>
-      <FaqSection
-        title="A little more clarity"
-        lead="Short, plain answers about how the calculator works."
-        faqs={singleYearFaqs}
-      />
+      <CommonSalariesSection />
+      <TaxSlabsSection />
+      <FaqSection faqs={singleYearFaqs} />
       <ResourcesSection />
+      <QuranReflection />
     </main>
   );
 }
