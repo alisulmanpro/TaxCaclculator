@@ -17,7 +17,7 @@ Everything an SEO person normally needs is in **one file: [`lib/site.ts`](lib/si
 | Add a new page to the sitemap, nav and schema | add it to `pages` in `lib/site.ts`, then create `app/<path>/page.tsx` that calls `pageMetadata("key")` and `pageJsonLd("key", faqs)` (copy `app/multi-year-calculator/page.tsx`) |
 | Blog posts on the Sitemap page and in sitemap.xml | add them to `posts` in `lib/content.ts` (the post page itself must exist at that `path`). While `posts` is empty the Posts tab is hidden |
 | Google Search Console / Bing verification | set the environment variables `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION` |
-| Production domain (e.g. staging vs live) | set `NEXT_PUBLIC_SITE_URL` (default `https://taxcalculato.com`) |
+| Production domain (e.g. staging vs live) | set `NEXT_PUBLIC_SITE_URL` (default `https://findtaxcalculator.com`) |
 
 Update `lastModified` in `pages.*.sitemap` whenever you change a page's content.
 
