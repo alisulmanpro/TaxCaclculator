@@ -45,6 +45,16 @@ export const site = {
   },
   /** Fiscal years covered — used in descriptions and structured data. */
   fiscalYearsCovered: "FY 2020–21 to FY 2026–27",
+  /**
+   * Last verified update date for tax rates and calculator logic.
+   * Format: D MMMM YYYY. Update manually only after verified tax schedule changes.
+   */
+  taxRatesLastUpdated: "14 November 2026",
+  /**
+   * Last reviewed date for official resources links and government portals.
+   * Update manually only when links and authority records are checked.
+   */
+  officialResourcesLastReviewed: "14 November 2026",
 } as const;
 
 export type PageKey = "home" | "multiYear" | "sitemap";

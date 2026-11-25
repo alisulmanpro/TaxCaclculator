@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { site } from "@/lib/site";
 
 /** Page intro with the H1, followed by the calculator (children). */
 export default function Hero({
@@ -22,6 +23,15 @@ export default function Hero({
         </p>
         <h1 id="page-title">{h1}</h1>
         <p className="hero-lead">{lead}</p>
+        <div className="hero-trust-bar">
+          <span className="hero-update-pill">
+            <span className="hero-status-dot" aria-hidden="true" />
+            Updated for FY 2026–2027 FBR tax slabs
+          </span>
+          <span className="hero-date-text">
+            Last updated: {site.taxRatesLastUpdated}
+          </span>
+        </div>
       </section>
       <section className="calc-wrap" id="calculator" aria-label="Income tax calculator">
         {children}

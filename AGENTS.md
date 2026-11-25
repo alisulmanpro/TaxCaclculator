@@ -25,8 +25,8 @@ app/
   multi-year-calculator/page.tsx (+ opengraph-image.tsx)
   components/
     calculator/  SingleYearCalculator, MultiYearCalculator, charts, ui, pdf/reports, calculator.css
-    layout/      Header, Footer, Logo, NavLinks, OfflineSupport
-    sections/    Hero, FaqSection, HowItWorks, ResourcesSection
+    layout/      Header, Footer, Logo, NavLinks, OfflineSupport, ScrollObserver
+    sections/    Hero, FaqSection, HowItWorks, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection
     seo/         JsonLd
     sitemap/     SitemapBrowser, QrDialog, icons, sitemap.css
 lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, content.ts, faqs.ts, seo.ts, og.tsx
@@ -47,6 +47,64 @@ tests/
 - **Charts:** Recharts, fed from the engine results; each chart has an `aria-label` summary and a table/legend with the same numbers.
 - Tables are wrapped in `.table-scroll` / `.rtable-scroll` (horizontal scroll on mobile, no page-wide overflow).
 
+## Section A & B: Tax on Common Salaries & Income Tax Slabs Sections
+- **Placement:** Homepage (`app/page.tsx`) directly below the Hero / SingleYearCalculator and before `FaqSection`.
+- **Theme & Surfaces:** Deep brand forest (`var(--forest)` / `#0b3d2e`) section backgrounds with white rounded data cards (`var(--radius-card, 24px)`), matching reference boards.
+- **Subtle Visual Differentiation:** The two tables are intentionally styled with subtle design differences so they do not look copy-pasted while maintaining the same color palette and typography:
+  - **Section A (`CommonSalariesSection.tsx`):**
+    - Title (H2): `Tax on Common Salaries, FY 2026–27`
+    - Pill badge: `Salary tax at a glance`
+    - Design: Quick reference benchmark matrix with 4 data columns (`Monthly salary`, `Tax a month`, `Take-home a month`, `Tax a year`).
+    - Header: Mint wash background (`var(--mint-wash)`) with forest title text.
+    - Rows: Uniform white backdrop with hover tint (`#fafdfb`).
+    - Value Colors: `Tax a month` and `Tax a year` values in accessible red (`#b91c1c`), `Take-home a month` in brand green (`var(--green)`), `Monthly salary` in dark neutral (`var(--ink)`).
+    - Server Component: 100% static server render, 0 client JavaScript.
+  - **Section B (`TaxSlabsSection.tsx`):**
+    - Title (H2): `Income Tax Slabs in Pakistan`
+    - Pill badge: `FBR salary tax slabs`
+    - Design: Statutory schedule / calculation rules matrix with 2 columns (`Annual Taxable Income`, `Tax`).
+    - Topbar: Enclosed in a styled control bar (`background: #f8faf9; border: 1px solid var(--line-soft); border-radius: 12px;`) housing the fiscal year `<select>`.
+    - Header: Subtle slate-tinted header (`background: #f3f6f4; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid var(--line)`).
+    - Rows: Subtle alternating zebra striping (`tbody tr:nth-child(even)` `#fafcfb`, `odd` `#ffffff`, hover `#edf5f0`).
+    - Cells: `.cell-slab-range` in bold ink, `.cell-slab-tax` in readable dark neutral.
+    - Interactivity: Lightweight client component with interactive fiscal year dropdown supporting all years from `lib/tax.ts`.
+
+## Trust Indicators & Verification Date Management
+- **Central Configuration:** All verification and trust dates are strictly maintained in `lib/site.ts`:
+  - `site.taxRatesLastUpdated`: Last verified date for tax calculation rules and rates (e.g. `"14 November 2026"`).
+  - `site.officialResourcesLastReviewed`: Last reviewed date for official government links and portals (e.g. `"14 November 2026"`).
+- **Date Accuracy Rule:** Dates must NEVER be automatically generated (no `Date.now()`, no `new Date()`, no build/deployment time auto-stamps). They must reflect actual human/agent verification activity against official FBR sources.
+- **Hero Update Bar (`Hero.tsx`):**
+  - Displays a compact status pill: `"Updated for FY 2026–2027 FBR tax slabs"` with a green indicator dot.
+  - Displays `"Last updated: [site.taxRatesLastUpdated]"`.
+- **Official Resources Badge (`ResourcesSection.tsx`):**
+  - Displays `"Last reviewed: [site.officialResourcesLastReviewed]"` alongside the section eyebrow on the `#022641` background with high WCAG AAA contrast.
+
+## Official Resources Section Styling
+- **Background:** Exactly `#022641` (dark navy blue) as required.
+- **Typography & Contrast:** Eyebrow set to `var(--light-green)`, section title set to `#ffffff`, lead text set to `#b8cde0` for WCAG AAA contrast against `#022641`.
+- **Card Design:** Resource cards preserve `#fbfcfb` card background, dark ink text, green links, and official FBR/Iris icons without modifying their structure or URLs.
+
+## FAQ Section Architecture & Accessibility
+- **Structure:** Clean, balanced container (`.faq-container`, max-width 860px) centered on `var(--page)` background, naturally blending with the page flow without a disconnected white block.
+- **Hierarchy:** H2 for FAQ section heading (`.faq-title`), and semantic H3 headings (`.faq-question-heading`) wrapping each accordion trigger button.
+- **Colors & Styling:** Questions display in standard ink color (`var(--ink)`) by default and remain in ink when expanded (`.faq-trigger[aria-expanded="true"]`). The expandable answer content container uses a subtle theme-appropriate green wash (`var(--mint-wash)`) with high-contrast text (`var(--ink-2)` / `#33453d`) and a clean separator border (`var(--line-soft)`).
+- **Card Design:** Each question is an individual, distinct card (`.faq-item`, white background for trigger, mint wash for answer, `border: 1px solid var(--line)`, `border-radius: 16px`) with controlled spacing (`gap: 14px`). Open cards receive a `var(--green)` border accent.
+- **Accessibility:** Trigger uses `<button type="button" className="faq-trigger">` with `aria-expanded`, `aria-controls={panelId}`, and unique `id`. Panel uses `role="region"` with `aria-labelledby`. Full keyboard navigation (Tab, Enter, Space) with visible focus ring.
+- **Single-expand model:** One question expanded at a time. Clicking an open question closes it; clicking another question expands it while collapsing the previous one.
+- **+ / − State indicator:** Right-aligned responsive SVG inside a styled circle badge (`.faq-icon-wrapper`). Vertical bar rotates and scales to 0 when expanded, transitioning smoothly between `+` and `−`.
+- **Transitions:** Pure CSS grid transition (`grid-template-rows: 0fr -> 1fr`) with `var(--ease-out)`, avoiding layout shifts, external libraries, and JavaScript height calculations. Fully respects `prefers-reduced-motion: reduce`.
+
+## Quran Reflection Section Architecture
+- **Placement:** Homepage (`app/page.tsx`) immediately below `ResourcesSection` and before the footer, set on `var(--page)` background.
+- **Content:** Surah Ibrahim (14:7) in Arabic (`لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ`) with `dir="rtl"` and `lang="ar"`, English translation ("If you are grateful, I will surely increase you."), and attribution badge (`Surah Ibrahim • 14:7`).
+- **Typography & Styling:** Minimal solid dark forest card (`--forest` / `#0b3d2e`, max-width 1100px, compact padding 36px 56px 32px), subtle `--forest-line` border, single white text color (`#ffffff`) for Arabic, translation, and citation badge. No upper decorative icon or complex gradient overlays. Arabic typography uses Amiri via `@font-face` with local system Arabic fallbacks (`Traditional Arabic`, `Scheherazade New`, `Amiri Quran`, `Noto Naskh Arabic`), bold weight 700, and 2.1 line-height for proper diacritic clearance.
+- **Responsiveness & Motion:** Fluid typography with `clamp()`, responsive padding down to 360px, scroll-reveal support via `@supports (animation-timeline: view())` respecting `prefers-reduced-motion`.
+
+## Section Spacing & Visual Rhythm
+- **Rhythm:** Standardized 56px–64px top/bottom padding across consecutive sections (`.calc-wrap` bottom 64px, `.tax-article-section` padding 56px–64px, `.section-faq` padding 56px–64px, `.resources-inner` padding 60px, `.quran-reflection` padding 56px–64px).
+- **Transitions:** Subtle `border-top: 1px solid var(--line-soft)` between same-background sections ensures clean visual definition without harsh contrasts. Responsive adjustments reduce padding smoothly on mobile (40px–48px).
+
 ## Deployment (Cloudflare Workers via OpenNext)
 - `pnpm run build` runs `opennextjs-cloudflare build` (which runs a plain `next build` first, see `buildCommand` in `open-next.config.ts`; `pnpm build:next` = plain Next build only). Then `pnpm run deploy` or `npx wrangler deploy` uploads it. The deploy step needs the `.open-next` folder from the build.
 - Config: `wrangler.jsonc` (Worker name `taxcaclculator`), `open-next.config.ts`, `public/_headers` (headers for static files; keep in sync with `next.config.ts`).
@@ -63,10 +121,12 @@ tests/
 - Never cache calculation results or user input in the service worker.
 
 ## Motion (animations)
-- CSS only, at the end of `app/globals.css` ("Motion"). No animation library, no JS. Everything sits inside `@media (prefers-reduced-motion: no-preference)`.
-- Time-based animations use `backwards` fill (not `both`), so hover `transform`s keep working afterwards. Don't add `transform` hover effects to elements with scroll-driven animations (`.step-card`, `.resource-card`, ...).
+- Lightweight one-shot scroll transitions triggered by `ScrollObserver.tsx` (using `IntersectionObserver`) and styled in `app/globals.css`.
+- Strictly no continuous scroll-linked opacity binding or `animation-timeline: view()`: prevents bottom-of-screen content fading. Once an element enters the viewport, it transitions in once and remains fully visible permanently.
+- Above-the-fold content is immediately marked revealed on initial render to prevent blank flashes.
+- Time-based animations use `backwards` fill (not `both`), so hover `transform`s keep working afterwards.
 - Results/insights animate when they mount, not on every keystroke (they update in place). Charts use `animationDuration={450}`.
-- New section or card below the fold: add its class to the scroll-reveal selector list.
+- Everything sits inside `@media (prefers-reduced-motion: no-preference)`. Users with reduced motion preferences get immediate, still layouts.
 
 ## Styling Rules
 - Follow `design-ref/`: primary green `#0F6B4C`, forest `#0B3D2E`, amber `#B7791F` for tax. Tokens are CSS variables in `app/globals.css`.
