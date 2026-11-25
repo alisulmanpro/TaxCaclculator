@@ -28,13 +28,15 @@ app/
     layout/      Header, Footer, Logo, NavLinks, OfflineSupport
     sections/    Hero, FaqSection, HowItWorks, ResourcesSection
     seo/         JsonLd
-lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, faqs.ts, seo.ts, og.tsx
+    sitemap/     SitemapBrowser, QrDialog, icons, sitemap.css
+lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, content.ts, faqs.ts, seo.ts, og.tsx
 tests/
 ```
 
 ## Routes
 - `/`: Single Year calculator. `/multi-year-calculator`: Multi-Year calculator. The mode tabs are real links.
 - Both pages are statically prerendered. Calculator state is client-side only.
+- `/sitemap`: visitor sitemap (WordPress-style Pages / Posts). Data: `getContentGroups()` in `lib/content.ts` (pages from `lib/site.ts`, posts from `posts` there). **The Posts tab is only rendered when `posts` is not empty.** Each entry: Open, Copy link, QR dialog (`qrcode` package, made in the browser; copy image / download PNG / copy link). `app/sitemap.ts` (sitemap.xml) reads the same data. New page → add to `PAGES` in `public/sw.js` for offline use.
 
 ## Calculator Behavioral & Visibility Rules
 - **Initial salary state:** both calculators start with an empty salary (`""`). No fake salaries. Placeholders: single `"Enter your Salary"`, multi `"Enter your monthly salary"`.

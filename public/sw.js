@@ -13,7 +13,7 @@ const CACHE_VERSION = "v1";
 const CACHE = `tax-calculator-${CACHE_VERSION}`;
 
 // Pages saved on install. Add every new calculator page here.
-const PAGES = ["/", "/multi-year-calculator"];
+const PAGES = ["/", "/multi-year-calculator", "/sitemap"];
 // Small files the pages and the PDF need.
 const FILES = ["/logo.png", "/icon.png", "/apple-icon.png", "/manifest.webmanifest"];
 

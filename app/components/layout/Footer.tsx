@@ -11,6 +11,7 @@ export default function Footer() {
           <nav className="footer-nav" aria-label="Footer">
             <Link href={pages.home.path}>{pages.home.navLabel}</Link>
             <Link href={pages.multiYear.path}>{pages.multiYear.navLabel}</Link>
+            <Link href={pages.sitemap.path}>{pages.sitemap.navLabel}</Link>
             <a href="https://www.fbr.gov.pk" target="_blank" rel="noreferrer noopener">
               FBR
             </a>
