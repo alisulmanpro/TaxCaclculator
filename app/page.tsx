@@ -4,6 +4,7 @@ import Hero from "@/app/components/sections/Hero";
 import CommonSalariesSection from "@/app/components/sections/CommonSalariesSection";
 import TaxSlabsSection from "@/app/components/sections/TaxSlabsSection";
 import FaqSection from "@/app/components/sections/FaqSection";
+import ExploreCalculatorsSection from "@/app/components/sections/ExploreCalculatorsSection";
 import ResourcesSection from "@/app/components/sections/ResourcesSection";
 import QuranReflection from "@/app/components/sections/QuranReflection";
 import JsonLd from "@/app/components/seo/JsonLd";
@@ -23,6 +24,7 @@ export default function Home() {
       <CommonSalariesSection />
       <TaxSlabsSection />
       <FaqSection faqs={singleYearFaqs} />
+      <ExploreCalculatorsSection />
       <ResourcesSection />
       <QuranReflection />
     </main>

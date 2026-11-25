@@ -23,18 +23,23 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 app/
   layout.tsx, page.tsx, not-found.tsx, robots.ts, sitemap.ts, manifest.ts, opengraph-image.tsx
   multi-year-calculator/page.tsx (+ opengraph-image.tsx)
+  about/page.tsx, contact/page.tsx, blog/page.tsx, terms-of-use/page.tsx, privacy-policy/page.tsx
+  tax-guides/
+    income-tax-slabs/page.tsx, tax-deductions-and-credits/page.tsx, filing-your-tax-return/page.tsx
   components/
     calculator/  SingleYearCalculator, MultiYearCalculator, charts, ui, pdf/reports, calculator.css
     layout/      Header, Footer, Logo, NavLinks, OfflineSupport, ScrollObserver
-    sections/    Hero, FaqSection, HowItWorks, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection
+    sections/    Hero, FaqSection, HowItWorks, CalculationMethodSection, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection, ExploreCalculatorsSection, PlaceholderPage
     seo/         JsonLd
-lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, faqs.ts, seo.ts, og.tsx
+lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, faqs.ts, seo.ts, og.tsx, tools-directory.ts
 tests/
 ```
 
 ## Routes
-- `/`: Single Year calculator. `/multi-year-calculator`: Multi-Year calculator. The mode tabs are real links.
-- Both pages are statically prerendered. Calculator state is client-side only.
+- `/`: Single Year calculator. `/multi-year-calculator`: Multi-Year calculator.
+- `/about`, `/contact`, `/blog`, `/terms-of-use`, `/privacy-policy`: Informational & legal pages.
+- `/tax-guides/income-tax-slabs`, `/tax-guides/tax-deductions-and-credits`, `/tax-guides/filing-your-tax-return`: Tax guide pages.
+- All pages are statically prerendered. Calculator state is client-side only.
 
 ## Calculator Behavioral & Visibility Rules
 - **Initial salary state:** both calculators start with an empty salary (`""`). No fake salaries. Placeholders: single `"Enter your Salary"`, multi `"Enter your monthly salary"`.
@@ -93,6 +98,37 @@ tests/
 - **+ / − State indicator:** Right-aligned responsive SVG inside a styled circle badge (`.faq-icon-wrapper`). Vertical bar rotates and scales to 0 when expanded, transitioning smoothly between `+` and `−`.
 - **Transitions:** Pure CSS grid transition (`grid-template-rows: 0fr -> 1fr`) with `var(--ease-out)`, avoiding layout shifts, external libraries, and JavaScript height calculations. Fully respects `prefers-reduced-motion: reduce`.
 
+## Multi-Year Calculator Page Content Sections Architecture
+- **Placement:** Multi-Year Calculator page (`app/multi-year-calculator/page.tsx`) beneath `Hero` / `MultiYearCalculator`.
+- **Flow & Order:**
+  1. `<Hero><MultiYearCalculator /></Hero>`
+  2. `<CalculationMethodSection />`
+  3. `<FaqSection badge="COMMON QUESTIONS" ... />`
+  4. `<ResourcesSection tagline="OFFICIAL TAX REFERENCES" ... />`
+  5. `<QuranReflection tagline="A REFLECTION" ... />`
+- **Section 1: Calculation Method (`CalculationMethodSection.tsx`):**
+  - Eyebrow pill: `"CALCULATION METHOD"` with calculator icon.
+  - Heading (H2): `"How salary tax is calculated across multiple fiscal years"`.
+  - 3 educational cards with step numbers `01`, `02`, `03`:
+    - `01`: Split Each Period at 30 June (Pakistan fiscal-year boundary).
+    - `02`: Count the Days Worked (actual calendar days and prorated daily rates for mid-month changes).
+    - `03`: Calculate Tax for Each Fiscal Year (aggregation of annual taxable income and applying respective year's progressive tax slabs).
+  - Cards include `.scroll-reveal` for smooth one-shot viewport entrance.
+- **Section 2: Multi-Year FAQ (`FaqSection.tsx`):**
+  - Eyebrow badge: `"COMMON QUESTIONS"`.
+  - Heading (H2): `"Frequently Asked Questions About Multi-Year Salary Tax"`.
+  - Content: 10 multi-year specific FAQs (`multiYearFaqs` in `lib/faqs.ts`) feeding both accordion UI and `FAQPage` JSON-LD schema.
+- **Section 3: Official Resources (`ResourcesSection.tsx`):**
+  - Eyebrow: `"OFFICIAL TAX REFERENCES"`.
+  - Heading (H2): `"Official Pakistan Tax Resources"`.
+  - Lead: `"Access official government resources and FBR publications to verify tax slabs, income tax rules, and relevant tax information."`.
+  - Background `#022641` preserved with `"Last reviewed: [site.officialResourcesLastReviewed]"` indicator.
+- **Section 4: Quranic Ayah (`QuranReflection.tsx`):**
+  - Eyebrow pill: `"A REFLECTION"`.
+  - Ayah: Surah Al-Ma'idah (5:1) in Arabic (`يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ`).
+  - English translation: `"O you who have believed, fulfill all contracts and obligations."`.
+  - Citation: `"Surah Al-Ma'idah • 5:1"`. Theme of financial integrity, contracts, and fulfilling civic/employment obligations.
+
 ## Quran Reflection Section Architecture
 - **Placement:** Homepage (`app/page.tsx`) immediately below `ResourcesSection` and before the footer, set on `var(--page)` background.
 - **Content:** Surah Ibrahim (14:7) in Arabic (`لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ`) with `dir="rtl"` and `lang="ar"`, English translation ("If you are grateful, I will surely increase you."), and attribution badge (`Surah Ibrahim • 14:7`).
@@ -102,6 +138,21 @@ tests/
 ## Section Spacing & Visual Rhythm
 - **Rhythm:** Standardized 56px–64px top/bottom padding across consecutive sections (`.calc-wrap` bottom 64px, `.tax-article-section` padding 56px–64px, `.section-faq` padding 56px–64px, `.resources-inner` padding 60px, `.quran-reflection` padding 56px–64px).
 - **Transitions:** Subtle `border-top: 1px solid var(--line-soft)` between same-background sections ensures clean visual definition without harsh contrasts. Responsive adjustments reduce padding smoothly on mobile (40px–48px).
+
+## Reusable Explore Calculators Section Architecture
+- **Placement & Flow:** Embedded inline immediately after `FaqSection` on BOTH existing calculator pages (`app/page.tsx` and `app/multi-year-calculator/page.tsx`). No standalone tools directory page or route exists.
+- **Data Configuration:** `lib/tools-directory.ts` provides a typed, scalable schema (`CalculatorTool`, `ToolCategory`).
+- **Initial Category:** Exactly 1 category (`SALARY & INCOME`) with SVG wallet icon.
+- **Dynamic Count Badge:** Category header renders dynamic count badge (`${count} ${count === 1 ? "Calculator" : "Calculators"}`) displaying `2 Calculators`.
+- **Calculators Displayed (2 active tools):**
+  1. `Salary Tax Calculator` (Description: `"Calculate your Pakistan salary income tax and take-home pay."`, Destination: `/`).
+  2. `Multi-Year Income Tax Calculator` (Description: `"Calculate your salary tax across multiple fiscal years, including salary changes and job transitions."`, Destination: `/multi-year-calculator`).
+- **Visual Design:**
+  - Background: Deep brand forest (`var(--forest)` / `#0b3d2e`) with a blueprint grid overlay (`background-size: 36px 36px;`).
+  - Header: Eyebrow pill `EXPLORE OUR TOOLS` with shield icon, H2 `Explore Our Tax Calculators`, and responsive lead text.
+  - Container: Pure white card (`#ffffff`, `var(--radius-card, 24px)`, `border: 1px solid var(--forest-line)`), `.scroll-reveal` for lightweight one-shot viewport entrance.
+  - Category Header: Green indicator dot (`#10b981`), category SVG wallet icon, uppercase title (`SALARY & INCOME`), divider line, and count badge (`2 Calculators`).
+  - Tool Cards: 2-column desktop grid, 1-column mobile grid. Rounded mint-wash icon wrap with SVG calculator icon, title, description, right chevron with hover glide (`translateX(4px)`), green border transition, and subtle elevation.
 
 ## Deployment (Cloudflare Workers via OpenNext)
 - `pnpm run build` runs `opennextjs-cloudflare build` (which runs a plain `next build` first, see `buildCommand` in `open-next.config.ts`; `pnpm build:next` = plain Next build only). Then `pnpm run deploy` or `npx wrangler deploy` uploads it. The deploy step needs the `.open-next` folder from the build.

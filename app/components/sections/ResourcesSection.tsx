@@ -40,22 +40,32 @@ const resources = [
   },
 ];
 
-export default function ResourcesSection() {
+export interface ResourcesSectionProps {
+  tagline?: string;
+  title?: string;
+  lead?: string;
+}
+
+export default function ResourcesSection({
+  tagline = "Trusted government sources",
+  title = "Official resources. Reliable answers.",
+  lead = "For the finer details, go directly to the people who write the rules.",
+}: ResourcesSectionProps = {}) {
   return (
     <section className="resources" id="resources" aria-labelledby="resources-title">
       <div className="resources-inner">
         <div className="stack-14" style={{ gap: 10 }}>
           <div className="resources-eyebrow-row">
-            <p className="eyebrow">Trusted government sources</p>
+            <p className="eyebrow">{tagline}</p>
             <span className="resources-review-badge">
               <span className="resources-status-dot" aria-hidden="true" />
               Last reviewed: {site.officialResourcesLastReviewed}
             </span>
           </div>
           <h2 className="section-title" id="resources-title">
-            Official resources. Reliable answers.
+            {title}
           </h2>
-          <p className="section-lead">For the finer details, go directly to the people who write the rules.</p>
+          <p className="section-lead">{lead}</p>
         </div>
         <div className="resource-grid">
           {resources.map((resource) => (
