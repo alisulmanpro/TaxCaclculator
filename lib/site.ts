@@ -47,7 +47,9 @@ export const site = {
   fiscalYearsCovered: "FY 2020–21 to FY 2026–27",
 } as const;
 
-export type PageKey = "home" | "multiYear";
+export type PageKey = "home" | "multiYear" | "sitemap";
+/** Pages that are calculators (they get WebApplication structured data). */
+export type CalculatorKey = "home" | "multiYear";
 
 export type PageSeo = {
   /** URL path, starting with "/". */
@@ -70,8 +72,8 @@ export type PageSeo = {
   sitemap: { priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly"; lastModified: string };
   /** Label used in the main navigation and breadcrumbs. */
   navLabel: string;
-  /** What the tool does, for WebApplication structured data. */
-  appDescription: string;
+  /** What the tool does, for WebApplication structured data (calculator pages only). */
+  appDescription?: string;
 };
 
 export const pages: Record<PageKey, PageSeo> = {
@@ -115,6 +117,18 @@ export const pages: Record<PageKey, PageSeo> = {
     navLabel: "Multi-year",
     appDescription:
       "Calculates Pakistan salary income tax across several salary periods, splitting each period by fiscal year and adding up gross, tax and net income.",
+  },
+  sitemap: {
+    path: "/sitemap",
+    title: "Sitemap",
+    description:
+      "Every page of the Tax Calculator website in one place. Open a page, copy its link or scan a QR code to share it.",
+    h1: "Sitemap",
+    lead: "Every page of the site in one place. Open it, copy its link or scan its QR code.",
+    socialImageText: "All pages of the site in one place",
+    keywords: ["Tax Calculator sitemap", "Pakistan tax calculator pages"],
+    sitemap: { priority: 0.3, changeFrequency: "monthly", lastModified: "2026-11-25" },
+    navLabel: "Sitemap",
   },
 };
 

@@ -1,7 +1,7 @@
 // Builders for page <head> metadata and JSON-LD structured data.
 // All text comes from lib/site.ts and lib/faqs.ts — edit those, not this file.
 import type { Metadata } from "next";
-import { absoluteUrl, fullTitle, pages, site, type PageKey } from "./site";
+import { absoluteUrl, fullTitle, pages, site, type CalculatorKey, type PageKey } from "./site";
 import type { Faq } from "./faqs";
 
 /** Metadata for one page (title, description, canonical, social cards). */
@@ -64,7 +64,7 @@ export function siteJsonLd() {
 }
 
 /** WebApplication (+ optional FAQPage and BreadcrumbList) for a calculator page. */
-export function pageJsonLd(key: PageKey, faqs: Faq[]) {
+export function pageJsonLd(key: CalculatorKey, faqs: Faq[]) {
   const page = pages[key];
   const url = absoluteUrl(page.path);
   const graph: Record<string, unknown>[] = [
@@ -83,7 +83,7 @@ export function pageJsonLd(key: PageKey, faqs: Faq[]) {
       "@id": `${url}#app`,
       name: page.h1,
       url,
-      description: page.appDescription,
+      description: page.appDescription ?? page.description,
       applicationCategory: "FinanceApplication",
       operatingSystem: "Any (runs in the browser)",
       browserRequirements: "Requires JavaScript",
@@ -120,4 +120,32 @@ export function pageJsonLd(key: PageKey, faqs: Faq[]) {
   }
 
   return { "@context": "https://schema.org", "@graph": graph };
+}
+
+/** WebPage + BreadcrumbList for a plain information page (for example the sitemap). */
+export function infoPageJsonLd(key: Exclude<PageKey, CalculatorKey>) {
+  const page = pages[key];
+  const url = absoluteUrl(page.path);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${url}#webpage`,
+        url,
+        name: page.title,
+        description: page.description,
+        inLanguage: site.language,
+        isPartOf: { "@id": ids.website },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumbs`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: pages.home.navLabel, item: absoluteUrl(pages.home.path) },
+          { "@type": "ListItem", position: 2, name: page.navLabel, item: url },
+        ],
+      },
+    ],
+  };
 }
