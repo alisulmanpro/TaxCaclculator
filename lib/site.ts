@@ -21,7 +21,7 @@ export const site = {
    * Production domain with no trailing slash. Can be overridden with the
    * NEXT_PUBLIC_SITE_URL environment variable (e.g. for a staging site).
    */
-  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://taxcalculato.com").replace(/\/+$/, ""),
+  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://findtaxcalculator.com").replace(/\/+$/, ""),
   /** Language of the content (html lang attribute + structured data). */
   language: "en",
   /** OpenGraph locale. */
