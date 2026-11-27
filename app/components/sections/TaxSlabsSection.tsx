@@ -1,17 +1,25 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import { FISCAL_YEARS, fiscalLabel, type FiscalYear, TAX_RULES } from "@/lib/tax";
-import SectionHeader from "./SectionHeader";
+import DataSectionHeader from "./DataSectionHeader";
 
 function formatSlabCurrency(num: number): string {
-  return "Rs. " + num.toLocaleString("en-IN");
+  // The non-breaking space keeps "Rs." on the same line as its amount.
+  return "Rs.\u00a0" + num.toLocaleString("en-US");
 }
 
 export interface SlabRow {
   range: string;
   tax: string;
 }
+
+/** "2026" → "FY 2026–27" */
+const tabLabel = (year: FiscalYear) => `FY ${year}–${String(Number(year) + 1).slice(-2)}`;
+
+/** The three newest years are buttons; the rest sit in the "Earlier years" menu. */
+const tabYears = FISCAL_YEARS.slice(0, 3);
+const earlierYears = FISCAL_YEARS.slice(3);
 
 export function getSlabsForYear(year: FiscalYear): SlabRow[] {
   const rule = TAX_RULES[year];
@@ -26,13 +34,13 @@ export function getSlabsForYear(year: FiscalYear): SlabRow[] {
     } else if (upper === Infinity) {
       rangeStr = `Above ${formatSlabCurrency(lower)}`;
     } else {
-      rangeStr = `${formatSlabCurrency(lower + 1)} to ${formatSlabCurrency(upper)}`;
+      rangeStr = `${formatSlabCurrency(lower + 1)} – ${upper.toLocaleString("en-US")}`;
     }
 
     let taxStr = "";
     const pct = Math.round(rate * 1000) / 10;
     if (rate === 0) {
-      taxStr = "0% (Tax Free)";
+      taxStr = "Tax free";
     } else if (cumTax === 0) {
       taxStr = `${pct}% of the amount exceeding ${formatSlabCurrency(lower)}`;
     } else {
@@ -50,84 +58,79 @@ export function getSlabsForYear(year: FiscalYear): SlabRow[] {
 
 /**
  * Section B: Income Tax Slabs in Pakistan
- * Reproduces the progressive salary tax slabs table with an interactive fiscal year selector.
+ * The progressive salary tax slabs table with a fiscal year switcher.
  */
 export default function TaxSlabsSection() {
   const [selectedYear, setSelectedYear] = useState<FiscalYear>("2026");
-  const selectId = useId();
   const slabs = getSlabsForYear(selectedYear);
+  const isEarlier = earlierYears.includes(selectedYear);
 
   return (
-    <section className="fx-section" id="tax-slabs" aria-labelledby="tax-slabs-title">
-      <div className="fx-wrap fx-split scroll-reveal">
-        <SectionHeader
-          eyebrow="FBR salary tax slabs"
-          icon={
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
-          }
-          title="Income Tax Slabs in Pakistan"
+    <section className="fx-section fx-data fx-data-slabs" id="tax-slabs" aria-labelledby="tax-slabs-title">
+      <div className="fx-wrap">
+        <DataSectionHeader
+          eyebrow="Understand your tax"
+          title="Income tax slabs in Pakistan"
           titleId="tax-slabs-title"
-          lead="The progressive salary tax rates the calculator applies. Pick any fiscal year from FY 2020-2021 onwards to see the slabs that applied that year."
+          lead="Your salary is taxed progressively. Only the income within each band is charged at that band’s rate."
         />
 
-        <div className="fx-card">
-          <div className="tax-card-topbar">
-            <label htmlFor={selectId} className="tax-card-topbar-label">
-              Pakistan&apos;s salaried income tax slabs for the selected fiscal year:
-            </label>
-            <select
-              id={selectId}
-              className="tax-card-select"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value as FiscalYear)}
-              aria-label="Select Fiscal Year"
+        <div className="fx-year-tabs fx-rise" role="group" aria-label="Fiscal year">
+          {tabYears.map((year) => (
+            <button
+              key={year}
+              type="button"
+              className="fx-year-tab"
+              data-year={year}
+              aria-pressed={selectedYear === year}
+              onClick={() => setSelectedYear(year)}
             >
-              {FISCAL_YEARS.map((year) => (
-                <option key={year} value={year}>
-                  FY {fiscalLabel(year)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="tax-table-wrap">
-            <table
-              className="tax-data-table tax-data-table-slabs"
-              aria-label={`Income Tax Slabs for FY ${fiscalLabel(selectedYear)}`}
-            >
-              <thead>
-                <tr>
-                  <th scope="col">Annual Taxable Income</th>
-                  <th scope="col">Tax</th>
-                </tr>
-              </thead>
-              <tbody>
-                {slabs.map((slab) => (
-                  <tr key={slab.range}>
-                    <td className="cell-slab-range">{slab.range}</td>
-                    <td className="cell-slab-tax">{slab.tax}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              {tabLabel(year)}
+            </button>
+          ))}
+          <select
+            className={`fx-year-tab fx-year-more${isEarlier ? " is-active" : ""}`}
+            aria-label="Earlier fiscal years"
+            value={isEarlier ? selectedYear : ""}
+            onChange={(e) => setSelectedYear(e.target.value as FiscalYear)}
+          >
+            <option value="" disabled>
+              FY Earlier years
+            </option>
+            {earlierYears.map((year) => (
+              <option key={year} value={year}>
+                {tabLabel(year)}
+              </option>
+            ))}
+          </select>
         </div>
+
+        <div className="tax-table-wrap">
+          <table
+            className="tax-data-table tax-data-table-slabs"
+            aria-label={`Income Tax Slabs for FY ${fiscalLabel(selectedYear)}`}
+          >
+            <thead>
+              <tr className="fx-rise">
+                <th scope="col">Annual taxable income</th>
+                <th scope="col">Income tax calculation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {slabs.map((slab) => (
+                <tr key={slab.range} className="fx-rise">
+                  <td className="cell-num">{slab.range}</td>
+                  <td>{slab.tax}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="tax-table-footnote fx-rise">
+          Salaried-person rates shown for the selected fiscal year. Review official FBR guidance for your
+          individual circumstances.
+        </p>
       </div>
     </section>
   );

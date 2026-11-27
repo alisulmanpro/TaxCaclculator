@@ -9,6 +9,7 @@ import ExploreCalculatorsSection from "@/app/components/sections/ExploreCalculat
 import ResourcesSection from "@/app/components/sections/ResourcesSection";
 import QuranReflection from "@/app/components/sections/QuranReflection";
 import SectionNav from "@/app/components/sections/SectionNav";
+import RiseOnScroll from "@/app/components/layout/RiseOnScroll";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { singleYearFaqs } from "@/lib/faqs";
 import { pageJsonLd, pageMetadata } from "@/lib/seo";
@@ -38,6 +39,7 @@ export default function Home() {
       <ExploreCalculatorsSection />
       <ResourcesSection />
       <QuranReflection />
+      <RiseOnScroll />
     </main>
   );
 }

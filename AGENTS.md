@@ -28,8 +28,8 @@ app/
     income-tax-slabs/page.tsx, tax-deductions-and-credits/page.tsx, filing-your-tax-return/page.tsx
   components/
     calculator/  SingleYearCalculator, MultiYearCalculator, charts, ui, pdf/reports, calculator.css
-    layout/      Header, Footer, CalculatorFooter, RouteSwitch, CurrentYear, Logo, NavLinks, OfflineSupport, ScrollObserver
-    sections/    Hero, SectionHeader, SectionNav, FaqSection, HowItWorks, CalculationMethodSection, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection, ExploreCalculatorsSection, PlaceholderPage
+    layout/      Header, Footer, CalculatorFooter, RouteSwitch, CurrentYear, Logo, NavLinks, OfflineSupport, ScrollObserver, RiseOnScroll
+    sections/    Hero, SectionHeader, DataSectionHeader, HomeHeroIntro, SectionNav, FaqSection, HowItWorks, CalculationMethodSection, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection, ExploreCalculatorsSection, PlaceholderPage
     seo/         JsonLd
     sitemap/     SitemapBrowser, QrDialog, icons, sitemap.css
 lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, content.ts, faqs.ts, seo.ts, og.tsx, tools-directory.ts
@@ -58,12 +58,13 @@ tests/
 - **Colors:** green `#0F5C45`, orange `#F28C28` (decoration only; orange text uses `#965000`), soft background `#F4F7F5`, light green surface `#EAF3EE`, text `#24352E`, secondary `#64746C` family, borders `#DCE7E0`. Tax figures orange, take-home green, always with a text label. Footer is dark green.
 - **Layout:** `.fx-wrap` (1120px) for every block; sections are `.fx-section` with alternating tints; `SectionHeader` for headings (side rail from 1000px with `.fx-split`).
 - **Type:** Inter only. Sentence-level hierarchy via `.fx-title` / `.fx-lead`; inputs at least 52px high.
-- **Motion:** one hero entrance, one reveal per section (`.scroll-reveal` on the section's wrapper, not on each card), short hover/open transitions. All inside `prefers-reduced-motion: no-preference`.
+- **Motion:** one hero entrance, one reveal per section (`.scroll-reveal` on the section's wrapper, not on each card), short hover/open transitions. All inside `prefers-reduced-motion: no-preference`. Exception: the two home table sections raise their pieces one at a time as you scroll (`.fx-rise` + `RiseOnScroll.tsx`).
+- **Headings:** black (`#111111`) on the light surfaces of both calculator pages; text on dark green stays white.
 
 ## Section A & B: Tax on Common Salaries & Income Tax Slabs Sections
 - **Placement:** Homepage (`app/page.tsx`) directly below the Hero / SingleYearCalculator and before `FaqSection`.
-- **Section A (`CommonSalariesSection.tsx`):** H2 `Tax on Common Salaries, FY 2026–27`; 4 columns (`Monthly salary`, `Tax a month`, `Take-home a month`, `Tax a year`); tinted header, right-aligned numbers, sticky first column on phones. Server Component, 0 client JavaScript.
-- **Section B (`TaxSlabsSection.tsx`):** H2 `Income Tax Slabs in Pakistan`; 2 columns (`Annual Taxable Income`, `Tax`); solid green header, zebra rows; fiscal-year `<select>` for all years in `lib/tax.ts` (small client component).
+- **Section A (`CommonSalariesSection.tsx`):** H2 `What does your salary look like after tax?`; 4 left-aligned columns (`Monthly gross salary`, `Monthly income tax`, `Monthly take-home`, `Annual income tax`); white section, solid green header, zebra rows, bold green take-home, sticky first column on phones. Server Component.
+- **Section B (`TaxSlabsSection.tsx`):** H2 `Income tax slabs in Pakistan`; 2 columns (`Annual taxable income`, `Income tax calculation`); mint section, solid green header, zebra rows; year buttons for the three newest years and an `Earlier years` `<select>` for the rest of `lib/tax.ts` (small client component).
 - The two tables stay visibly different from each other while sharing the theme.
 
 ## Trust Indicators & Verification Date Management
