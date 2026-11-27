@@ -141,6 +141,106 @@ body:has(> main.fx-theme) .skip-link {
   color: var(--green);
 }
 
+/* Home page hero: text on the left, current fiscal year card on the right. */
+.fx-home-hero {
+  padding: 44px 0 100px;
+}
+.fx-home-badge {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.fx-home-hero h1 {
+  max-width: 12em;
+  color: var(--forest);
+  font-size: clamp(32px, 4.6vw, 48px);
+}
+.fx-home-hero .fx-hero-lead {
+  margin-top: 18px;
+  max-width: 31em;
+  color: var(--muted);
+}
+.fx-home-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 600;
+}
+.fx-home-points li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.fx-year-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 26px 28px;
+  border-radius: var(--radius-card);
+  background: var(--green);
+  color: var(--on-dark);
+}
+.fx-year-label {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fx-year-value {
+  margin-top: 18px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: 750;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.fx-year-title {
+  margin-top: 12px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+.fx-year-note {
+  margin-top: 8px;
+  max-width: 16em;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.fx-year-note span {
+  white-space: nowrap;
+}
+.fx-year-link {
+  margin-top: 16px;
+  color: var(--orange-on-dark);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.fx-year-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.fx-year-link:focus-visible {
+  outline: 3px solid var(--orange-on-dark);
+  outline-offset: 3px;
+}
+
 .fx-calc-wrap {
   position: relative;
   margin-top: -56px;
@@ -853,6 +953,10 @@ body:has(> main.fx-theme) .skip-link {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
     gap: 48px;
+  }
+  .fx-home-hero .fx-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+    align-items: center;
   }
   .calc-method-grid,
   .resource-grid {
