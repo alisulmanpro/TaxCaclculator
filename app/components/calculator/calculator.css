@@ -1,10 +1,11 @@
-/* Calculator card, form, result panel and insights. Tokens live in app/globals.css. */
+/* Calculator card, form, result panel and insights. Tokens: .fx-theme in app/calculator-theme.css. */
 
 .calc {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  overflow: hidden;
+  /* "clip" (not "hidden") so the result panel can stick while a long form scrolls. */
+  overflow: clip;
   box-shadow: var(--shadow-card);
 }
 
@@ -12,27 +13,30 @@
 .calc-modes {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  background: var(--mint-soft);
+  gap: 8px;
+  padding: 10px;
+  background: var(--tint);
   border-bottom: 1px solid var(--line);
 }
 .calc-mode {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 18px 24px;
+  min-width: 0;
+  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   text-decoration: none;
-  color: var(--ink-2);
-}
-.calc-mode + .calc-mode {
-  border-left: 1px solid var(--line);
+  color: var(--ink);
 }
 .calc-mode:hover {
-  background: var(--mint-wash);
-  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--ink);
 }
 .calc-mode.is-active {
-  background: #fff;
-  box-shadow: inset 0 3px 0 var(--green);
+  background: var(--card);
+  border-color: var(--line);
+  box-shadow: inset 0 -3px 0 var(--orange);
 }
 .calc-mode-title {
   font-weight: 700;
@@ -43,26 +47,28 @@
 }
 .calc-mode-sub {
   font-size: 14px;
-  color: var(--muted);
+  color: #52635a;
   line-height: 1.35;
 }
 
 .calc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr));
+  grid-template-columns: minmax(0, 1fr);
 }
 
 /* ───────────────────────────────────────── Form column ───────────────────────────────────────── */
 .calc-form {
-  padding: 40px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 22px;
   min-width: 0;
 }
 .calc-title {
-  font-family: var(--font-display);
-  font-size: 26px;
+  color: var(--green);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.3;
   letter-spacing: -0.015em;
 }
 .calc-sub {
@@ -117,11 +123,11 @@
   width: 100%;
   height: 56px;
   border: 1.5px solid var(--field-line);
-  border-radius: 12px;
+  border-radius: var(--radius-field);
   padding: 0 16px;
   font: inherit;
   font-size: 17px;
-  background: #fff;
+  background: var(--card);
   color: var(--ink);
 }
 select.control {
@@ -130,22 +136,23 @@ select.control {
   padding-right: 48px;
   cursor: pointer;
 }
+.control:hover,
+.money:hover {
+  border-color: var(--green);
+}
 .control:focus,
 .money:focus-within {
   outline: none;
   border-color: var(--green);
-  box-shadow: 0 0 0 4px #cfe8db;
-}
-.control-sm {
-  height: 52px;
+  box-shadow: 0 0 0 4px rgba(15, 92, 69, 0.2);
 }
 .money {
   display: flex;
   align-items: center;
-  height: 60px;
+  height: 64px;
   border: 1.5px solid var(--field-line);
-  border-radius: 12px;
-  background: #fff;
+  border-radius: var(--radius-field);
+  background: var(--card);
   overflow: hidden;
 }
 .money-prefix {
@@ -153,9 +160,9 @@ select.control {
   height: 100%;
   display: flex;
   align-items: center;
-  background: var(--mint-soft);
-  color: #3f5249;
-  font-weight: 600;
+  background: var(--tint);
+  color: var(--green);
+  font-weight: 700;
   border-right: 1px solid var(--line);
 }
 .money input {
@@ -166,22 +173,28 @@ select.control {
   padding: 0 16px;
   font: inherit;
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--ink);
   background: transparent;
+}
+.money input::placeholder {
+  font-size: 17px;
+  font-weight: 400;
 }
 .money input:focus {
   outline: none;
 }
-.money-bad {
+.money-bad,
+.money-bad:hover {
   border-color: #a3452e;
 }
 
 .disclosure {
-  border: 1.5px dashed #9db3a6;
-  border-radius: 12px;
+  border: 1px dashed #9fb8ac;
+  border-radius: var(--radius-field);
   overflow: hidden;
-  background: #fff;
+  background: var(--card);
 }
 .disclosure summary {
   list-style: none;
@@ -197,7 +210,10 @@ select.control {
   display: none;
 }
 .disclosure summary:hover {
-  background: var(--mint-wash);
+  background: var(--soft);
+}
+.disclosure summary:focus-visible {
+  outline-offset: -3px;
 }
 .disclosure summary::after {
   content: "";
@@ -227,6 +243,7 @@ select.control {
   padding: 4px 16px 20px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  align-items: end;
   gap: 16px;
 }
 .disclosure-body label {
@@ -246,10 +263,10 @@ select.control {
   justify-content: center;
   gap: 10px;
   height: 56px;
-  padding: 0 28px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 17px;
+  padding: 0 26px;
+  border-radius: var(--radius-field);
+  font-weight: 650;
+  font-size: 16.5px;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -267,37 +284,35 @@ select.control {
 }
 .btn-secondary {
   border: 1.5px solid var(--field-line);
-  background: #fff;
+  background: var(--card);
   color: var(--ink);
 }
 .btn-secondary:hover {
-  background: var(--mint-soft);
+  border-color: var(--green);
+  background: var(--soft);
   color: var(--ink);
 }
 .btn-add {
   border: 1.5px dashed var(--green);
-  background: #fff;
+  background: var(--card);
   color: var(--green);
-  border-radius: 14px;
   width: 100%;
 }
 .btn-add:hover {
-  background: var(--mint-wash);
+  background: var(--tint);
   color: var(--green);
 }
 .btn-small {
   height: 40px;
   padding: 0 14px;
-  border-radius: 10px;
-  border: 1.5px solid #b9cbc0;
-  background: #fff;
+  border: 1px solid var(--field-line);
+  background: var(--card);
   color: var(--ink-2);
   font-size: 14px;
-  font-weight: 600;
   gap: 6px;
 }
 .btn-small:hover {
-  background: var(--mint-soft);
+  background: var(--soft);
 }
 .fine-print {
   font-size: 13.5px;
@@ -307,12 +322,15 @@ select.control {
 .notice {
   display: flex;
   gap: 14px;
-  padding: 18px 20px;
-  border-radius: 14px;
-  background: #eaf3ee;
+  padding: 16px 18px;
+  border-radius: var(--radius-field);
+  background: var(--tint);
   font-size: 14.5px;
   line-height: 1.5;
   color: var(--ink-2);
+}
+.notice > svg {
+  color: var(--green);
 }
 .notice ul {
   list-style: none;
@@ -326,7 +344,7 @@ select.control {
 }
 .alert {
   padding: 14px 18px;
-  border-radius: 12px;
+  border-radius: var(--radius-field);
   font-size: 15px;
   line-height: 1.5;
 }
@@ -336,20 +354,21 @@ select.control {
   color: #7c2a17;
 }
 .alert-info {
-  background: var(--amber-soft);
-  border: 1px solid var(--amber-line);
-  color: var(--amber-ink);
+  background: var(--orange-soft);
+  border: 1px solid var(--orange-line);
+  color: #6f3a00;
 }
 
 /* Multi-year period cards */
 .period {
-  border: 1.5px solid var(--line);
-  border-radius: 18px;
-  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background: #fcfdfc;
+  gap: 18px;
+  background: var(--card);
+  box-shadow: inset 4px 0 0 var(--green);
   min-width: 0;
 }
 .period-head {
@@ -357,24 +376,25 @@ select.control {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 36px;
+  min-height: 40px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
 }
 .period-title {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 600;
+  color: var(--green);
+  font-size: 17px;
+  font-weight: 700;
 }
 .period-title span {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--green);
-  color: #fff;
+  background: var(--tint);
+  color: var(--green);
   font-size: 14px;
-  font-family: var(--font-body);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -391,19 +411,16 @@ select.control {
 
 /* ───────────────────────────────────────── Result panel ───────────────────────────────────────── */
 .result {
-  background: var(--forest);
-  color: #fff;
-  padding: 40px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px;
   min-width: 0;
-}
-.result :focus-visible {
-  outline-color: var(--light-green);
-}
-.result a {
-  color: #fff;
+  margin: 0 16px 16px;
+  padding: 20px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  scroll-margin-top: 16px;
 }
 .result-head {
   display: flex;
@@ -416,51 +433,59 @@ select.control {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 12px;
+  padding: 4px 12px;
   border-radius: 999px;
-  background: #164f3e;
-  color: var(--on-dark-muted);
+  background: var(--mint);
+  color: var(--green);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
 }
 .live-badge::before {
   content: "";
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--light-green);
+  background: var(--green);
 }
 .hero-figure {
-  padding: 24px;
-  border-radius: 18px;
-  background: var(--forest-card);
+  padding: 22px;
+  border-radius: 12px;
+  background: var(--green);
+  color: #fff;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 .hero-figure .lbl {
   font-size: 15px;
-  color: var(--on-dark-muted);
-  font-weight: 500;
+  color: var(--on-dark);
+  font-weight: 600;
 }
 .hero-figure .num {
-  font-family: var(--font-display);
-  font-size: clamp(38px, 6vw, 56px);
-  line-height: 1.05;
-  font-weight: 700;
+  color: var(--orange-on-dark);
+  font-size: clamp(36px, 4.6vw, 50px);
+  line-height: 1.1;
+  font-weight: 750;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 .hero-figure .sub {
-  font-size: 15px;
-  color: var(--on-dark-muted);
+  font-size: 14.5px;
+  color: var(--on-dark);
 }
 
+/* Breakdown table, laid out like a pay slip: tax in orange, take-home on a green line. */
 .rtable {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
   font-variant-numeric: tabular-nums;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
 }
 .rtable caption {
   position: absolute;
@@ -469,68 +494,85 @@ select.control {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
 }
-.rtable thead tr {
-  color: var(--on-dark-muted);
-  font-size: 13.5px;
-}
 .rtable th,
 .rtable td {
-  padding: 14px 0;
+  padding: 11px 14px;
   text-align: right;
 }
 .rtable thead th {
-  padding: 0 0 10px;
-  font-weight: 600;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 650;
+  border-bottom: 1px solid var(--line);
 }
 .rtable th:first-child {
   text-align: left;
 }
-.rtable tbody tr {
-  border-top: 1px solid var(--forest-line);
+.rtable tbody tr + tr > * {
+  border-top: 1px solid var(--line-soft);
 }
 .rtable tbody th {
   font-weight: 500;
-  color: var(--on-dark-muted);
+  color: var(--ink-2);
 }
 .rtable td {
-  font-weight: 600;
+  font-weight: 650;
 }
 .rtable .is-tax {
-  color: var(--amber-on-dark);
+  color: var(--orange-ink);
 }
-.rtable .is-total {
-  border-top: 1.5px solid #4dae8a;
+.rtable tbody tr.is-total > * {
+  background: var(--tint);
+  border-top: 1px solid #b9d3c6;
+  color: var(--green);
+  font-weight: 750;
 }
-.rtable .is-total th {
-  font-weight: 700;
-  color: var(--light-green);
-}
-.rtable .is-total td {
-  font-weight: 700;
-  font-size: 18px;
+.rtable tbody tr.is-total > .is-tax {
+  color: var(--orange-ink);
 }
 .rtable-scroll {
   overflow-x: auto;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+/* Inside the scroll box the box draws the frame. Very large amounts scroll instead of being cut off. */
+.rtable-scroll > .rtable {
+  border: 0;
+  border-radius: 0;
 }
 .rtable-fy {
-  min-width: 380px;
-  font-size: 14.5px;
+  min-width: 350px;
+  font-size: 14px;
+}
+.rtable-fy th,
+.rtable-fy td {
+  padding: 11px 8px;
+  white-space: nowrap;
+}
+.rtable-fy th:first-child {
+  padding-left: 14px;
+}
+.rtable-fy td:last-child,
+.rtable-fy thead th:last-child {
+  padding-right: 14px;
 }
 .rtable-fy tbody th {
-  color: #fff;
-  font-weight: 600;
-  padding: 13px 0;
+  color: var(--ink);
+  font-weight: 650;
 }
 .rtable-fy td {
-  font-weight: 400;
-  padding: 13px 0;
+  font-weight: 500;
 }
 .rtable-fy td.is-tax {
-  font-weight: 600;
+  font-weight: 650;
 }
-.rtable-fy .is-total td {
-  font-weight: 700;
-  font-size: 14.5px;
+.rtable-fy td.is-net {
+  color: var(--green);
+  font-weight: 650;
+}
+.rtable-fy tbody tr.is-total > td {
+  font-weight: 750;
 }
 
 .compare-banner {
@@ -539,66 +581,96 @@ select.control {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px 20px;
-  padding: 18px 20px;
-  border-radius: 16px;
-  background: var(--forest-card);
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
 }
 .compare-banner .left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 .compare-icon {
   flex: none;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--light-green);
+  background: var(--tint);
+  color: var(--green);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .compare-banner .tag {
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--light-green);
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  color: var(--green);
+}
+.compare-banner.is-up .compare-icon {
+  background: var(--orange-soft);
+  color: var(--orange-ink);
+}
+.compare-banner.is-up .tag {
+  color: var(--orange-ink);
 }
 .compare-banner .amount {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 750;
   font-variant-numeric: tabular-nums;
 }
 .compare-banner .amount small {
   font-size: 14px;
   font-weight: 500;
-  color: var(--on-dark-muted);
+  color: var(--muted);
 }
 .mini-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 .mini-stat {
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: var(--forest-card);
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
   min-width: 0;
 }
 .mini-stat dt {
   font-size: 13px;
-  color: var(--on-dark-muted);
+  color: var(--muted);
 }
 .mini-stat dd {
   margin-top: 2px;
-  font-size: 19px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 750;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
+.mini-stat.is-net dd {
+  color: var(--green);
+}
+.mini-stat.is-due dd {
+  color: var(--orange-ink);
+}
+/* A full rupee amount gets its own line, so the digits never break apart. */
+.mini-stats:not(.mini-stats-lg) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.mini-stat.is-due {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 12px;
+}
+.mini-stats-lg {
+  grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
+}
 .mini-stats-lg .mini-stat {
-  padding: 16px 18px;
+  padding: 14px 16px;
 }
 .mini-stats-lg .mini-stat dd {
   font-size: 20px;
@@ -606,45 +678,43 @@ select.control {
 
 .result-actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 10px;
   margin-top: 4px;
 }
 .result-actions .btn {
   height: 52px;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 0 16px;
+  font-size: 15.5px;
+  padding: 0 14px;
 }
-.btn-light {
-  border: 0;
-  background: #fff;
-  color: var(--forest);
+.btn-pdf {
+  background: var(--green);
+  color: #fff;
 }
-.btn-light:hover {
-  background: #e6f2ec;
-  color: var(--forest);
+.btn-pdf:hover {
+  background: var(--green-hover);
+  color: #fff;
 }
-.btn-light[disabled] {
+.btn-pdf[disabled] {
   opacity: 0.7;
   cursor: progress;
 }
-.btn-outline-light {
-  border: 1.5px solid #5e9b83;
-  background: transparent;
-  color: #fff;
+.btn-share {
+  border: 1.5px solid var(--green);
+  background: var(--card);
+  color: var(--green);
 }
-.btn-outline-light:hover {
-  background: #164f3e;
-  color: #fff;
+.btn-share:hover {
+  background: var(--tint);
+  color: var(--green);
 }
 .result-note {
   font-size: 14px;
-  color: var(--on-dark-muted);
+  color: var(--muted);
 }
 .result-error {
   font-size: 14px;
-  color: #ffd7cc;
+  color: #8a2f1b;
 }
 
 /* Empty-state panel (before there is a valid salary) */
@@ -653,19 +723,20 @@ select.control {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 24px;
-  padding: 32px 28px;
-  border: 1.5px dashed #3f7a64;
-  border-radius: 18px;
+  gap: 22px;
+  padding: 28px 24px;
+  background: var(--card);
+  border: 1px dashed #9fb8ac;
+  border-radius: 12px;
 }
 .empty-title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
+  color: var(--green);
+  font-size: 21px;
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 .empty-text {
-  color: var(--on-dark-muted);
+  color: var(--muted);
   margin-top: 8px;
   line-height: 1.55;
 }
@@ -681,14 +752,17 @@ select.control {
   align-items: center;
   gap: 12px;
 }
+.empty li svg {
+  flex: none;
+}
 
 /* ───────────────────────────────────────── Insights ───────────────────────────────────────── */
 .insights {
   border-top: 1px solid var(--line);
-  padding: 40px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
 }
 .insights-head {
   display: flex;
@@ -704,42 +778,48 @@ select.control {
 .btn-toggle {
   height: 48px;
   padding: 0 20px;
-  font-size: 16px;
+  font-size: 15.5px;
   gap: 10px;
 }
 .seg {
   display: flex;
   gap: 6px;
   padding: 6px;
-  background: var(--mint-soft);
-  border-radius: 14px;
+  background: var(--tint);
+  border-radius: 12px;
   overflow-x: auto;
   width: fit-content;
   max-width: 100%;
 }
 .seg button {
+  flex: none;
   height: 44px;
   padding: 0 18px;
-  border-radius: 10px;
+  border-radius: 9px;
   font-size: 15px;
   white-space: nowrap;
   color: var(--ink-2);
 }
+.seg button:focus-visible {
+  outline-offset: -3px;
+}
 .seg button[aria-pressed="true"] {
-  background: #fff;
+  background: var(--card);
   color: var(--green);
   font-weight: 700;
-  box-shadow: 0 1px 2px rgba(16, 32, 26, 0.12);
+  box-shadow: inset 0 -3px 0 var(--orange);
 }
 .insight-body {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
   min-width: 0;
 }
 .insight-h {
-  font-family: var(--font-display);
-  font-size: 20px;
+  color: var(--green);
+  font-size: 18.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .insight-p {
   color: var(--muted);
@@ -767,24 +847,25 @@ select.control {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+/* Chart colours: keep in step with chartColors in ui.tsx. */
 .dot-keep {
   background: var(--green);
 }
 .dot-tax {
-  background: var(--amber);
+  background: #d9730d;
 }
 .dot-old {
-  background: #6f8b7d;
+  background: #7d9288;
 }
 .tiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 .tile {
-  padding: 20px;
-  border-radius: 16px;
-  background: var(--mint-wash);
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--soft);
   border: 1px solid var(--line);
   min-width: 0;
 }
@@ -794,30 +875,29 @@ select.control {
 }
 .tile p:last-child {
   margin-top: 4px;
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 23px;
+  font-weight: 750;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 .tile-tax {
-  background: var(--amber-soft);
-  border-color: var(--amber-line);
+  background: var(--orange-soft);
+  border-color: var(--orange-line);
 }
 .tile-tax p {
-  color: var(--amber-ink) !important;
+  color: var(--orange-ink) !important;
 }
 .tile-keep {
-  background: var(--mint);
-  border-color: #c5dfd0;
+  background: var(--tint);
+  border-color: #c2dccf;
 }
 .tile-keep p {
-  color: var(--green-hover) !important;
+  color: var(--green) !important;
 }
 .kept-line {
   padding: 16px 20px;
-  border-radius: 14px;
-  background: var(--page);
+  border-radius: var(--radius-field);
+  background: var(--soft);
   color: var(--ink-2);
 }
 .pill-green {
@@ -829,8 +909,8 @@ select.control {
   font-size: 15px;
 }
 .pill-amber {
-  background: var(--amber-soft);
-  color: var(--amber-ink);
+  background: var(--orange-soft);
+  color: var(--orange-ink);
 }
 .cmp-head {
   display: flex;
@@ -855,12 +935,32 @@ select.control {
 .chart-frame .recharts-text {
   font-family: var(--font-body);
 }
+/* Year labels are shown for every column, so they shrink on phones instead of running together. */
+@media (max-width: 480px) {
+  .chart-frame .recharts-xAxis-tick-labels .recharts-text {
+    font-size: 10.5px;
+  }
+}
+@media (max-width: 340px) {
+  .chart-frame .recharts-xAxis-tick-labels .recharts-text {
+    font-size: 9px;
+  }
+}
+/* Seven years do not fit side by side on a phone, so every second label drops a line. */
+@media (max-width: 600px) {
+  .chart-years .recharts-xAxis-tick-labels .recharts-text {
+    font-size: 10px;
+  }
+  .chart-years .recharts-cartesian-axis-tick-label:nth-child(even) {
+    transform: translateY(12px);
+  }
+}
 .chart-tooltip {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-field);
   padding: 10px 14px;
-  box-shadow: 0 8px 24px -8px rgba(16, 32, 26, 0.3);
+  box-shadow: 0 8px 24px -12px rgba(10, 63, 48, 0.35);
   font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
@@ -877,6 +977,8 @@ select.control {
 /* Tables on white */
 .table-scroll {
   overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
 }
 .wtable {
   width: 100%;
@@ -894,18 +996,16 @@ select.control {
 .wtable thead th {
   text-align: left;
   font-size: 13.5px;
-  color: var(--muted);
-  font-weight: 600;
-  padding: 0 12px 12px;
-}
-.wtable thead th:first-child {
-  padding-left: 0;
+  color: var(--green);
+  font-weight: 700;
+  padding: 12px;
+  background: var(--tint);
 }
 .wtable .r {
   text-align: right;
 }
 .wtable tbody {
-  font-size: 15.5px;
+  font-size: 15px;
 }
 .wtable tbody tr {
   border-top: 1px solid var(--line-soft);
@@ -913,31 +1013,34 @@ select.control {
 .wtable tbody th {
   text-align: left;
   font-weight: 500;
-  padding: 16px 12px 16px 0;
 }
-.wtable td {
-  padding: 16px 12px;
+.wtable tbody th,
+.wtable tbody td {
+  padding: 13px 12px;
 }
-.wtable td:last-child {
-  padding-right: 0;
+.wtable tr > :first-child {
+  padding-left: 16px;
+}
+.wtable tr > :last-child {
+  padding-right: 16px;
 }
 .wtable tr.is-top {
-  background: var(--mint-wash);
+  background: var(--soft);
 }
 .wtable tr.is-top th {
-  font-weight: 600;
-  padding-left: 12px;
+  font-weight: 650;
 }
 .wtable tr.is-sum {
-  border-top: 1.5px solid var(--ink);
+  border-top: 1.5px solid var(--green);
+  background: var(--tint);
 }
 .wtable tr.is-sum th,
 .wtable tr.is-sum td {
-  font-weight: 700;
-  font-size: 16.5px;
-  padding-bottom: 0;
+  font-weight: 750;
+  font-size: 16px;
 }
 .badge-top {
+  display: inline-block;
   margin-left: 6px;
   padding: 2px 10px;
   border-radius: 999px;
@@ -954,9 +1057,9 @@ select.control {
 }
 .band-bar i {
   display: block;
-  height: 14px;
-  border-radius: 5px;
-  background: #6f8b7d;
+  height: 12px;
+  border-radius: 4px;
+  background: #7d9288;
   min-width: 2px;
 }
 .is-top .band-bar i {
@@ -968,7 +1071,7 @@ select.control {
   white-space: nowrap;
 }
 .row-selected {
-  background: var(--mint-wash);
+  background: var(--tint);
   font-weight: 600;
 }
 .up {
@@ -979,30 +1082,39 @@ select.control {
 }
 
 /* ─────────────────────────────────────── Responsive ─────────────────────────────────────── */
-@media (max-width: 1050px) {
-  .calc-form,
-  .result,
-  .insights {
-    padding: 32px;
+@media (min-width: 980px) {
+  .calc-grid {
+    grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+  }
+  .result {
+    align-self: start;
+    margin: 24px 24px 24px 0;
+  }
+  .result:has(.empty) {
+    align-self: stretch;
+  }
+}
+/* Only on screens tall enough to show the whole panel. */
+@media (min-width: 980px) and (min-height: 860px) {
+  .result:not(:has(.empty)) {
+    position: sticky;
+    top: 16px;
   }
 }
 @media (max-width: 760px) {
   .calc-form,
-  .result,
   .insights {
-    padding: 24px 20px;
+    padding: 22px 18px;
   }
-  .calc-form {
-    gap: 22px;
+  .result {
+    margin: 0 10px 10px;
+    padding: 16px 14px;
   }
   .calc-mode {
-    padding: 14px 16px;
+    padding: 10px 14px;
   }
   .calc-mode-title {
     font-size: 16px;
-  }
-  .calc-title {
-    font-size: 24px;
   }
 }
 @media (max-width: 540px) {
@@ -1013,10 +1125,13 @@ select.control {
     font-size: 13px;
   }
   .period {
-    padding: 16px;
+    padding: 16px 14px 16px 16px;
   }
   .money input {
     font-size: 20px;
+  }
+  .money input::placeholder {
+    font-size: 15.5px;
   }
   .btn-row .btn {
     flex: 1 1 100%;
@@ -1029,21 +1144,107 @@ select.control {
   }
 }
 @media (max-width: 480px) {
+  .calc-modes {
+    gap: 6px;
+    padding: 8px;
+  }
+  .calc-mode {
+    padding: 10px;
+  }
   .calc-mode-title {
     font-size: 15px;
   }
   .hero-figure {
     padding: 18px;
   }
+  .rtable {
+    font-size: 14px;
+  }
+  .rtable th,
+  .rtable td {
+    padding-inline: 8px;
+  }
 }
 @media (max-width: 360px) {
-  .calc-mode {
-    padding: 12px;
-  }
   .calc-form,
-  .result,
   .insights {
-    padding: 20px 14px;
+    padding: 20px 12px;
+  }
+  .result {
+    margin: 0 8px 8px;
+    padding: 14px 10px;
+  }
+  .money-prefix {
+    padding: 0 12px;
+  }
+  .money input {
+    padding: 0 10px;
+  }
+  .money input::placeholder {
+    font-size: 14.5px;
+  }
+}
+
+/* ───────────────────────────────────────────── Motion ─────────────────────────────────────────────
+   Keyframes are in app/globals.css. Results animate when they appear, not on every keystroke. */
+@media (prefers-reduced-motion: no-preference) {
+  .calc {
+    animation: fade-up 0.5s var(--ease-out) 0.08s backwards;
+  }
+  .calc-mode,
+  .btn-toggle,
+  .seg button,
+  .control,
+  .money,
+  .disclosure summary {
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s var(--ease-out);
+  }
+  .calc .btn:not([disabled]):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px -14px rgba(10, 63, 48, 0.6);
+  }
+  .seg button:active,
+  .calc .btn-toggle:active {
+    transform: scale(0.98);
+  }
+  .result > :not(.result-head),
+  .insight-body,
+  .period,
+  .alert,
+  .result-error {
+    animation: fade-up 0.35s var(--ease-out) backwards;
+  }
+  .band-bar i {
+    transform-origin: left center;
+    animation: grow-x 0.6s var(--ease-out) 0.1s backwards;
+  }
+
+  /* "More options" disclosure: content fades in, the + turns into a minus, and (Chrome) the height eases open. */
+  .disclosure[open] > .disclosure-body {
+    animation: fade-up 0.3s var(--ease-out) backwards;
+  }
+  .disclosure[open] summary::after {
+    animation: toggle-flip 0.3s var(--ease-out);
+  }
+  @supports (interpolate-size: allow-keywords) {
+    html {
+      interpolate-size: allow-keywords;
+    }
+    .disclosure::details-content {
+      height: 0;
+      overflow: clip;
+      transition:
+        height 0.3s var(--ease-out),
+        content-visibility 0.3s allow-discrete;
+    }
+    .disclosure[open]::details-content {
+      height: auto;
+    }
   }
 }
 

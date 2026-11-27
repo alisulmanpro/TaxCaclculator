@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { FISCAL_YEARS, fiscalLabel, type FiscalYear, TAX_RULES } from "@/lib/tax";
+import SectionHeader from "./SectionHeader";
 
 function formatSlabCurrency(num: number): string {
   return "Rs. " + num.toLocaleString("en-IN");
@@ -57,14 +58,11 @@ export default function TaxSlabsSection() {
   const slabs = getSlabsForYear(selectedYear);
 
   return (
-    <section
-      className="tax-section-dark tax-section-slabs"
-      id="tax-slabs"
-      aria-labelledby="tax-slabs-title"
-    >
-      <div className="tax-section-inner">
-        <header className="tax-section-header">
-          <div className="tax-section-pill">
+    <section className="fx-section" id="tax-slabs" aria-labelledby="tax-slabs-title">
+      <div className="fx-wrap fx-split scroll-reveal">
+        <SectionHeader
+          eyebrow="FBR salary tax slabs"
+          icon={
             <svg
               width="15"
               height="15"
@@ -82,20 +80,13 @@ export default function TaxSlabsSection() {
               <line x1="16" y1="17" x2="8" y2="17" />
               <polyline points="10 9 9 9 8 9" />
             </svg>
-            <span>FBR salary tax slabs</span>
-          </div>
+          }
+          title="Income Tax Slabs in Pakistan"
+          titleId="tax-slabs-title"
+          lead="The progressive salary tax rates the calculator applies. Pick any fiscal year from FY 2020-2021 onwards to see the slabs that applied that year."
+        />
 
-          <h2 className="tax-section-title" id="tax-slabs-title">
-            Income Tax Slabs in Pakistan
-          </h2>
-
-          <p className="tax-section-lead">
-            The progressive salary tax rates the calculator applies. Pick any fiscal year from FY
-            2020-2021 onwards to see the slabs that applied that year.
-          </p>
-        </header>
-
-        <div className="tax-card tax-card-slabs">
+        <div className="fx-card">
           <div className="tax-card-topbar">
             <label htmlFor={selectId} className="tax-card-topbar-label">
               Pakistan&apos;s salaried income tax slabs for the selected fiscal year:
@@ -115,7 +106,7 @@ export default function TaxSlabsSection() {
             </select>
           </div>
 
-          <div className="tax-table-wrap tax-table-wrap-slabs">
+          <div className="tax-table-wrap">
             <table
               className="tax-data-table tax-data-table-slabs"
               aria-label={`Income Tax Slabs for FY ${fiscalLabel(selectedYear)}`}

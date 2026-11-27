@@ -6,20 +6,30 @@ import FaqSection from "@/app/components/sections/FaqSection";
 import ExploreCalculatorsSection from "@/app/components/sections/ExploreCalculatorsSection";
 import ResourcesSection from "@/app/components/sections/ResourcesSection";
 import QuranReflection from "@/app/components/sections/QuranReflection";
+import SectionNav from "@/app/components/sections/SectionNav";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { multiYearFaqs } from "@/lib/faqs";
 import { pageJsonLd, pageMetadata } from "@/lib/seo";
 import { pages } from "@/lib/site";
+import "../calculator-theme.css";
 
 export const metadata: Metadata = pageMetadata("multiYear");
 
 export default function MultiYearPage() {
   return (
-    <main id="main">
+    <main id="main" className="fx-theme">
       <JsonLd data={pageJsonLd("multiYear", multiYearFaqs)} />
       <Hero h1={pages.multiYear.h1} lead={pages.multiYear.lead}>
         <MultiYearCalculator />
       </Hero>
+      <SectionNav
+        links={[
+          { href: "#calculation-method", label: "Calculation method" },
+          { href: "#faqs", label: "FAQs" },
+          { href: "#explore-calculators", label: "Calculators" },
+          { href: "#resources", label: "Official resources" },
+        ]}
+      />
       <CalculationMethodSection />
       <FaqSection
         badge="COMMON QUESTIONS"

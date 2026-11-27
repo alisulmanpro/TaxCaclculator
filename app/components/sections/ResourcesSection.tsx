@@ -1,6 +1,7 @@
 import { site } from "@/lib/site";
+import SectionHeader from "./SectionHeader";
 
-const stroke = { fill: "none", stroke: "#0F6B4C", strokeWidth: 1.8 } as const;
+const stroke = { fill: "none", stroke: "currentColor", strokeWidth: 1.8 } as const;
 
 const resources = [
   {
@@ -52,21 +53,14 @@ export default function ResourcesSection({
   lead = "For the finer details, go directly to the people who write the rules.",
 }: ResourcesSectionProps = {}) {
   return (
-    <section className="resources" id="resources" aria-labelledby="resources-title">
-      <div className="resources-inner">
-        <div className="stack-14" style={{ gap: 10 }}>
-          <div className="resources-eyebrow-row">
-            <p className="eyebrow">{tagline}</p>
-            <span className="resources-review-badge">
-              <span className="resources-status-dot" aria-hidden="true" />
-              Last reviewed: {site.officialResourcesLastReviewed}
-            </span>
-          </div>
-          <h2 className="section-title" id="resources-title">
-            {title}
-          </h2>
-          <p className="section-lead">{lead}</p>
-        </div>
+    <section className="fx-section" id="resources" aria-labelledby="resources-title">
+      <div className="fx-wrap fx-stack scroll-reveal">
+        <SectionHeader eyebrow={tagline} title={title} titleId="resources-title" lead={lead}>
+          <p className="resources-review">
+            <span className="resources-status-dot" aria-hidden="true" />
+            Last reviewed: {site.officialResourcesLastReviewed}
+          </p>
+        </SectionHeader>
         <div className="resource-grid">
           {resources.map((resource) => (
             <a
@@ -82,7 +76,7 @@ export default function ResourcesSection({
               <span className="resource-link">
                 {resource.label}
                 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16">
-                  <path d="M4 12L12 4M6 4h6v6" fill="none" stroke="#0F6B4C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M4 12L12 4M6 4h6v6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <span className="sr-only"> (opens in a new tab)</span>
               </span>

@@ -1,4 +1,5 @@
 import { currency } from "@/lib/tax";
+import SectionHeader from "./SectionHeader";
 
 export interface CommonSalaryRow {
   monthly: number;
@@ -30,14 +31,11 @@ export const commonSalariesData: CommonSalaryRow[] = [
  */
 export default function CommonSalariesSection() {
   return (
-    <section
-      className="tax-section-dark"
-      id="common-salaries"
-      aria-labelledby="common-salaries-title"
-    >
-      <div className="tax-section-inner">
-        <header className="tax-section-header">
-          <div className="tax-section-pill">
+    <section className="fx-section" id="common-salaries" aria-labelledby="common-salaries-title">
+      <div className="fx-wrap fx-split scroll-reveal">
+        <SectionHeader
+          eyebrow="Salary tax at a glance"
+          icon={
             <svg
               width="15"
               height="15"
@@ -52,23 +50,21 @@ export default function CommonSalariesSection() {
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
             </svg>
-            <span>Salary tax at a glance</span>
-          </div>
+          }
+          title={<>Tax on Common Salaries, FY 2026–27</>}
+          titleId="common-salaries-title"
+          lead={
+            <>
+              How much income tax comes off a monthly salary of Rs.&nbsp;50,000 to Rs.&nbsp;500,000,
+              and what you take home, on the FY 2026-27 slabs. Enter your own salary above for your exact
+              figure, or pick last year there.
+            </>
+          }
+        />
 
-          <h2 className="tax-section-title" id="common-salaries-title">
-            Tax on Common Salaries, FY 2026–27
-          </h2>
-
-          <p className="tax-section-lead">
-            How much income tax comes off a monthly salary of Rs.&nbsp;50,000 to Rs.&nbsp;500,000,
-            and what you take home, on the FY 2026-27 slabs. Enter your own salary above for your exact
-            figure, or pick last year there.
-          </p>
-        </header>
-
-        <div className="tax-card">
+        <div className="fx-card">
           <div className="tax-table-wrap">
-            <table className="tax-data-table" aria-label="Tax on Common Salaries for FY 2026-27">
+            <table className="tax-data-table tax-data-table-common" aria-label="Tax on Common Salaries for FY 2026-27">
               <thead>
                 <tr>
                   <th scope="col">Monthly salary</th>

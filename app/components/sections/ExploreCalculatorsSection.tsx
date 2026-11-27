@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SectionHeader from "./SectionHeader";
 import { toolCategories, type CalculatorTool, type ToolCategory } from "@/lib/tools-directory";
 
 function ToolIcon({ icon }: { icon: CalculatorTool["icon"] }) {
@@ -214,8 +215,7 @@ interface ExploreCalculatorsSectionProps {
 /**
  * Reusable Explore Calculators Section.
  * Placed immediately after the FAQ section on both Single-Year and Multi-Year calculator pages.
- * Features a dark green blueprint grid backdrop, clean white container,
- * category grouping with wallet icon, and interactive cards for all available calculators.
+ * Category grouping with wallet icon and a card for each available calculator.
  */
 export default function ExploreCalculatorsSection({
   categories = toolCategories,
@@ -224,15 +224,11 @@ export default function ExploreCalculatorsSection({
   description = "Choose the right calculator for your salary and income decisions. Explore our tools to calculate your tax with confidence.",
 }: ExploreCalculatorsSectionProps) {
   return (
-    <section
-      className="tools-directory-section"
-      id="explore-calculators"
-      aria-labelledby="explore-calculators-title"
-    >
-      <div className="tools-directory-inner">
-        {/* Header Block */}
-        <header className="tools-directory-header">
-          <div className="tools-eyebrow">
+    <section className="fx-section" id="explore-calculators" aria-labelledby="explore-calculators-title">
+      <div className="fx-wrap fx-stack scroll-reveal">
+        <SectionHeader
+          eyebrow={eyebrow}
+          icon={
             <svg
               width="14"
               height="14"
@@ -246,18 +242,14 @@ export default function ExploreCalculatorsSection({
             >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span>{eyebrow}</span>
-          </div>
-
-          <h2 className="tools-title" id="explore-calculators-title">
-            {title}
-          </h2>
-
-          <p className="tools-lead">{description}</p>
-        </header>
+          }
+          title={title}
+          titleId="explore-calculators-title"
+          lead={description}
+        />
 
         {/* Directory Container */}
-        <div className="tools-container scroll-reveal">
+        <div className="fx-stack">
           {categories.map((category) => {
             const count = category.tools.length;
             const countLabel = `${count} ${count === 1 ? "Calculator" : "Calculators"}`;

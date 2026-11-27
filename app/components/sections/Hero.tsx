@@ -13,27 +13,26 @@ export default function Hero({
 }) {
   return (
     <>
-      <section className="hero" aria-labelledby="page-title">
-        <p className="hero-pill">
-          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-            <rect x="3" y="7" width="10" height="7" rx="2" fill="none" stroke="#0B5139" strokeWidth="1.6" />
-            <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="#0B5139" strokeWidth="1.6" />
-          </svg>
-          Free · Private · Runs in your browser
-        </p>
-        <h1 id="page-title">{h1}</h1>
-        <p className="hero-lead">{lead}</p>
-        <div className="hero-trust-bar">
-          <span className="hero-update-pill">
-            <span className="hero-status-dot" aria-hidden="true" />
-            Updated for FY 2026–2027 FBR tax slabs
-          </span>
-          <span className="hero-date-text">
-            Last updated: {site.taxRatesLastUpdated}
-          </span>
+      <section className="fx-hero" aria-labelledby="page-title">
+        <div className="fx-wrap fx-hero-grid">
+          <div>
+            <h1 id="page-title">{h1}</h1>
+            <p className="fx-hero-lead">{lead}</p>
+          </div>
+          <div className="fx-hero-trust">
+            <p className="fx-hero-update">Updated for FY 2026–2027 FBR tax slabs</p>
+            <p>Last updated: {site.taxRatesLastUpdated}</p>
+            <p className="fx-hero-private">
+              <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <rect x="3" y="7" width="10" height="7" rx="2" />
+                <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" />
+              </svg>
+              Free · Private · Runs in your browser
+            </p>
+          </div>
         </div>
       </section>
-      <section className="calc-wrap" id="calculator" aria-label="Income tax calculator">
+      <section className="fx-wrap fx-calc-wrap" id="calculator" aria-label="Income tax calculator">
         {children}
       </section>
     </>
