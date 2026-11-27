@@ -1,0 +1,456 @@
+/* Sitemap page: WordPress-style list of pages / posts with copy link and QR code. Tokens come from app/globals.css. */
+.sm-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+.sm-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* ── top bar: tabs / heading, search, site QR ── */
+.sm-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 20px;
+  padding: 18px 24px;
+  background: var(--mint-wash);
+  border-bottom: 1px solid var(--line-soft);
+}
+.sm-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.sm-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--mint);
+}
+.sm-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink-2);
+}
+.sm-tab:hover {
+  color: var(--green-hover);
+}
+.sm-tab[aria-selected="true"] {
+  background: var(--green);
+  color: #fff;
+}
+.sm-count {
+  display: inline-block;
+  min-width: 26px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--green-hover);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+.sm-tab[aria-selected="true"] .sm-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+.sm-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.sm-search {
+  position: relative;
+  color: var(--muted);
+}
+.sm-search svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.sm-search input {
+  width: 260px;
+  max-width: 100%;
+  height: 48px;
+  padding: 0 14px 0 42px;
+  border: 1.5px solid var(--field-line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+.sm-search input:focus-visible {
+  border-color: var(--green);
+}
+
+/* ── buttons ── */
+.sm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--green-hover);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.sm-btn:hover {
+  border-color: var(--green);
+  background: var(--mint-wash);
+  color: var(--green-hover);
+}
+.sm-btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.sm-btn.is-done {
+  border-color: var(--green);
+  background: var(--mint);
+}
+.sm-btn-primary {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.sm-btn-primary:hover {
+  background: var(--green-hover);
+  border-color: var(--green-hover);
+  color: #fff;
+}
+.sm-btn-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+/* ── list ── */
+.sm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sm-item {
+  display: grid;
+  /* Fixed side columns so the date and the buttons line up from row to row. */
+  grid-template-columns: 48px minmax(0, 1fr) 112px 372px;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.sm-item:last-child {
+  border-bottom: 0;
+}
+.sm-item:hover {
+  background: #fbfdfc;
+}
+.sm-ico {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--mint);
+  color: var(--green);
+}
+.sm-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sm-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.sm-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.sm-title a:hover {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sm-path code {
+  display: inline-block;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--mint-soft);
+  color: var(--ink-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  overflow-wrap: anywhere;
+}
+.sm-desc {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 62ch;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sm-date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.sm-date span {
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.sm-date time {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.sm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.sm-actions .sm-btn:first-child {
+  min-width: 132px;
+}
+.sm-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--mint-wash);
+  color: var(--muted);
+  font-size: 15px;
+}
+.sm-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* ── QR dialog ── */
+.qr-dialog {
+  width: min(92vw, 420px);
+  max-height: 92vh;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 30px 80px -20px rgba(11, 61, 46, 0.5);
+  overflow: auto;
+}
+.qr-dialog::backdrop {
+  background: rgba(11, 61, 46, 0.55);
+  backdrop-filter: blur(3px);
+}
+.qr-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+.qr-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.qr-eyebrow {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.qr-head h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.qr-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: var(--ink-2);
+}
+.qr-close:hover {
+  background: var(--mint);
+}
+.qr-frame {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 284px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  padding: 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+}
+.qr-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.qr-loading {
+  color: var(--muted);
+}
+.qr-url {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--mint-soft);
+  color: var(--ink-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  text-align: center;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.qr-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.qr-actions .sm-btn {
+  min-height: 48px;
+}
+.qr-note {
+  min-height: 1.5em;
+  color: var(--green-hover);
+  font-size: 14.5px;
+  text-align: center;
+}
+
+/* ── small screens ── */
+@media (max-width: 900px) {
+  .sm-item {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+  .sm-date {
+    grid-column: 2;
+    flex-direction: row;
+    gap: 6px;
+  }
+  .sm-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 540px) {
+  .sm-wrap {
+    padding: 0 16px 56px;
+  }
+  .sm-bar,
+  .sm-item,
+  .sm-foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .sm-tools,
+  .sm-search,
+  .sm-search input {
+    width: 100%;
+  }
+  .sm-tools .sm-btn {
+    flex: 1 1 100%;
+  }
+  .sm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .sm-actions .sm-btn-ghost {
+    grid-column: 1 / -1;
+    border-color: var(--line);
+  }
+  .sm-tab {
+    padding: 0 14px;
+  }
+  .qr-body {
+    padding: 20px;
+  }
+}
+
+/* ── motion (see the Motion section in app/globals.css) ── */
+@media (prefers-reduced-motion: no-preference) {
+  .sm-card {
+    animation: fade-up 0.5s var(--ease-out) 0.1s backwards;
+  }
+  .sm-item {
+    animation: fade-in 0.4s ease-out backwards;
+  }
+  .sm-item:nth-child(2) { animation-delay: 0.05s; }
+  .sm-item:nth-child(3) { animation-delay: 0.1s; }
+  .sm-item:nth-child(4) { animation-delay: 0.15s; }
+  .sm-item:nth-child(n + 5) { animation-delay: 0.2s; }
+  .qr-dialog[open] {
+    animation: pop-in 0.3s var(--ease-out);
+  }
+  .qr-dialog[open]::backdrop {
+    animation: fade-in 0.3s ease-out;
+  }
+  .sm-tab,
+  .sm-btn,
+  .sm-item {
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.2s var(--ease-out);
+  }
+  .sm-btn:active {
+    transform: scale(0.97);
+  }
+}
+@media print {
+  .sm-actions,
+  .sm-bar .sm-tools {
+    display: none;
+  }
+}

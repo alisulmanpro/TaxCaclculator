@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { site } from "@/lib/site";
+import { pages, site } from "@/lib/site";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
@@ -171,6 +171,12 @@ export default function Footer() {
                 <Link href="/#tax-slabs" className="footer-bullet-link">
                   <span className="footer-bullet" aria-hidden="true" />
                   <span>Income Tax Slabs</span>
+                </Link>
+              </li>
+              <li>
+                <Link href={pages.sitemap.path} className="footer-bullet-link">
+                  <span className="footer-bullet" aria-hidden="true" />
+                  <span>{pages.sitemap.navLabel}</span>
                 </Link>
               </li>
             </ul>

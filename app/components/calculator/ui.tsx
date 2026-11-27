@@ -289,7 +289,7 @@ export function ChartTooltip({
  * Copy text to the clipboard. Falls back to a hidden textarea where the async
  * Clipboard API is unavailable (plain http, older browsers). Returns whether it worked.
  */
-async function copyText(text: string): Promise<boolean> {
+export async function copyText(text: string): Promise<boolean> {
   try {
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(text);

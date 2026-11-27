@@ -31,14 +31,16 @@ app/
     layout/      Header, Footer, Logo, NavLinks, OfflineSupport, ScrollObserver
     sections/    Hero, FaqSection, HowItWorks, CalculationMethodSection, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection, ExploreCalculatorsSection, PlaceholderPage
     seo/         JsonLd
-lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, faqs.ts, seo.ts, og.tsx, tools-directory.ts
+    sitemap/     SitemapBrowser, QrDialog, icons, sitemap.css
+lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, content.ts, faqs.ts, seo.ts, og.tsx, tools-directory.ts
 tests/
 ```
 
 ## Routes
-- `/`: Single Year calculator. `/multi-year-calculator`: Multi-Year calculator.
+- `/`: Single Year calculator. `/multi-year-calculator`: Multi-Year calculator. The mode tabs are real links.
 - `/about`, `/contact`, `/blog`, `/terms-of-use`, `/privacy-policy`: Informational & legal pages.
 - `/tax-guides/income-tax-slabs`, `/tax-guides/tax-deductions-and-credits`, `/tax-guides/filing-your-tax-return`: Tax guide pages.
+- `/sitemap`: visitor sitemap (WordPress-style Pages / Posts). Data: `getContentGroups()` in `lib/content.ts` (pages from `lib/site.ts`, posts from `posts` there). **The Posts tab is only rendered when `posts` is not empty.** Each entry: Open, Copy link, QR dialog (`qrcode` package, made in the browser; copy image / download PNG / copy link). `app/sitemap.ts` (sitemap.xml) reads the same data. New page → add to `PAGES` in `public/sw.js` for offline use.
 - All pages are statically prerendered. Calculator state is client-side only.
 
 ## Calculator Behavioral & Visibility Rules
