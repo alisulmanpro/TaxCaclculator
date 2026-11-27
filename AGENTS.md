@@ -12,11 +12,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Project Architecture & Tech Stack
 - Framework: Next.js 16.4.6 (App Router, Turbopack; Cache Components is off because Cloudflare/OpenNext does not support it yet), React 19.3.0, TypeScript.
-- Styling: Tailwind CSS v4 base + hand-written CSS (`app/globals.css`, `app/components/calculator/calculator.css`) using design tokens (CSS variables).
-- Fonts: self-hosted Inter + Space Grotesk in `app/fonts/` via `next/font/local` (no request to Google).
+- Styling: Tailwind CSS v4 base + hand-written CSS using design tokens (CSS variables): `app/globals.css` (all pages), `app/calculator-theme.css` and `app/components/calculator/calculator.css` (the two calculator pages).
+- Fonts: self-hosted in `app/fonts/` via `next/font/local` (no request to Google). Inter everywhere; Space Grotesk headings on the non-calculator pages only; Amiri for the Quran verse.
 - Charts: Recharts (`app/components/calculator/charts.tsx`). PDF: `@react-pdf/renderer`, loaded with `import()` only when "Download PDF" is clicked (`calculator/pdf/reports.tsx`).
 - Calculations: standalone TypeScript modules in `lib/` (`tax.ts`, `salary-history.ts`). **Do not change tax logic without tests.**
-- Design reference: `design-ref/` (read `design-ref/README.md`). The UI follows these boards.
+- Design reference: the two calculator pages follow "Calculator Pages Design" below. Other pages follow `design-ref/` (read `design-ref/README.md`).
 
 ## Component Organization
 ```
@@ -28,8 +28,8 @@ app/
     income-tax-slabs/page.tsx, tax-deductions-and-credits/page.tsx, filing-your-tax-return/page.tsx
   components/
     calculator/  SingleYearCalculator, MultiYearCalculator, charts, ui, pdf/reports, calculator.css
-    layout/      Header, Footer, Logo, NavLinks, OfflineSupport, ScrollObserver
-    sections/    Hero, FaqSection, HowItWorks, CalculationMethodSection, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection, ExploreCalculatorsSection, PlaceholderPage
+    layout/      Header, Footer, CalculatorFooter, RouteSwitch, CurrentYear, Logo, NavLinks, OfflineSupport, ScrollObserver
+    sections/    Hero, SectionHeader, SectionNav, FaqSection, HowItWorks, CalculationMethodSection, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection, ExploreCalculatorsSection, PlaceholderPage
     seo/         JsonLd
     sitemap/     SitemapBrowser, QrDialog, icons, sitemap.css
 lib/  tax.ts, salary-history.ts, format.ts, share.ts, site.ts, content.ts, faqs.ts, seo.ts, og.tsx, tools-directory.ts
@@ -52,27 +52,19 @@ tests/
 - **Charts:** Recharts, fed from the engine results; each chart has an `aria-label` summary and a table/legend with the same numbers.
 - Tables are wrapped in `.table-scroll` / `.rtable-scroll` (horizontal scroll on mobile, no page-wide overflow).
 
+## Calculator Pages Design (`/` and `/multi-year-calculator`)
+- **Scope:** only these two routes use this design. Do not let it reach other pages: global CSS stays loaded after client-side navigation, so every rule in `app/calculator-theme.css` is scoped to `.fx-theme` (the page's `<main>`), `.fx-chrome` (header wrapper), the footer's `.fx-` classes, or `body:has(> main.fx-theme)`.
+- **Header / footer:** the root layout uses `RouteSwitch` to show the themed header and `CalculatorFooter` on these routes, and the original `Header` / `Footer` elsewhere. `CalculatorFooter` has no newsletter or email form; list only links and contact details that exist (`lib/site.ts`).
+- **Colors:** green `#0F5C45`, orange `#F28C28` (decoration only; orange text uses `#965000`), soft background `#F4F7F5`, light green surface `#EAF3EE`, text `#24352E`, secondary `#64746C` family, borders `#DCE7E0`. Tax figures orange, take-home green, always with a text label. Footer is dark green.
+- **Layout:** `.fx-wrap` (1120px) for every block; sections are `.fx-section` with alternating tints; `SectionHeader` for headings (side rail from 1000px with `.fx-split`).
+- **Type:** Inter only. Sentence-level hierarchy via `.fx-title` / `.fx-lead`; inputs at least 52px high.
+- **Motion:** one hero entrance, one reveal per section (`.scroll-reveal` on the section's wrapper, not on each card), short hover/open transitions. All inside `prefers-reduced-motion: no-preference`.
+
 ## Section A & B: Tax on Common Salaries & Income Tax Slabs Sections
 - **Placement:** Homepage (`app/page.tsx`) directly below the Hero / SingleYearCalculator and before `FaqSection`.
-- **Theme & Surfaces:** Deep brand forest (`var(--forest)` / `#0b3d2e`) section backgrounds with white rounded data cards (`var(--radius-card, 24px)`), matching reference boards.
-- **Subtle Visual Differentiation:** The two tables are intentionally styled with subtle design differences so they do not look copy-pasted while maintaining the same color palette and typography:
-  - **Section A (`CommonSalariesSection.tsx`):**
-    - Title (H2): `Tax on Common Salaries, FY 2026–27`
-    - Pill badge: `Salary tax at a glance`
-    - Design: Quick reference benchmark matrix with 4 data columns (`Monthly salary`, `Tax a month`, `Take-home a month`, `Tax a year`).
-    - Header: Mint wash background (`var(--mint-wash)`) with forest title text.
-    - Rows: Uniform white backdrop with hover tint (`#fafdfb`).
-    - Value Colors: `Tax a month` and `Tax a year` values in accessible red (`#b91c1c`), `Take-home a month` in brand green (`var(--green)`), `Monthly salary` in dark neutral (`var(--ink)`).
-    - Server Component: 100% static server render, 0 client JavaScript.
-  - **Section B (`TaxSlabsSection.tsx`):**
-    - Title (H2): `Income Tax Slabs in Pakistan`
-    - Pill badge: `FBR salary tax slabs`
-    - Design: Statutory schedule / calculation rules matrix with 2 columns (`Annual Taxable Income`, `Tax`).
-    - Topbar: Enclosed in a styled control bar (`background: #f8faf9; border: 1px solid var(--line-soft); border-radius: 12px;`) housing the fiscal year `<select>`.
-    - Header: Subtle slate-tinted header (`background: #f3f6f4; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid var(--line)`).
-    - Rows: Subtle alternating zebra striping (`tbody tr:nth-child(even)` `#fafcfb`, `odd` `#ffffff`, hover `#edf5f0`).
-    - Cells: `.cell-slab-range` in bold ink, `.cell-slab-tax` in readable dark neutral.
-    - Interactivity: Lightweight client component with interactive fiscal year dropdown supporting all years from `lib/tax.ts`.
+- **Section A (`CommonSalariesSection.tsx`):** H2 `Tax on Common Salaries, FY 2026–27`; 4 columns (`Monthly salary`, `Tax a month`, `Take-home a month`, `Tax a year`); tinted header, right-aligned numbers, sticky first column on phones. Server Component, 0 client JavaScript.
+- **Section B (`TaxSlabsSection.tsx`):** H2 `Income Tax Slabs in Pakistan`; 2 columns (`Annual Taxable Income`, `Tax`); solid green header, zebra rows; fiscal-year `<select>` for all years in `lib/tax.ts` (small client component).
+- The two tables stay visibly different from each other while sharing the theme.
 
 ## Trust Indicators & Verification Date Management
 - **Central Configuration:** All verification and trust dates are strictly maintained in `lib/site.ts`:
@@ -80,21 +72,15 @@ tests/
   - `site.officialResourcesLastReviewed`: Last reviewed date for official government links and portals (e.g. `"14 November 2026"`).
 - **Date Accuracy Rule:** Dates must NEVER be automatically generated (no `Date.now()`, no `new Date()`, no build/deployment time auto-stamps). They must reflect actual human/agent verification activity against official FBR sources.
 - **Hero Update Bar (`Hero.tsx`):**
-  - Displays a compact status pill: `"Updated for FY 2026–2027 FBR tax slabs"` with a green indicator dot.
-  - Displays `"Last updated: [site.taxRatesLastUpdated]"`.
+  - Trust block with an orange left border: `"Updated for FY 2026–2027 FBR tax slabs"`, `"Last updated: [site.taxRatesLastUpdated]"`, and the free/private note.
 - **Official Resources Badge (`ResourcesSection.tsx`):**
-  - Displays `"Last reviewed: [site.officialResourcesLastReviewed]"` alongside the section eyebrow on the `#022641` background with high WCAG AAA contrast.
+  - Displays `"Last reviewed: [site.officialResourcesLastReviewed]"` under the section heading.
 
 ## Official Resources Section Styling
-- **Background:** Exactly `#022641` (dark navy blue) as required.
-- **Typography & Contrast:** Eyebrow set to `var(--light-green)`, section title set to `#ffffff`, lead text set to `#b8cde0` for WCAG AAA contrast against `#022641`.
-- **Card Design:** Resource cards preserve `#fbfcfb` card background, dark ink text, green links, and official FBR/Iris icons without modifying their structure or URLs.
+- Light themed section (see "Calculator Pages Design"); white cards. Card text and URLs come from `ResourcesSection.tsx`.
 
 ## FAQ Section Architecture & Accessibility
-- **Structure:** Clean, balanced container (`.faq-container`, max-width 860px) centered on `var(--page)` background, naturally blending with the page flow without a disconnected white block.
-- **Hierarchy:** H2 for FAQ section heading (`.faq-title`), and semantic H3 headings (`.faq-question-heading`) wrapping each accordion trigger button.
-- **Colors & Styling:** Questions display in standard ink color (`var(--ink)`) by default and remain in ink when expanded (`.faq-trigger[aria-expanded="true"]`). The expandable answer content container uses a subtle theme-appropriate green wash (`var(--mint-wash)`) with high-contrast text (`var(--ink-2)` / `#33453d`) and a clean separator border (`var(--line-soft)`).
-- **Card Design:** Each question is an individual, distinct card (`.faq-item`, white background for trigger, mint wash for answer, `border: 1px solid var(--line)`, `border-radius: 16px`) with controlled spacing (`gap: 14px`). Open cards receive a `var(--green)` border accent.
+- **Structure:** H2 section heading with semantic H3 headings (`.faq-question-heading`) wrapping each accordion trigger. Styling lives in `app/calculator-theme.css` (one card per question, green border on the open card).
 - **Accessibility:** Trigger uses `<button type="button" className="faq-trigger">` with `aria-expanded`, `aria-controls={panelId}`, and unique `id`. Panel uses `role="region"` with `aria-labelledby`. Full keyboard navigation (Tab, Enter, Space) with visible focus ring.
 - **Single-expand model:** One question expanded at a time. Clicking an open question closes it; clicking another question expands it while collapsing the previous one.
 - **+ / − State indicator:** Right-aligned responsive SVG inside a styled circle badge (`.faq-icon-wrapper`). Vertical bar rotates and scales to 0 when expanded, transitioning smoothly between `+` and `−`.
@@ -115,7 +101,6 @@ tests/
     - `01`: Split Each Period at 30 June (Pakistan fiscal-year boundary).
     - `02`: Count the Days Worked (actual calendar days and prorated daily rates for mid-month changes).
     - `03`: Calculate Tax for Each Fiscal Year (aggregation of annual taxable income and applying respective year's progressive tax slabs).
-  - Cards include `.scroll-reveal` for smooth one-shot viewport entrance.
 - **Section 2: Multi-Year FAQ (`FaqSection.tsx`):**
   - Eyebrow badge: `"COMMON QUESTIONS"`.
   - Heading (H2): `"Frequently Asked Questions About Multi-Year Salary Tax"`.
@@ -124,7 +109,7 @@ tests/
   - Eyebrow: `"OFFICIAL TAX REFERENCES"`.
   - Heading (H2): `"Official Pakistan Tax Resources"`.
   - Lead: `"Access official government resources and FBR publications to verify tax slabs, income tax rules, and relevant tax information."`.
-  - Background `#022641` preserved with `"Last reviewed: [site.officialResourcesLastReviewed]"` indicator.
+  - Shows the `"Last reviewed: [site.officialResourcesLastReviewed]"` indicator.
 - **Section 4: Quranic Ayah (`QuranReflection.tsx`):**
   - Eyebrow pill: `"A REFLECTION"`.
   - Ayah: Surah Al-Ma'idah (5:1) in Arabic (`يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ`).
@@ -134,12 +119,10 @@ tests/
 ## Quran Reflection Section Architecture
 - **Placement:** Homepage (`app/page.tsx`) immediately below `ResourcesSection` and before the footer, set on `var(--page)` background.
 - **Content:** Surah Ibrahim (14:7) in Arabic (`لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ`) with `dir="rtl"` and `lang="ar"`, English translation ("If you are grateful, I will surely increase you."), and attribution badge (`Surah Ibrahim • 14:7`).
-- **Typography & Styling:** Minimal solid dark forest card (`--forest` / `#0b3d2e`, max-width 1100px, compact padding 36px 56px 32px), subtle `--forest-line` border, single white text color (`#ffffff`) for Arabic, translation, and citation badge. No upper decorative icon or complex gradient overlays. Arabic typography uses Amiri via `@font-face` with local system Arabic fallbacks (`Traditional Arabic`, `Scheherazade New`, `Amiri Quran`, `Noto Naskh Arabic`), bold weight 700, and 2.1 line-height for proper diacritic clearance.
-- **Responsiveness & Motion:** Fluid typography with `clamp()`, responsive padding down to 360px, scroll-reveal support via `@supports (animation-timeline: view())` respecting `prefers-reduced-motion`.
+- **Typography & Styling:** dark green card. Arabic uses self-hosted Amiri (`app/fonts/`, OFL licence beside it) through `next/font/local` with `preload: false`, with local Arabic fallbacks; bold, generous line-height for diacritics.
 
 ## Section Spacing & Visual Rhythm
-- **Rhythm:** Standardized 56px–64px top/bottom padding across consecutive sections (`.calc-wrap` bottom 64px, `.tax-article-section` padding 56px–64px, `.section-faq` padding 56px–64px, `.resources-inner` padding 60px, `.quran-reflection` padding 56px–64px).
-- **Transitions:** Subtle `border-top: 1px solid var(--line-soft)` between same-background sections ensures clean visual definition without harsh contrasts. Responsive adjustments reduce padding smoothly on mobile (40px–48px).
+- Calculator pages: set by `.fx-section` in `app/calculator-theme.css` (smaller padding from 760px down). Adjacent sections alternate between the soft background and the light green surface.
 
 ## Reusable Explore Calculators Section Architecture
 - **Placement & Flow:** Embedded inline immediately after `FaqSection` on BOTH existing calculator pages (`app/page.tsx` and `app/multi-year-calculator/page.tsx`). No standalone tools directory page or route exists.
@@ -149,12 +132,7 @@ tests/
 - **Calculators Displayed (2 active tools):**
   1. `Salary Tax Calculator` (Description: `"Calculate your Pakistan salary income tax and take-home pay."`, Destination: `/`).
   2. `Multi-Year Income Tax Calculator` (Description: `"Calculate your salary tax across multiple fiscal years, including salary changes and job transitions."`, Destination: `/multi-year-calculator`).
-- **Visual Design:**
-  - Background: Deep brand forest (`var(--forest)` / `#0b3d2e`) with a blueprint grid overlay (`background-size: 36px 36px;`).
-  - Header: Eyebrow pill `EXPLORE OUR TOOLS` with shield icon, H2 `Explore Our Tax Calculators`, and responsive lead text.
-  - Container: Pure white card (`#ffffff`, `var(--radius-card, 24px)`, `border: 1px solid var(--forest-line)`), `.scroll-reveal` for lightweight one-shot viewport entrance.
-  - Category Header: Green indicator dot (`#10b981`), category SVG wallet icon, uppercase title (`SALARY & INCOME`), divider line, and count badge (`2 Calculators`).
-  - Tool Cards: 2-column desktop grid, 1-column mobile grid. Rounded mint-wash icon wrap with SVG calculator icon, title, description, right chevron with hover glide (`translateX(4px)`), green border transition, and subtle elevation.
+- **Visual Design:** themed section with a category header (dot, icon, title, count badge) and tool cards in 2 columns on desktop, 1 on mobile.
 
 ## Deployment (Cloudflare Workers via OpenNext)
 - `pnpm run build` runs `opennextjs-cloudflare build` (which runs a plain `next build` first, see `buildCommand` in `open-next.config.ts`; `pnpm build:next` = plain Next build only). Then `pnpm run deploy` or `npx wrangler deploy` uploads it. The deploy step needs the `.open-next` folder from the build.
@@ -172,7 +150,7 @@ tests/
 - Never cache calculation results or user input in the service worker.
 
 ## Motion (animations)
-- Lightweight one-shot scroll transitions triggered by `ScrollObserver.tsx` (using `IntersectionObserver`) and styled in `app/globals.css`.
+- One-shot scroll reveal for `.scroll-reveal` elements, triggered by `ScrollObserver.tsx` (`IntersectionObserver`) and styled in `app/globals.css`.
 - Strictly no continuous scroll-linked opacity binding or `animation-timeline: view()`: prevents bottom-of-screen content fading. Once an element enters the viewport, it transitions in once and remains fully visible permanently.
 - Above-the-fold content is immediately marked revealed on initial render to prevent blank flashes.
 - Time-based animations use `backwards` fill (not `both`), so hover `transform`s keep working afterwards.
@@ -180,8 +158,8 @@ tests/
 - Everything sits inside `@media (prefers-reduced-motion: no-preference)`. Users with reduced motion preferences get immediate, still layouts.
 
 ## Styling Rules
-- Follow `design-ref/`: primary green `#0F6B4C`, forest `#0B3D2E`, amber `#B7791F` for tax. Tokens are CSS variables in `app/globals.css`.
-- Breakpoints used: 1050px, 760px, 540px, 480px, 360px. No horizontal page scroll at 360px.
+- Calculator pages: see "Calculator Pages Design". Other pages: follow `design-ref/` (green `#0F6B4C`, forest `#0B3D2E`, amber `#B7791F`; tokens in `app/globals.css`). Logo, OG images, PDF and `theme-color` still use these older colors.
+- Breakpoints used: 1000px, 760px, 600px, 540px, 480px, 400px, 360px. No horizontal page scroll at 360px on the calculator pages.
 - Inputs are at least 52px high, body text at least 16px, visible focus ring.
 
 ## Security Requirements

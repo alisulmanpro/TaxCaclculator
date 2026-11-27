@@ -434,50 +434,52 @@ export default function SingleYearCalculator() {
                 </p>
               </div>
 
-              <table className="rtable">
-                <caption>Monthly and annual breakdown</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Rs.</th>
-                    <th scope="col">Monthly</th>
-                    <th scope="col">Annual</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">Gross income</th>
-                    <td>{Math.round(monthlyGross).toLocaleString("en-US")}</td>
-                    <td>{Math.round(annualGross).toLocaleString("en-US")}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Tax</th>
-                    <td className="is-tax">{Math.round(monthlyTax).toLocaleString("en-US")}</td>
-                    <td className="is-tax">{Math.round(annualTax).toLocaleString("en-US")}</td>
-                  </tr>
-                  {monthlyDeductions > 0 && (
+              <div className="rtable-scroll">
+                <table className="rtable">
+                  <caption>Monthly and annual breakdown</caption>
+                  <thead>
                     <tr>
-                      <th scope="row">Deductions</th>
-                      <td>{Math.round(monthlyDeductions).toLocaleString("en-US")}</td>
-                      <td>{Math.round(annualDeductions).toLocaleString("en-US")}</td>
+                      <th scope="col">Rs.</th>
+                      <th scope="col">Monthly</th>
+                      <th scope="col">Annual</th>
                     </tr>
-                  )}
-                  <tr className="is-total">
-                    <th scope="row">Net income</th>
-                    <td>{Math.round(monthlyNet).toLocaleString("en-US")}</td>
-                    <td>{Math.round(annualNet).toLocaleString("en-US")}</td>
-                  </tr>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">Gross income</th>
+                      <td>{Math.round(monthlyGross).toLocaleString("en-US")}</td>
+                      <td>{Math.round(annualGross).toLocaleString("en-US")}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Tax</th>
+                      <td className="is-tax">{Math.round(monthlyTax).toLocaleString("en-US")}</td>
+                      <td className="is-tax">{Math.round(annualTax).toLocaleString("en-US")}</td>
+                    </tr>
+                    {monthlyDeductions > 0 && (
+                      <tr>
+                        <th scope="row">Deductions</th>
+                        <td>{Math.round(monthlyDeductions).toLocaleString("en-US")}</td>
+                        <td>{Math.round(annualDeductions).toLocaleString("en-US")}</td>
+                      </tr>
+                    )}
+                    <tr className="is-total">
+                      <th scope="row">Net income</th>
+                      <td>{Math.round(monthlyNet).toLocaleString("en-US")}</td>
+                      <td>{Math.round(annualNet).toLocaleString("en-US")}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
               {comparisonResult && comparison !== "none" && (
-                <div className="compare-banner">
+                <div className={`compare-banner${comparisonResult.isIncrease ? " is-up" : ""}`}>
                   <div className="left">
                     <span className="compare-icon" aria-hidden="true">
                       <svg width="18" height="18" viewBox="0 0 18 18">
                         <path
                           d={comparisonResult.isIncrease ? "M9 15V3M4 8l5-5 5 5" : "M9 3v12M4 10l5 5 5-5"}
                           fill="none"
-                          stroke="#0B3D2E"
+                          stroke="currentColor"
                           strokeWidth="2.2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -506,11 +508,11 @@ export default function SingleYearCalculator() {
                   <dt>Kept after tax</dt>
                   <dd>{pct(keptAfterTax)}</dd>
                 </div>
-                <div className="mini-stat">
+                <div className="mini-stat is-net">
                   <dt>Net / month</dt>
                   <dd>{compactCurrency(monthlyNet)}</dd>
                 </div>
-                <div className="mini-stat">
+                <div className="mini-stat is-due">
                   <dt>Tax still due</dt>
                   <dd>{currency(taxStillDue)}</dd>
                 </div>

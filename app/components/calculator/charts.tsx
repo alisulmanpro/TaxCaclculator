@@ -113,7 +113,7 @@ export function ComparePairChart({
                 );
               }}
             />
-            <Bar animationDuration={450} dataKey="value" barSize={28} radius={[0, 8, 8, 0]} background={{ fill: "#EAF1EC", radius: 8 }}>
+            <Bar animationDuration={450} dataKey="value" barSize={28} radius={[0, 8, 8, 0]} background={{ fill: "#EAF3EE", radius: 8 }}>
               {rows.map((r) => (
                 <Cell key={r.label} fill={r.color} />
               ))}
@@ -143,12 +143,12 @@ const roleColor = { selected: chartColors.keep, compare: chartColors.old, other:
 export function YearsColumnChart({ data }: { data: YearBar[] }) {
   return (
     <div
-      className="chart-frame"
+      className="chart-frame chart-years"
       role="img"
       aria-label={`Tax on the same income in each fiscal year: ${data.map((d) => `${d.label} ${currency(d.tax)}`).join(", ")}`}
     >
       <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={data} margin={{ top: 12, right: 8, bottom: 0, left: 0 }}>
+        <BarChart data={data} margin={{ top: 12, right: 16, bottom: 0, left: 0 }}>
           <CartesianGrid vertical={false} stroke={chartColors.grid} />
           <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: "#9DB3A6" }} tick={{ fontSize: 12.5, fill: chartColors.axis }} interval={0} />
           <YAxis tickLine={false} axisLine={false} width={52} tickFormatter={compactAxis} tick={{ fontSize: 12.5, fill: chartColors.axis }} />
@@ -245,7 +245,7 @@ export function FyStackChart({ data }: { data: FyStack[] }) {
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} margin={{ top: 12, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid vertical={false} stroke={chartColors.grid} />
-          <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: "#9DB3A6" }} tick={{ fontSize: 13.5, fill: "#10201A", fontWeight: 600 }} tickFormatter={(v) => `FY ${v}`} interval={0} />
+          <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: "#9DB3A6" }} tick={{ fontSize: 13.5, fill: "#24352E", fontWeight: 600 }} tickFormatter={(v) => `FY ${v}`} interval={0} />
           <YAxis tickLine={false} axisLine={false} width={56} tickFormatter={compactAxis} tick={{ fontSize: 12.5, fill: chartColors.axis }} />
           <Tooltip
             cursor={{ fill: "rgba(15,107,76,0.06)" }}

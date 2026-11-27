@@ -1,3 +1,5 @@
+import SectionHeader from "./SectionHeader";
+
 export const calculationSteps = [
   {
     step: "01",
@@ -18,14 +20,11 @@ export const calculationSteps = [
 
 export default function CalculationMethodSection() {
   return (
-    <section
-      className="section-calc-method"
-      id="calculation-method"
-      aria-labelledby="calc-method-title"
-    >
-      <div className="calc-method-inner container">
-        <header className="calc-method-header scroll-reveal">
-          <div className="section-pill">
+    <section className="fx-section" id="calculation-method" aria-labelledby="calc-method-title">
+      <div className="fx-wrap fx-stack scroll-reveal">
+        <SectionHeader
+          eyebrow="CALCULATION METHOD"
+          icon={
             <svg
               width="15"
               height="15"
@@ -42,24 +41,22 @@ export default function CalculationMethodSection() {
               <line x1="16" y1="14" x2="16" y2="18" />
               <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01" />
             </svg>
-            <span>CALCULATION METHOD</span>
-          </div>
-
-          <h2 className="section-title" id="calc-method-title">
-            How salary tax is calculated across multiple fiscal years
-          </h2>
-
-          <p className="section-lead">
-            Pakistan&apos;s tax year runs from 1 July to 30 June. When your salary changes or you
-            start a new job, your income may fall across multiple fiscal years. Here&apos;s how the
-            calculator handles these periods.
-          </p>
-        </header>
+          }
+          title="How salary tax is calculated across multiple fiscal years"
+          titleId="calc-method-title"
+          lead={
+            <>
+              Pakistan&apos;s tax year runs from 1 July to 30 June. When your salary changes or you
+              start a new job, your income may fall across multiple fiscal years. Here&apos;s how the
+              calculator handles these periods.
+            </>
+          }
+        />
 
         <div className="calc-method-grid">
           {calculationSteps.map((item) => (
-            <div className="calc-method-card scroll-reveal" key={item.step}>
-              <div className="calc-method-card-top">
+            <div className="calc-method-card" key={item.step}>
+              <div>
                 <span className="calc-method-step" aria-label={`Step ${item.step}`}>
                   {item.step}
                 </span>

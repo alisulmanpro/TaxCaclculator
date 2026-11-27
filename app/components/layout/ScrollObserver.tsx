@@ -20,9 +20,7 @@ export default function ScrollObserver() {
 
     document.documentElement.classList.add("js-reveal-ready");
 
-    const targets = document.querySelectorAll<HTMLElement>(
-      ".tax-section-header, .tax-card, .faq-header, .faq-container, .resource-card, .quran-card, .scroll-reveal"
-    );
+    const targets = document.querySelectorAll<HTMLElement>(".scroll-reveal");
 
     if (!targets.length) return;
 

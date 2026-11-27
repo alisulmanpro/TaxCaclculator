@@ -13,7 +13,7 @@ import {
 export function ChevronDown() {
   return (
     <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20">
-      <path d="M5 8l5 5 5-5" fill="none" stroke="#3F5249" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -29,13 +29,13 @@ export function ArrowRight({ color = "#fff" }: { color?: string }) {
 export function InfoIcon() {
   return (
     <svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22" style={{ flex: "none", marginTop: 1 }}>
-      <circle cx="11" cy="11" r="9.5" fill="none" stroke="#0F6B4C" strokeWidth="1.8" />
-      <path d="M11 10v5.5M11 6.6v.2" stroke="#0F6B4C" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="11" cy="11" r="9.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M11 10v5.5M11 6.6v.2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
 
-export function DownloadIcon({ color = "#0B3D2E" }: { color?: string }) {
+export function DownloadIcon({ color = "currentColor" }: { color?: string }) {
   return (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
       <path d="M9 2v9M5 8l4 4 4-4M3 15h12" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -46,7 +46,7 @@ export function DownloadIcon({ color = "#0B3D2E" }: { color?: string }) {
 export function LinkIcon() {
   return (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
-      <path d="M7.5 10.5a3 3 0 0 0 4.2 0l2.6-2.6a3 3 0 0 0-4.2-4.2l-.8.8M10.5 7.5a3 3 0 0 0-4.2 0L3.7 10.1a3 3 0 0 0 4.2 4.2l.8-.8" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7.5 10.5a3 3 0 0 0 4.2 0l2.6-2.6a3 3 0 0 0-4.2-4.2l-.8.8M10.5 7.5a3 3 0 0 0-4.2 0L3.7 10.1a3 3 0 0 0 4.2 4.2l.8-.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -54,7 +54,7 @@ export function LinkIcon() {
 export function CheckIcon() {
   return (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
-      <path d="M3.5 9.5l3.5 3.5 7.5-8" fill="none" stroke="#8FDDBB" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3.5 9.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -62,12 +62,12 @@ export function CheckIcon() {
 export function CaretIcon({ up }: { up: boolean }) {
   return (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
-      <path d={up ? "M4 11.5l5-5 5 5" : "M4 6.5l5 5 5-5"} fill="none" stroke="#33453D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={up ? "M4 11.5l5-5 5 5" : "M4 6.5l5 5 5-5"} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-export function PlusIcon({ color = "#0F6B4C" }: { color?: string }) {
+export function PlusIcon({ color = "currentColor" }: { color?: string }) {
   return (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
       <path d="M9 3v12M3 9h12" stroke={color} strokeWidth="2.2" strokeLinecap="round" />
@@ -78,7 +78,7 @@ export function PlusIcon({ color = "#0F6B4C" }: { color?: string }) {
 export function CloseIcon() {
   return (
     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14">
-      <path d="M3 3l8 8M11 3l-8 8" stroke="#33453D" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -86,8 +86,8 @@ export function CloseIcon() {
 export function TickCircle() {
   return (
     <svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20">
-      <circle cx="10" cy="10" r="10" fill="#8FDDBB" />
-      <path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="#0B3D2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="10" cy="10" r="10" fill="#DCEDE3" />
+      <path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="#0F5C45" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -202,14 +202,14 @@ export function Empty({ lines }: { lines: string[] }) {
   return (
     <div className="empty">
       <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64">
-        <rect x="8" y="34" width="12" height="22" rx="3" fill="#2B7A5F" />
-        <rect x="26" y="22" width="12" height="34" rx="3" fill="#4DAE8A" />
-        <rect x="44" y="8" width="12" height="48" rx="3" fill="#8FDDBB" />
+        <rect x="8" y="34" width="12" height="22" rx="3" fill="#0F5C45" />
+        <rect x="26" y="22" width="12" height="34" rx="3" fill="#5E9F85" />
+        <rect x="44" y="8" width="12" height="48" rx="3" fill="#F28C28" />
       </svg>
       <div>
         <p className="empty-title">Your tax will show here</p>
         <p className="empty-text">
-          Enter your salary, then press <strong style={{ color: "#fff" }}>Calculate</strong>. It also
+          Enter your salary, then press <strong>Calculate</strong>. It also
           updates as you type.
         </p>
       </div>
@@ -372,12 +372,12 @@ export const compactAxis = (n: number) => {
 };
 
 export const chartColors = {
-  keep: "#0F6B4C",
-  tax: "#B7791F",
-  deduction: "#6F8B7D",
-  old: "#6F8B7D",
-  grid: "#E6EDE8",
-  axis: "#4B5C54",
+  keep: "#0F5C45",
+  tax: "#D9730D",
+  deduction: "#7D9288",
+  old: "#7D9288",
+  grid: "#E5EDE8",
+  axis: "#55655D",
 };
 
 /** Download PDF + Copy shareable link, shown at the bottom of every result panel. */
@@ -393,11 +393,11 @@ export function ResultActions({
   return (
     <>
       <div className="result-actions">
-        <button type="button" className="btn btn-light" onClick={pdf.start} disabled={pdf.busy}>
+        <button type="button" className="btn btn-pdf" onClick={pdf.start} disabled={pdf.busy}>
           <DownloadIcon />
           {pdf.busy ? "Preparing PDF…" : "Download PDF"}
         </button>
-        <button type="button" className="btn btn-outline-light" onClick={link.copy}>
+        <button type="button" className="btn btn-share" onClick={link.copy}>
           {link.state === "copied" ? <CheckIcon /> : <LinkIcon />}
           <span aria-live="polite">
             {link.state === "copied"

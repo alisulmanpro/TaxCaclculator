@@ -2,6 +2,7 @@
 
 import type { Faq } from "@/lib/faqs";
 import { useState } from "react";
+import SectionHeader from "./SectionHeader";
 
 export interface FaqSectionProps {
   badge?: string;
@@ -28,15 +29,9 @@ export default function FaqSection({
   };
 
   return (
-    <section className="section-faq" id="faqs" aria-labelledby="faq-title">
-      <div className="faq-container">
-        <div className="faq-header">
-          {badge && <span className="faq-badge">{badge}</span>}
-          <h2 className="section-title faq-title" id="faq-title">
-            {title}
-          </h2>
-          {lead && <p className="section-lead faq-lead">{lead}</p>}
-        </div>
+    <section className="fx-section" id="faqs" aria-labelledby="faq-title">
+      <div className="fx-wrap fx-split scroll-reveal">
+        <SectionHeader eyebrow={badge} title={title} titleId="faq-title" lead={lead} />
 
         <div className="faq-list">
           {faqs.map((faq, index) => {
