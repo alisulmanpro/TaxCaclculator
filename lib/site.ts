@@ -14,14 +14,16 @@
 
 export const site = {
   /** Brand name shown in titles, structured data and the share image. */
-  name: "Tax Calculator",
+  name: "FindTaxCalculator.com",
   /** Short name used by the web manifest / home-screen icon. */
-  shortName: "Tax Calculator",
+  shortName: "FindTaxCalculator",
   /**
    * Production domain with no trailing slash. Can be overridden with the
    * NEXT_PUBLIC_SITE_URL environment variable (e.g. for a staging site).
    */
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://findtaxcalculator.com").replace(/\/+$/, ""),
+  /** Official contact email address. */
+  contactEmail: "contact@findtaxcalculator.com",
   /** Language of the content (html lang attribute + structured data). */
   language: "en",
   /** OpenGraph locale. */

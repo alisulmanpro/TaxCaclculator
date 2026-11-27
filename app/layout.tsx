@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Header from "@/app/components/layout/Header";
 import Footer from "@/app/components/layout/Footer";
+import CalculatorFooter from "@/app/components/layout/CalculatorFooter";
+import RouteSwitch from "@/app/components/layout/RouteSwitch";
 import OfflineSupport from "@/app/components/layout/OfflineSupport";
 import ScrollObserver from "@/app/components/layout/ScrollObserver";
 import JsonLd from "@/app/components/seo/JsonLd";
@@ -21,6 +23,8 @@ const grotesk = localFont({
   weight: "300 700",
   variable: "--font-grotesk",
   display: "swap",
+  // Not used on the calculator pages, so it is fetched only where a page needs it.
+  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -60,9 +64,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to the calculator
         </a>
         <JsonLd data={siteJsonLd()} />
-        <Header />
+        {/* The two calculator pages have their own look (app/calculator-theme.css). */}
+        <RouteSwitch
+          calculator={
+            <div className="fx-chrome">
+              <Header />
+            </div>
+          }
+          other={<Header />}
+        />
         {children}
-        <Footer />
+        <RouteSwitch
+          calculator={
+            <div className="fx-chrome">
+              <CalculatorFooter />
+            </div>
+          }
+          other={<Footer />}
+        />
         <OfflineSupport />
         <ScrollObserver />
       </body>

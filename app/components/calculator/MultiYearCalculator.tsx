@@ -500,7 +500,7 @@ export default function MultiYearCalculator() {
                   <dt>Total gross income</dt>
                   <dd>{currency(calculatedResult.totalGross)}</dd>
                 </div>
-                <div className="mini-stat">
+                <div className="mini-stat is-net">
                   <dt>Total net income</dt>
                   <dd>{currency(calculatedResult.totalNet)}</dd>
                 </div>
@@ -525,7 +525,7 @@ export default function MultiYearCalculator() {
                           <th scope="row">FY {fiscalLabel(s.year)}</th>
                           <td>{Math.round(s.gross).toLocaleString("en-US")}</td>
                           <td className="is-tax">{Math.round(s.tax).toLocaleString("en-US")}</td>
-                          <td>{Math.round(s.net).toLocaleString("en-US")}</td>
+                          <td className="is-net">{Math.round(s.net).toLocaleString("en-US")}</td>
                         </tr>
                       ))}
                       <tr className="is-total">

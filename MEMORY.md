@@ -38,9 +38,28 @@ The two homepage tax sections on `var(--forest)` background are intentionally di
 2. `<CommonSalariesSection />`
 3. `<TaxSlabsSection />`
 4. `<FaqSection />`
-5. `<ResourcesSection />` (Background: `#022641`)
-6. `<QuranReflection />`
+5. `<ExploreCalculatorsSection />` (Inline Explore Calculators section)
+6. `<ResourcesSection />` (Background: `#022641`)
+7. `<QuranReflection />` (Surah Ibrahim 14:7)
+8. `<Footer />`
+
+## Section Flow on Multi-Year Calculator Page (`app/multi-year-calculator/page.tsx`)
+1. `<Hero><MultiYearCalculator /></Hero>`
+2. `<CalculationMethodSection />` (Tagline: `"CALCULATION METHOD"`, 3 step cards: `01` Split Each Period at 30 June, `02` Count the Days Worked, `03` Calculate Tax for Each Fiscal Year).
+3. `<FaqSection />` (Tagline: `"COMMON QUESTIONS"`, 10 multi-year questions covering salary changes, job switches, actual working days, 30 June boundary, progressive tax slabs).
+4. `<ExploreCalculatorsSection />` (Inline Explore Calculators section)
+5. `<ResourcesSection />` (Tagline: `"OFFICIAL TAX REFERENCES"`, Title: `"Official Pakistan Tax Resources"`, Lead: `"Access official government resources and FBR publications..."`, Background: `#022641`).
+6. `<QuranReflection />` (Tagline: `"A REFLECTION"`, Surah Al-Ma'idah 5:1 `يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ`, Translation: `"O you who have believed, fulfill all contracts and obligations."`).
 7. `<Footer />`
+
+## Footer Architecture (FindTaxCalculator.com)
+- **Design Layout:** 4 columns following Primary Reference Image 1 on deep brand dark green (`var(--forest)`):
+  1. **Column 1 (Brand & Newsletter):** Logo on white rounded chip, brand description, "Subscribe to Tax Updates" newsletter form with instant client feedback, and calculation disclaimer.
+  2. **Column 2 (Tax Guides):** Green circular bullets preceding links: Income Tax Slabs & System (`/tax-guides/income-tax-slabs`), Tax Deductions & Credits (`/tax-guides/tax-deductions-and-credits`), Filing Your Tax Return (`/tax-guides/filing-your-tax-return`), FBR Website (`https://www.fbr.gov.pk/`), IRIS Portal (`https://iris.fbr.gov.pk/`).
+  3. **Column 3 (Useful Links):** Green circular bullets preceding links: About Us (`/about`), Contact Us (`/contact`), FAQs (`/#faqs`), Blog (`/blog`), Terms of Use (`/terms-of-use`), Privacy Policy (`/privacy-policy`), Income Tax Slabs (`/#tax-slabs`).
+  4. **Column 4 (Contact Us):** Green labels with clean values: Location (Pakistan), Email (`contact@findtaxcalculator.com`, mailto link), Service Area (All Pakistan Provinces), Support (Online Contact Form `/contact`).
+- **Bottom Bar:** Subtle horizontal divider, dynamic copyright year (`© {new Date().getFullYear()} FindTaxCalculator.com. All rights reserved.`), and `"Designed with ❤️ in Pakistan"`.
+- **All Routes:** Functional, accessible, and statically prerendered with 0 broken links.
 
 ## Motion & Accessibility Rules
 - Scroll animations use lightweight one-shot `ScrollObserver.tsx` (`IntersectionObserver`).
