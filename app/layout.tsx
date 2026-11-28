@@ -2,14 +2,13 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Header from "@/app/components/layout/Header";
 import Footer from "@/app/components/layout/Footer";
-import CalculatorFooter from "@/app/components/layout/CalculatorFooter";
-import RouteSwitch from "@/app/components/layout/RouteSwitch";
 import OfflineSupport from "@/app/components/layout/OfflineSupport";
 import ScrollObserver from "@/app/components/layout/ScrollObserver";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { siteJsonLd } from "@/lib/seo";
 import { fullTitle, pages, site } from "@/lib/site";
 import "./globals.css";
+import "./chrome.css";
 
 // Self-hosted variable fonts (app/fonts, SIL Open Font License): no request to Google at runtime.
 const inter = localFont({
@@ -61,27 +60,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang={site.language} className={`${inter.variable} ${grotesk.variable}`}>
       <body>
         <a className="skip-link" href="#main">
-          Skip to the calculator
+          Skip to main content
         </a>
         <JsonLd data={siteJsonLd()} />
-        {/* The two calculator pages have their own look (app/calculator-theme.css). */}
-        <RouteSwitch
-          calculator={
-            <div className="fx-chrome">
-              <Header />
-            </div>
-          }
-          other={<Header />}
-        />
+        <Header />
         {children}
-        <RouteSwitch
-          calculator={
-            <div className="fx-chrome">
-              <CalculatorFooter />
-            </div>
-          }
-          other={<Footer />}
-        />
+        <Footer />
         <OfflineSupport />
         <ScrollObserver />
       </body>

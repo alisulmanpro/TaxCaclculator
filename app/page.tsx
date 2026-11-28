@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SingleYearCalculator from "@/app/components/calculator/SingleYearCalculator";
 import Hero from "@/app/components/sections/Hero";
+import HomeHeroIntro from "@/app/components/sections/HomeHeroIntro";
 import CommonSalariesSection from "@/app/components/sections/CommonSalariesSection";
 import TaxSlabsSection from "@/app/components/sections/TaxSlabsSection";
 import FaqSection from "@/app/components/sections/FaqSection";
@@ -8,10 +9,10 @@ import ExploreCalculatorsSection from "@/app/components/sections/ExploreCalculat
 import ResourcesSection from "@/app/components/sections/ResourcesSection";
 import QuranReflection from "@/app/components/sections/QuranReflection";
 import SectionNav from "@/app/components/sections/SectionNav";
+import RiseOnScroll from "@/app/components/layout/RiseOnScroll";
 import JsonLd from "@/app/components/seo/JsonLd";
 import { singleYearFaqs } from "@/lib/faqs";
 import { pageJsonLd, pageMetadata } from "@/lib/seo";
-import { pages } from "@/lib/site";
 import "./calculator-theme.css";
 
 export const metadata: Metadata = pageMetadata("home");
@@ -20,7 +21,7 @@ export default function Home() {
   return (
     <main id="main" className="fx-theme">
       <JsonLd data={pageJsonLd("home", singleYearFaqs)} />
-      <Hero h1={pages.home.h1} lead={pages.home.lead}>
+      <Hero intro={<HomeHeroIntro />}>
         <SingleYearCalculator />
       </Hero>
       <SectionNav
@@ -38,6 +39,7 @@ export default function Home() {
       <ExploreCalculatorsSection />
       <ResourcesSection />
       <QuranReflection />
+      <RiseOnScroll />
     </main>
   );
 }

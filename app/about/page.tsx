@@ -3,7 +3,8 @@ import PlaceholderPage from "@/app/components/sections/PlaceholderPage";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `About Us | ${site.name}`,
+  title: "About Us",
+  alternates: { canonical: "/about" },
   description: `About ${site.name} — Free, accessible and accurate Pakistan salary and income tax tools.`,
 };
 

@@ -3,7 +3,8 @@ import PlaceholderPage from "@/app/components/sections/PlaceholderPage";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `Terms of Use | ${site.name}`,
+  title: "Terms of Use",
+  alternates: { canonical: "/terms-of-use" },
   description: `Terms and conditions for using ${site.name} calculators and informational services.`,
 };
 

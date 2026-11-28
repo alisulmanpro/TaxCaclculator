@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import PlaceholderPage from "@/app/components/sections/PlaceholderPage";
-import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `Filing Your Tax Return | ${site.name}`,
+  title: "Filing Your Tax Return",
+  alternates: { canonical: "/tax-guides/filing-your-tax-return" },
   description: "Step-by-step guidance on how to file your annual income tax return using the FBR IRIS portal.",
 };
 

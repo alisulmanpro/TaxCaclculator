@@ -1,5 +1,5 @@
 import { currency } from "@/lib/tax";
-import SectionHeader from "./SectionHeader";
+import DataSectionHeader from "./DataSectionHeader";
 
 export interface CommonSalaryRow {
   monthly: number;
@@ -25,72 +25,49 @@ export const commonSalariesData: CommonSalaryRow[] = [
 ];
 
 /**
- * Section A: Tax on Common Salaries, FY 2026–27
+ * Section A: tax on common salaries, FY 2026–27
  * A clear, scannable reference table showing tax and take-home pay for common salary benchmarks.
  * Server Component (no client state needed).
  */
 export default function CommonSalariesSection() {
   return (
-    <section className="fx-section" id="common-salaries" aria-labelledby="common-salaries-title">
-      <div className="fx-wrap fx-split scroll-reveal">
-        <SectionHeader
-          eyebrow="Salary tax at a glance"
-          icon={
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
-            </svg>
-          }
-          title={<>Tax on Common Salaries, FY 2026–27</>}
+    <section className="fx-section fx-data fx-data-common" id="common-salaries" aria-labelledby="common-salaries-title">
+      <div className="fx-wrap">
+        <DataSectionHeader
+          eyebrow="Tax on common salaries, FY 2026–27"
+          eyebrowInTitle
+          title="What does your salary look like after tax?"
           titleId="common-salaries-title"
-          lead={
-            <>
-              How much income tax comes off a monthly salary of Rs.&nbsp;50,000 to Rs.&nbsp;500,000,
-              and what you take home, on the FY 2026-27 slabs. Enter your own salary above for your exact
-              figure, or pick last year there.
-            </>
-          }
+          lead="Compare monthly tax and take-home pay for common salaries in Pakistan. FY 2026–27."
         />
 
-        <div className="fx-card">
-          <div className="tax-table-wrap">
-            <table className="tax-data-table tax-data-table-common" aria-label="Tax on Common Salaries for FY 2026-27">
-              <thead>
-                <tr>
-                  <th scope="col">Monthly salary</th>
-                  <th scope="col">Tax a month</th>
-                  <th scope="col">Take-home a month</th>
-                  <th scope="col">Tax a year</th>
+        <div className="tax-table-wrap">
+          <table className="tax-data-table tax-data-table-common" aria-label="Tax on Common Salaries for FY 2026-27">
+            <thead>
+              <tr className="fx-rise">
+                <th scope="col">Monthly gross salary</th>
+                <th scope="col">Monthly income tax</th>
+                <th scope="col">Monthly take-home</th>
+                <th scope="col">Annual income tax</th>
+              </tr>
+            </thead>
+            <tbody>
+              {commonSalariesData.map((row) => (
+                <tr key={row.monthly} className="fx-rise">
+                  <td className="cell-num">{currency(row.monthly)}</td>
+                  <td>{currency(row.taxMonthly)}</td>
+                  <td className="cell-takehome-amt">{currency(row.takeHomeMonthly)}</td>
+                  <td>{currency(row.taxYearly)}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {commonSalariesData.map((row) => (
-                  <tr key={row.monthly}>
-                    <td className="cell-num">{currency(row.monthly)}</td>
-                    <td className="cell-tax-amt">{currency(row.taxMonthly)}</td>
-                    <td className="cell-takehome-amt">{currency(row.takeHomeMonthly)}</td>
-                    <td className="cell-tax-amt">{currency(row.taxYearly)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <p className="tax-table-footnote">
-            Salaried slab rates for FY 2026-27, on the full salary with nothing deducted. Monthly
-            figures are the yearly tax split over 12 months and rounded to the rupee.
-          </p>
+              ))}
+            </tbody>
+          </table>
         </div>
+
+        <p className="tax-table-footnote fx-rise">
+          Figures use the full salary with no deductions. Monthly tax is annual tax divided by 12, rounded
+          to the nearest rupee.
+        </p>
       </div>
     </section>
   );

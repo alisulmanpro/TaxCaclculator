@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import PlaceholderPage from "@/app/components/sections/PlaceholderPage";
-import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `Income Tax Slabs & System | ${site.name}`,
+  title: "Income Tax Slabs & System",
+  alternates: { canonical: "/tax-guides/income-tax-slabs" },
   description: "Learn how Pakistan's progressive income tax slabs work for salaried individuals and business income.",
 };
 

@@ -3,7 +3,8 @@ import PlaceholderPage from "@/app/components/sections/PlaceholderPage";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `Contact Us | ${site.name}`,
+  title: "Contact Us",
+  alternates: { canonical: "/contact" },
   description: `Get in touch with the ${site.name} team for questions, feedback, or tax calculator suggestions.`,
 };
 

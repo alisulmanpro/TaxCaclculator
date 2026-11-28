@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import PlaceholderPage from "@/app/components/sections/PlaceholderPage";
-import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `Tax Blog & Insights | ${site.name}`,
+  title: "Tax Blog & Insights",
+  alternates: { canonical: "/blog" },
   description: "Articles, insights, and updates on Pakistan budget announcements, tax slabs, and personal finance.",
 };
 

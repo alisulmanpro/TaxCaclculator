@@ -2,32 +2,52 @@
 // structured data, so Google can show them as rich results. Edit them here.
 // Keep answers plain text (no HTML) and keep them identical to what the page shows.
 
+import { TAX_RULES, type FiscalYear } from "./tax.ts";
+
 export type Faq = { q: string; a: string };
+
+const amount = (value: number) => value.toLocaleString("en-US");
+
+/** One year's salaried slabs in words, read from lib/tax.ts so the answer cannot drift from the calculator. */
+function slabAnswer(year: FiscalYear) {
+  const { limits, rates, surcharge } = TAX_RULES[year];
+  const bands = limits.map((upper, index) => {
+    const rate = `${Math.round(rates[index] * 1000) / 10}%`;
+    if (index === 0) return `${rate} up to Rs. ${amount(upper)}`;
+    const lower = limits[index - 1];
+    if (upper === Infinity) return `${rate} above Rs. ${amount(lower)}`;
+    return `${rate} on Rs. ${amount(lower + 1)}–${amount(upper)}`;
+  });
+  const extra = surcharge
+    ? `A surcharge of ${Math.round(surcharge * 100)}% of the tax also applies when taxable income is above Rs. 10,000,000.`
+    : "No surcharge applies to salaried persons this year.";
+  return `${bands.join("; ")}. Each rate applies only to the income inside its band. ${extra}`;
+}
 
 export const singleYearFaqs: Faq[] = [
   {
     q: "What are the income tax slabs in Pakistan for FY 2026-2027?",
-    a: "For FY 2026–2027 (1 July 2026 – 30 June 2027), the salaried-person slabs are: 0% up to Rs. 600,000; 5% on Rs. 600,001–1,200,000; 10% on Rs. 1,200,001–2,200,000; 15% on Rs. 2,200,001–3,200,000; 20% on Rs. 3,200,001–4,100,000; 25% on Rs. 4,100,001–5,000,000; 30% on Rs. 5,000,001–6,000,000; 35% above Rs. 6,000,000. The calculator applies these automatically when you pick FY 2026–27.",
+    a: `For FY 2026–2027 (1 July 2026 – 30 June 2027), the salaried-person slabs are: ${slabAnswer("2026")} The calculator applies these automatically when you pick FY 2026–27.`,
   },
   {
     q: "What were Pakistan's income tax brackets for FY 2025-2026?",
-    a: "For FY 2025–2026, the slabs are: 0% up to Rs. 600,000; 5% on Rs. 600,001–1,200,000; 10% on Rs. 1,200,001–2,200,000; 15% on Rs. 2,200,001–3,200,000; 20% on Rs. 3,200,001–4,100,000; 25% on Rs. 4,100,001–5,000,000; 30% on Rs. 5,000,001–6,000,000; 35% above Rs. 6,000,000. Select FY 2025–26 in the calculator to see your tax under these rates.",
+    a: `For FY 2025–2026 (1 July 2025 – 30 June 2026), the salaried-person slabs are: ${slabAnswer("2025")} Select FY 2025–26 in the calculator to see your tax under these rates.`,
   },
   {
     q: "How do I calculate income tax on my salary in Pakistan?",
-    a: "Enter your monthly gross salary and pick the fiscal year. The calculator annualises your salary (×12), applies the year's salaried-person slabs from lib/tax.ts, and shows monthly and annual tax, take-home, and effective rate. No manual math needed.",
+    a: "Enter your monthly gross salary and pick the fiscal year. The calculator multiplies the salary by 12, adds any annual bonus, and applies that year's salaried-person slabs. It shows monthly and annual tax, net income, and your effective and marginal tax rates.",
   },
   {
     q: "How much tax will I pay on my salary in Pakistan?",
-    a: "That depends on your gross monthly salary and the fiscal year. Type your salary into the calculator — it instantly shows monthly tax, annual tax, and your effective tax rate for FY 2024–25 through FY 2026–27.",
+    a: "That depends on your gross monthly salary and the fiscal year. Type your salary into the calculator to see monthly tax, annual tax and your effective tax rate for any fiscal year from 2020–21 to 2026–27.",
   },
   {
     q: "What will my take-home salary be after tax?",
-    a: "The calculator shows 'Monthly take-home' and 'Annual take-home' right below the tax figure. Take-home = gross salary minus income tax. No other deductions (provident fund, EOBI, etc.) are included.",
+    a: "The result table shows your monthly and annual net income, which is your take-home pay. It is your gross income minus income tax and minus any monthly deductions you enter, such as provident fund or EOBI. Those deductions do not reduce the income that is taxed.",
   },
   {
     q: "Can I compare income tax across multiple years in Pakistan?",
-    a: "Yes. In the single-year calculator, turn on “Compare with another year” and pick a second fiscal year. For a detailed period-by-period view across years, open the Multi-Year Calculator at /multi-year-calculator.",
+    a: "Yes. In the single-year calculator, choose a second fiscal year under “Compare with”. For salary changes across several years, open the Multi-Year Calculator at /multi-year-calculator.",
   },
 ];
 
@@ -38,7 +58,7 @@ export const multiYearFaqs: Faq[] = [
   },
   {
     q: "When should I use a Multi-Year Salary Tax Calculator?",
-    a: "Use it whenever your salary changed during the year, if you switched employers, received mid-month increments, took unpaid leaves, earned variable bonuses, or want to compare your tax obligations and take-home earnings across several Pakistani fiscal years (FY 2024–25 to FY 2026–27).",
+    a: "Use it whenever your salary changed during the year, if you switched employers, received a mid-month increment, had a gap between jobs, or want to compare your tax and take-home pay across fiscal years from 2024–25 to 2026–27.",
   },
   {
     q: "How does Pakistan's 1 July to 30 June fiscal year affect my salary?",
@@ -53,8 +73,8 @@ export const multiYearFaqs: Faq[] = [
     a: "When you receive a salary increment, enter your old salary up to the effective date, and add a new period starting from the date of the raise. The calculator prorates each period based on actual calendar days and aggregates them into that fiscal year's total earnings.",
   },
   {
-    q: "Why does the calculator count actual working days?",
-    a: "Employment periods often start or terminate mid-month. Counting exact calendar days worked instead of rounding to whole months ensures your daily salary and recurring allowances are prorated mathematically, preventing over- or under-estimation of your taxable income.",
+    q: "Why does the calculator count exact calendar days?",
+    a: "Jobs often start or end in the middle of a month. Counting the exact calendar days in each salary period, instead of rounding to whole months, prorates your salary, regular bonus and deductions for that month.",
   },
   {
     q: "How is salary divided when it crosses two fiscal years?",
@@ -62,7 +82,7 @@ export const multiYearFaqs: Faq[] = [
   },
   {
     q: "Which tax slabs are applied to each fiscal year?",
-    a: "Each fiscal year is governed by its own FBR statutory schedule enacted by parliament. The calculator automatically applies the relevant tax slabs for each period: FY 2024–25 rates, FY 2025–26 rates, or the revised FY 2026–27 progressive brackets, including any high-income surcharges above Rs. 10 million.",
+    a: "Each fiscal year has its own slabs set by that year's Finance Act. The calculator applies the FY 2024–25, FY 2025–26 or FY 2026–27 slabs to the income of that year. A surcharge on tax also applies to income above Rs. 10 million in FY 2024–25 (10%) and FY 2025–26 (9%), but not in FY 2026–27.",
   },
   {
     q: "Can I calculate income across multiple fiscal years?",
@@ -70,6 +90,6 @@ export const multiYearFaqs: Faq[] = [
   },
   {
     q: "How is the final tax liability determined?",
-    a: "Within each fiscal year, all base salaries and bonuses earned are summed to compute annual taxable income. The statutory progressive rates for that year are applied to determine total tax. Post-tax payroll deductions are subtracted from net income to calculate your exact take-home pay.",
+    a: "Within each fiscal year, salary and regular bonuses are added up to give annual taxable income, and that year's progressive rates are applied to it. Monthly deductions are then subtracted, together with the tax, to estimate your take-home pay; they do not reduce the taxable income.",
   },
 ];
