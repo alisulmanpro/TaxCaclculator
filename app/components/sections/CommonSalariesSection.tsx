@@ -34,7 +34,8 @@ export default function CommonSalariesSection() {
     <section className="fx-section fx-data fx-data-common" id="common-salaries" aria-labelledby="common-salaries-title">
       <div className="fx-wrap">
         <DataSectionHeader
-          eyebrow="Salary tax at a glance"
+          eyebrow="Tax on common salaries, FY 2026–27"
+          eyebrowInTitle
           title="What does your salary look like after tax?"
           titleId="common-salaries-title"
           lead="Compare monthly tax and take-home pay for common salaries in Pakistan. FY 2026–27."

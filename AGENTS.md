@@ -28,7 +28,7 @@ app/
     income-tax-slabs/page.tsx, tax-deductions-and-credits/page.tsx, filing-your-tax-return/page.tsx
   components/
     calculator/  SingleYearCalculator, MultiYearCalculator, charts, ui, pdf/reports, calculator.css
-    layout/      Header, Footer, CalculatorFooter, RouteSwitch, CurrentYear, Logo, NavLinks, OfflineSupport, ScrollObserver, RiseOnScroll
+    layout/      Header, Footer, CurrentYear, Logo, NavLinks, OfflineSupport, ScrollObserver, RiseOnScroll
     sections/    Hero, SectionHeader, DataSectionHeader, HomeHeroIntro, SectionNav, FaqSection, HowItWorks, CalculationMethodSection, ResourcesSection, QuranReflection, CommonSalariesSection, TaxSlabsSection, ExploreCalculatorsSection, PlaceholderPage
     seo/         JsonLd
     sitemap/     SitemapBrowser, QrDialog, icons, sitemap.css
@@ -53,8 +53,8 @@ tests/
 - Tables are wrapped in `.table-scroll` / `.rtable-scroll` (horizontal scroll on mobile, no page-wide overflow).
 
 ## Calculator Pages Design (`/` and `/multi-year-calculator`)
-- **Scope:** only these two routes use this design. Do not let it reach other pages: global CSS stays loaded after client-side navigation, so every rule in `app/calculator-theme.css` is scoped to `.fx-theme` (the page's `<main>`), `.fx-chrome` (header wrapper), the footer's `.fx-` classes, or `body:has(> main.fx-theme)`.
-- **Header / footer:** the root layout uses `RouteSwitch` to show the themed header and `CalculatorFooter` on these routes, and the original `Header` / `Footer` elsewhere. `CalculatorFooter` has no newsletter or email form; list only links and contact details that exist (`lib/site.ts`).
+- **Scope:** only these two routes use this design. Global CSS stays loaded after client-side navigation, so every rule in `app/calculator-theme.css` is scoped to `.fx-theme` (the page's `<main>`), `.fx-` classes, or `body:has(> main.fx-theme)`.
+- **Header / footer:** one `Header` and one `Footer` on every page, styled in `app/chrome.css`. The footer has no newsletter or email form; list only links and contact details that exist (`lib/site.ts`). Footer column titles are H2.
 - **Colors:** green `#0F5C45`, orange `#F28C28` (decoration only; orange text uses `#965000`), soft background `#F4F7F5`, light green surface `#EAF3EE`, text `#24352E`, secondary `#64746C` family, borders `#DCE7E0`. Tax figures orange, take-home green, always with a text label. Footer is dark green.
 - **Layout:** `.fx-wrap` (1120px) for every block; sections are `.fx-section` with alternating tints; `SectionHeader` for headings (side rail from 1000px with `.fx-split`).
 - **Type:** Inter only. Sentence-level hierarchy via `.fx-title` / `.fx-lead`; inputs at least 52px high.
@@ -63,7 +63,7 @@ tests/
 
 ## Section A & B: Tax on Common Salaries & Income Tax Slabs Sections
 - **Placement:** Homepage (`app/page.tsx`) directly below the Hero / SingleYearCalculator and before `FaqSection`.
-- **Section A (`CommonSalariesSection.tsx`):** H2 `What does your salary look like after tax?`; 4 left-aligned columns (`Monthly gross salary`, `Monthly income tax`, `Monthly take-home`, `Annual income tax`); white section, solid green header, zebra rows, bold green take-home, sticky first column on phones. Server Component.
+- **Section A (`CommonSalariesSection.tsx`):** H2 `Tax on common salaries, FY 2026–27` (small line) + `What does your salary look like after tax?`; 4 left-aligned columns (`Monthly gross salary`, `Monthly income tax`, `Monthly take-home`, `Annual income tax`); white section, solid green header, zebra rows, bold green take-home, all four columns fit a phone screen without side scrolling. Server Component.
 - **Section B (`TaxSlabsSection.tsx`):** H2 `Income tax slabs in Pakistan`; 2 columns (`Annual taxable income`, `Income tax calculation`); mint section, solid green header, zebra rows; year buttons for the three newest years and an `Earlier years` `<select>` for the rest of `lib/tax.ts` (small client component).
 - The two tables stay visibly different from each other while sharing the theme.
 
@@ -72,7 +72,7 @@ tests/
   - `site.taxRatesLastUpdated`: Last verified date for tax calculation rules and rates (e.g. `"14 November 2026"`).
   - `site.officialResourcesLastReviewed`: Last reviewed date for official government links and portals (e.g. `"14 November 2026"`).
 - **Date Accuracy Rule:** Dates must NEVER be automatically generated (no `Date.now()`, no `new Date()`, no build/deployment time auto-stamps). They must reflect actual human/agent verification activity against official FBR sources.
-- **Hero Update Bar (`Hero.tsx`):**
+- **Hero Update Bar (`Hero.tsx`, multi-year page only; the home hero is `HomeHeroIntro.tsx` and shows no date):**
   - Trust block with an orange left border: `"Updated for FY 2026–2027 FBR tax slabs"`, `"Last updated: [site.taxRatesLastUpdated]"`, and the free/private note.
 - **Official Resources Badge (`ResourcesSection.tsx`):**
   - Displays `"Last reviewed: [site.officialResourcesLastReviewed]"` under the section heading.

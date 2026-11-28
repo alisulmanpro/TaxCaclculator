@@ -105,7 +105,7 @@ export const pages: Record<PageKey, PageSeo> = {
       "take home salary Pakistan",
       "monthly tax calculator",
     ],
-    sitemap: { priority: 1, changeFrequency: "monthly", lastModified: "2026-11-21" },
+    sitemap: { priority: 1, changeFrequency: "monthly", lastModified: "2026-11-28" },
     navLabel: "Salary tax",
     appDescription:
       "Calculates Pakistan salaried-person income tax, monthly and annual take-home pay, tax slabs and year-to-year comparison.",
@@ -125,7 +125,7 @@ export const pages: Record<PageKey, PageSeo> = {
       "fiscal year tax calculator",
       "salary history tax",
     ],
-    sitemap: { priority: 0.9, changeFrequency: "monthly", lastModified: "2026-11-21" },
+    sitemap: { priority: 0.9, changeFrequency: "monthly", lastModified: "2026-11-28" },
     navLabel: "Multi-year",
     appDescription:
       "Calculates Pakistan salary income tax across several salary periods, splitting each period by fiscal year and adding up gross, tax and net income.",
@@ -134,12 +134,12 @@ export const pages: Record<PageKey, PageSeo> = {
     path: "/sitemap",
     title: "Sitemap",
     description:
-      "Every page of the Tax Calculator website in one place. Open a page, copy its link or scan a QR code to share it.",
+      "The calculators of FindTaxCalculator.com in one place. Open a page, copy its link or scan a QR code to share it.",
     h1: "Sitemap",
-    lead: "Every page of the site in one place. Open it, copy its link or scan its QR code.",
-    socialImageText: "All pages of the site in one place",
-    keywords: ["Tax Calculator sitemap", "Pakistan tax calculator pages"],
-    sitemap: { priority: 0.3, changeFrequency: "monthly", lastModified: "2026-11-25" },
+    lead: "Our calculators in one place. Open one, copy its link or scan its QR code.",
+    socialImageText: "Our calculators in one place",
+    keywords: ["FindTaxCalculator sitemap", "Pakistan tax calculator pages"],
+    sitemap: { priority: 0.3, changeFrequency: "monthly", lastModified: "2026-11-28" },
     navLabel: "Sitemap",
   },
 };

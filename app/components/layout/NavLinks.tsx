@@ -11,6 +11,8 @@ const links = [
   { label: "Official sources", href: "#resources" },
 ];
 
+const calculatorPaths: string[] = [pages.home.path, pages.multiYear.path];
+
 /** Main navigation. Only this part is a client component, to mark the current page. */
 export default function NavLinks({ label }: { label: string }) {
   const pathname = usePathname();
@@ -19,8 +21,9 @@ export default function NavLinks({ label }: { label: string }) {
       {links.map((link) => {
         const isPage = link.href.startsWith("/");
         const current = isPage && pathname === link.href;
-        // Anchor links stay on the current page.
-        const href = isPage ? link.href : `${pathname}${link.href}`;
+        // Anchor links stay on a calculator page; other pages have no such section, so they go home.
+        const base = calculatorPaths.includes(pathname) ? pathname : pages.home.path;
+        const href = isPage ? link.href : `${base}${link.href}`;
         return (
           <Link key={link.label} href={href} aria-current={current ? "page" : undefined}>
             {link.label}

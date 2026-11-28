@@ -64,6 +64,7 @@ export default function TaxSlabsSection() {
   const [selectedYear, setSelectedYear] = useState<FiscalYear>("2026");
   const slabs = getSlabsForYear(selectedYear);
   const isEarlier = earlierYears.includes(selectedYear);
+  const { surcharge } = TAX_RULES[selectedYear];
 
   return (
     <section className="fx-section fx-data fx-data-slabs" id="tax-slabs" aria-labelledby="tax-slabs-title">
@@ -128,8 +129,10 @@ export default function TaxSlabsSection() {
         </div>
 
         <p className="tax-table-footnote fx-rise">
-          Salaried-person rates shown for the selected fiscal year. Review official FBR guidance for your
-          individual circumstances.
+          Salaried-person rates shown for the selected fiscal year.
+          {surcharge > 0 &&
+            ` A surcharge of ${Math.round(surcharge * 100)}% of the tax also applies when annual taxable income is above Rs.\u00a010,000,000.`}{" "}
+          Review official FBR guidance for your individual circumstances.
         </p>
       </div>
     </section>
